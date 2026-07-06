@@ -82,7 +82,7 @@ const I18N={
           <p class="warn" style="font-size:12px;margin:4px 0 0">⚠ Mémo <b>TEXT</b> obligatoire — un mémo absent ou de mauvais type = dépôt mal attribué, <b>fonds perdus</b>.</p>
         </div>
       </div>
-      <p><b>Non signé = rien ne bouge.</b> Créer des intents réserve l'Available, mais les fonds restent dans ton wallet ; la réservation se libère seule en ~10&nbsp;min.</p>
+      <p><b>Non signé = rien ne bouge.</b> Créer des intents <b>S→B</b> réserve l'Available (un intent B→S ne réserve pas) ; les fonds restent dans ton wallet, et la réservation S→B se libère seule en ~10&nbsp;min.</p>
       <p><b>Réduire les frais.</b> Le <b>découpage</b> baisse déjà le coût (convexité : tranches plus petites = % plus bas). Frais élevés = hub bas : il se recharge <b>par seuil</b> (empressé côté Stellar, paresseux côté Base), pas à heure fixe — régénère une fois la liquidité revenue. Le tarif est <b>figé à la création</b>.</p>
       <p><b>Suivre.</b> Le bouton « Suivre le bridge » sous chaque lot interroge le statut de chaque tranche (dépôt → livraison) toutes les 5&nbsp;s. Les intents expirent <b>~10&nbsp;min</b> après leur création.</p>`,
     h2Addresses:"Adresses",
@@ -95,7 +95,7 @@ const I18N={
     modelLi4:"Routes : le niveau base% <b>et</b> la montée diffèrent (B→S ~0,09 &lt; S→B ~0,12 %) → <b>une surface par route</b>, mesurée séparément pour projeter max et coût probable. Validé : <b>max ≤0,03 €</b> / 16 séries réelles — jamais optimiste ; le <b>min</b> est un devis <b>dryrun réel</b> (exact, pas une projection).",
     modelLi5:"<b>Frais figés à la création</b> et honorés à la livraison — vérifié dans les 2 sens (03/07/2026).",
     h3Bridge:"Le bridge en bref",
-    pBridge:`Rozo transfère de l'<b>EURC entre Base et Stellar</b> via des <b>intents</b>. Chaque sens a un <b>hub</b> (compte à liquidité) sur la <b>chaîne de réception</b> : il avance les fonds et se fait rembourser côté départ. <b>Créer un intent réserve</b> la liquidité du hub ~10&nbsp;min (elle se libère seule si tu ne signes pas). Le <b>frais est figé à la création</b> et honoré à la livraison, dans les deux sens. Pas de bridge « atomique » : <b>N tranches = N transactions</b> à signer.`,
+    pBridge:`Rozo transfère de l'<b>EURC entre Base et Stellar</b> via des <b>intents</b>. Chaque sens a un <b>hub</b> (compte à liquidité) sur la <b>chaîne de réception</b> : il avance les fonds et se fait rembourser côté départ. <b>Créer un intent S→B réserve</b> la liquidité du hub ~10&nbsp;min (elle se libère seule si tu ne signes pas) ; un intent <b>B→S</b> fige le frais mais ne réserve pas. Le <b>frais est figé à la création</b> et honoré à la livraison, dans les deux sens. Pas de bridge « atomique » : <b>N tranches = N transactions</b> à signer.`,
     h3Calc:"Ce que l'outil affiche",
     pCalc:`Tu saisis un montant (<b>reçu</b> ou <b>envoyé</b>) ; l'outil interroge l'API en <b>dryrun</b> (aucune réservation) et affiche :<ul><li>pour un <b>envoi unique</b>, une tuile <b>COÛT</b> — chiffre <b>exact</b>, un devis dryrun réel, au centime ;</li><li>pour un <b>découpage</b> en n tranches, une tuile <b>COÛT PROBABLE</b> (≈) + une <b>FOURCHETTE min – max</b> : le <b>min est exact</b> (n devis dryrun sommés = le frais réel facturé), le <b>max</b> reste une estimation (surface mesurée, cap 0,50 %) — le réel se situe entre les deux, proche du min à peu de tranches ;</li><li>un <b>tableau des découpages</b> qui se remplit <b>tranche par tranche</b> : chaque ligne affiche <b>« … »</b> puis son frais exact dès que son dryrun répond, tranches infaisables grisées.</li></ul>La <b>reco</b> = le plus petit découpage qui capte <b>≥90 %</b> de l'économie possible (au-delà, on gagne des centimes contre des signatures en plus). Le devis n'engage à rien (aucune réservation) ; <b>« Générer »</b> crée les intents et fige les <b>mêmes chiffres exacts</b>.`,
     h3Src:"D'où viennent les chiffres",
@@ -123,7 +123,7 @@ const I18N={
     b2sSignBtn:"signer", b2sJsonBtn:"JSON",
     trackBtn:"🔎 Suivre le bridge",
     trackHide:"🔎 Masquer le suivi",
-    splitEstimateNote:"Estimations — seule la <b>génération d'intents</b> donne les valeurs réelles et réserve la liquidité.",
+    splitEstimateNote:"Estimations — seule la <b>génération d'intents</b> donne les valeurs réelles (et réserve la liquidité en S→B).",
     s2bFloatWarn:(t,l)=>`<div class="alert"><span class="ico">⚠</span><span>Total livré <b>${eur(t)}</b> &gt; float Base <b>${eur(l)}</b> : les derniers fills peuvent être remboursés. <b>Attends la recharge</b> du hub ou réduis le montant.</span></div>`,
     s2bTableHead:["#","envoie (EURC)","mémo (TEXT)","reçu Base","frais","expire","signer / copier"],
     s2bSignBtn:"signer", s2bCopyBtn:"copier",
@@ -204,7 +204,7 @@ const I18N={
           <p class="warn" style="font-size:12px;margin:4px 0 0">⚠ <b>TEXT</b> memo mandatory — a missing or wrong-type memo means the deposit is misattributed and <b>funds are lost</b>.</p>
         </div>
       </div>
-      <p><b>Unsigned = nothing moves.</b> Creating intents reserves the Available, but funds stay in your wallet; the reservation releases itself in ~10&nbsp;min.</p>
+      <p><b>Unsigned = nothing moves.</b> Creating <b>S→B</b> intents reserves the Available (a B→S intent does not); funds stay in your wallet, and the S→B reservation releases itself in ~10&nbsp;min.</p>
       <p><b>Lowering fees.</b> <b>Splitting</b> already lowers the cost (convexity: smaller chunks = lower %). High fees = low hub: it refills <b>by threshold</b> (eager on Stellar, lazy on Base), not on a clock — regenerate once liquidity is back. The rate is <b>frozen at creation</b>.</p>
       <p><b>Track.</b> The "Track the bridge" button under each batch polls the status of every chunk (deposit → delivery) every 5&nbsp;s. Intents expire <b>~10&nbsp;min</b> after creation.</p>`,
     h2Addresses:"Addresses",
@@ -217,7 +217,7 @@ const I18N={
     modelLi4:"Routes: the base% level <b>and</b> the climb differ (B→S ~0.09 &lt; S→B ~0.12%) → <b>one surface per route</b>, measured separately to project max and likely cost. Validated: <b>max ≤0.03€</b> / 16 real series — never optimistic; the <b>min</b> is a real <b>dryrun quote</b> (exact, not a projection).",
     modelLi5:"<b>Fees frozen at creation</b> and honored at delivery — verified in both directions (2026-07-03).",
     h3Bridge:"The bridge in brief",
-    pBridge:`Rozo moves <b>EURC between Base and Stellar</b> through <b>intents</b>. Each direction has a <b>hub</b> (a liquidity account) on the <b>receiving chain</b>: it fronts the funds and is reimbursed on the source side. <b>Creating an intent reserves</b> the hub's liquidity for ~10&nbsp;min (it releases itself if you don't sign). The <b>fee is frozen at creation</b> and honored at delivery, both ways. No “atomic” bridge: <b>N chunks = N transactions</b> to sign.`,
+    pBridge:`Rozo moves <b>EURC between Base and Stellar</b> through <b>intents</b>. Each direction has a <b>hub</b> (a liquidity account) on the <b>receiving chain</b>: it fronts the funds and is reimbursed on the source side. <b>Creating an S→B intent reserves</b> the hub's liquidity for ~10&nbsp;min (it releases itself if you don't sign); a <b>B→S</b> intent freezes the fee but does not reserve. The <b>fee is frozen at creation</b> and honored at delivery, both ways. No “atomic” bridge: <b>N chunks = N transactions</b> to sign.`,
     h3Calc:"What the tool shows",
     pCalc:`You enter an amount (<b>received</b> or <b>sent</b>); the tool queries the API in <b>dryrun</b> (no reservation) and shows:<ul><li>for a <b>single send</b>, a <b>COST</b> tile — an <b>exact</b>, real dryrun quote, to the cent;</li><li>for a <b>split</b> into n chunks, a <b>LIKELY COST</b> tile (≈) + a <b>min – max RANGE</b>: the <b>min is exact</b> (n dryrun quotes summed = the real fee charged), the <b>max</b> stays an estimate (measured surface, 0.50% cap) — the real value lands between the two, close to the min with few chunks;</li><li>a <b>split table</b> that fills in <b>chunk by chunk</b>: each row shows <b>"…"</b> then its exact fee as soon as its dryrun answers, infeasible chunks greyed out.</li></ul>The <b>recommendation</b> = the smallest split that captures <b>≥90%</b> of the possible saving (beyond that, you gain cents against extra signatures). The quote is non-binding (no reservation); <b>“Generate”</b> creates the intents and locks in the <b>same exact figures</b>.`,
     h3Src:"Where the numbers come from",
@@ -245,7 +245,7 @@ const I18N={
     b2sSignBtn:"sign", b2sJsonBtn:"JSON",
     trackBtn:"🔎 Track the bridge",
     trackHide:"🔎 Hide tracking",
-    splitEstimateNote:"Estimates — only <b>generating intents</b> gives the real values and reserves liquidity.",
+    splitEstimateNote:"Estimates — only <b>generating intents</b> gives the real values (and reserves liquidity on S→B).",
     s2bFloatWarn:(t,l)=>`<div class="alert"><span class="ico">⚠</span><span>Total delivered <b>${eur(t)}</b> &gt; Base float <b>${eur(l)}</b>: the last fills may get refunded. <b>Wait for the hub to refill</b> or reduce the amount.</span></div>`,
     s2bTableHead:["#","send (EURC)","memo (TEXT)","received Base","fee","expires","sign / copy"],
     s2bSignBtn:"sign", s2bCopyBtn:"copy",
@@ -354,8 +354,8 @@ async function ensureChunkFees(dk,T,mode,L,maxN,onFee){
       if(j&&j.source&&!j.error){ e.fees[n]=+j.source.fee; onFee&&onFee(); } } }));
   return e;
 }
-// RÉSERVATION par sens : créer un intent S→B réserve l'Available (drainage → escalade) ; B→S fige le frais mais NE réserve PLUS (vérifié 06/07/2026) → aucun drainage → valeur unique par tranche.
-// REVERT (logique d'origine où B→S escaladait comme S→B) : remettre RESERVES.B2S = true (1 ligne) — ET rétablir le texte pMath/pWhyRange (B2S retrouve une fourchette). Ne PAS retirer la surface B2S de SURF (référence pour ce revert).
+// Reservation per direction: creating an S→B intent reserves the Available (drain → escalation); B→S freezes the fee but NO LONGER reserves it (verified 2026-07-06) → no drain → single value per chunk.
+// REVERT (original logic where B→S escalated like S→B): set RESERVES.B2S = true (one line) — AND restore the pMath/pWhyRange range wording (B2S regains a range). Do NOT remove the B2S surface from SURF (reference for this revert).
 const RESERVES = {S2B:true, B2S:false};
 function simul(){
   const dk=document.getElementById("dir").value, T=+document.getElementById("amt").value;   // repris du devis
@@ -369,7 +369,7 @@ function simul(){
   // Espacé : on crée+signe une tranche à la fois, L se soigne (~10 min) entre → chaque tranche à L0 plein, R=1 (économie réelle).
   // Rapide (batch = ce que genBatch fait) : réservations empilées → L baisse → tranches suivantes plus chères (pire cas série).
   // Surface Campaign E (sweep dryrun, 2 routes, drain complet) : écart agrégé ≤0,04 €/série sur 16 séries mesurées. Cf. fee-study/METHODOLOGIE §6.
-  const KRAP = dk==="S2B" ? 0.70 : 0.85;   // headline rapide = KRAP × worst-case série, ROUTE-SPÉCIFIQUE. S2B=0,70 (décision Romain : le réalisé colle au min, 0,85 était trop haut). B2S=0,85 conservé pour le revert RESERVES.B2S=true, mais SANS EFFET tant que B2S ne réserve pas (ratio=1 → feeWorst≤feeFlat → fee=feeFlat, pas de coût probable). Réalisé = variable ALÉATOIRE (0 à ~0,9 selon le tirage, prouvé 2 routes) : 0,70 couvre moins de tirages que 0,85 — assumé. Seul k=1 serait jamais-optimiste en toutes circonstances.
+  const KRAP = dk==="S2B" ? 0.70 : 0.85;   // fast headline = KRAP × serial worst-case, ROUTE-SPECIFIC. S2B=0.70 (Romain's call: the realized cost hugs the min, 0.85 read too high). B2S=0.85 kept for the RESERVES.B2S=true revert, but INERT while B2S doesn't reserve (ratio=1 → feeWorst≤feeFlat → fee=feeFlat, no likely cost). Realized = RANDOM variable (0 to ~0.9 per draw, proven on 2 routes): 0.70 covers fewer draws than 0.85 — assumed. Only k=1 would be never-optimistic in all cases.
   // NB : une pondération par N (« petit N moins cher ») a été tentée 2× puis DÉFINITIVEMENT retirée — le sweep S2B (03/07) a montré que le « seuil » N vu sur B2S était un échantillon chanceux ; réalisé(N) est non-monotone/aléatoire (N=3→0,90 mais N=5→0). Aucun seuil déterministe. NE PAS re-tenter.
   const cache=(dryCache[dk]||{})[ckey(mode,T)]||{fees:{}};   // frais exacts déjà arrivés (remplissage progressif)
   for(let n=1;n<=splitMax;n++){
@@ -381,7 +381,7 @@ function simul(){
     let fee=0,feeWorst=0,feeFlat=0,recvT=0,sentT=0,ok=true,reserved=0; const chunks=[];
     for(let i=0;i<n;i++){
       const raw=ef;                                                  // base EXACTE (euros), identique pour chaque tranche à L0 plein
-      const ratio=RESERVES[dk]?((s0>0)?surfPct(dk,c,L0-reserved)/s0:1):1;   // forme d'escalade (surface mesurée), sans dimension — forcée à 1 sur un sens qui NE réserve PAS (B→S) : pas de drainage → feeWorst≤feeFlat → valeur unique affichée
+      const ratio=RESERVES[dk]?((s0>0)?surfPct(dk,c,L0-reserved)/s0:1):1;   // escalation shape (measured surface), dimensionless — forced to 1 on a direction that does NOT reserve (B→S): no drain → feeWorst≤feeFlat → single value shown
       const rawW=Math.min(c*SURF.cap/100, raw*ratio);                // pire cas série (euros) ; cap 0,5 % = c·0,005
       const ff=eurCeil(raw), fw=eurCeil(rawW), f=eurCeil(Math.max(raw,KRAP*rawW));   // min = frais exact (Rozo l'arrondit déjà) ; max/probable arrondis cent SUP
       const recv=mode==="exactIn"?c-f:c, sent=mode==="exactIn"?c:c+f;
@@ -430,7 +430,7 @@ function renderReco(best,dk,T,sel){
   if(!best){ el.innerHTML=""; return; }   // aucun découpage faisable → on ne bloque pas : seule l'alerte liquidité non bloquante (#out) subsiste, + le tableau (tranches à choisir)
   const pct=f=>best.sent>0?f/best.sent*100:0;   // % = frais/ENVOYÉ (AUDIT R2)
   const min=best.feeFlat!=null?best.feeFlat:best.fee, max=best.feeWorst!=null?best.feeWorst:best.fee;
-  const head=best.fee!=null?best.fee:min;   // estimation prudente (headline ≈ KRAP×pire cas : 0,70 sur S2B — seul sens à afficher un coût probable), AUDIT R8
+  const head=best.fee!=null?best.fee:min;   // cautious estimate (headline ≈ KRAP×worst case: 0.70 on S2B — the only direction that shows a likely cost), AUDIT R8
   const uncertain=best.n>1&&max>min+0.005;  // frais INCERTAIN (rapide, fourchette réelle) → barre + « ≈/probable » ; sinon frais CERTAIN → on éteint tout ça (#2/#8)
   const recvChain=dk==="B2S"?"Stellar":"Base";
   const plan=best.n===1?(fr?"1 envoi":"1 send"):`${best.n} ${fr?"envois de":"sends of"} ${eur(best.c)} €`;
@@ -439,7 +439,7 @@ function renderReco(best,dk,T,sel){
     ?(fr?"un seul envoi suffit à ce montant":"a single send is enough here")
     :(fr?"plus petit découpage captant ≥90 % de l'économie · moins de signatures":"smallest split capturing ≥90% of the saving · fewer signatures");
   const tipProb=fr?"Estimation prudente = 0,70 × le pire cas (réservations empilées en série). En parallèle le réel tombe en général plus bas ; « Générer » donne le chiffre exact.":"Cautious estimate = 0.70 × the worst case (reservations stacked serially). In parallel the real value usually lands lower; generating gives the exact figure.";
-  const tipCertain=fr?"Frais figé, connu au centime : un seul envoi, sans empilement de réservations.":"Fixed fee, known to the cent: a single send, with no stacked reservations.";
+  const tipCertain=fr?"Frais figé, connu au centime : aucun empilement de réservations ici, le coût ne varie pas.":"Fixed fee, known to the cent: no stacked reservations here, so the cost doesn't vary.";
   const help=t=>`<span class="tip-wrap" tabindex="0"><span class="tip-icon">ⓘ</span><span class="tip-box">${t}</span></span>`;   // tooltip au survol + focus clavier (portal thémé/localisé), remplace title=
   const costTile=uncertain
     ?`<div><span class="k">${fr?"COÛT PROBABLE":"LIKELY COST"} ${help(tipProb)}</span><span class="big num">≈ ${eur(head)} €</span><span class="sub2 num">${pct(head).toFixed(2)} %</span></div>`
