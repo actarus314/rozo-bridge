@@ -357,7 +357,7 @@ function simul(){
   // Espacé : on crée+signe une tranche à la fois, L se soigne (~10 min) entre → chaque tranche à L0 plein, R=1 (économie réelle).
   // Rapide (batch = ce que genBatch fait) : réservations empilées → L baisse → tranches suivantes plus chères (pire cas série).
   // Surface Campaign E (sweep dryrun, 2 routes, drain complet) : écart agrégé ≤0,04 €/série sur 16 séries mesurées. Cf. fee-study/METHODOLOGIE §6.
-  const KRAP = dk==="S2B" ? 0.70 : 0.85;   // headline rapide = KRAP × worst-case série, ROUTE-SPÉCIFIQUE. S2B=0,70 (décision Romain : le réalisé colle au min, 0,85 était trop haut). B2S=0,85 conservé pour le revert RESERVES.B2S=true, mais SANS EFFET tant que B2S ne réserve pas (ratio=1 → feeWorst≤feeFlat → fee=feeFlat, pas de coût probable). Réalisé = variable ALÉATOIRE (0 à ~0,9 selon le tirage, prouvé 2 routes) : 0,70 couvre moins de tirages que 0,85 — assumé. Seul k=1 serait jamais-optimiste en toutes circonstances.
+  const KRAP = dk==="S2B" ? 0.70 : 0.85;   // fast headline = KRAP × serial worst-case, ROUTE-SPECIFIC. S2B=0.70 (Romain's call: the realized cost hugs the min, 0.85 read too high). B2S=0.85 kept for the RESERVES.B2S=true revert, but INERT while B2S doesn't reserve (ratio=1 → feeWorst≤feeFlat → fee=feeFlat, no likely cost). Realized = RANDOM variable (0 to ~0.9 per draw, proven on 2 routes): 0.70 covers fewer draws than 0.85 — assumed. Only k=1 would be never-optimistic in all cases.
   // NB : une pondération par N (« petit N moins cher ») a été tentée 2× puis DÉFINITIVEMENT retirée — le sweep S2B (03/07) a montré que le « seuil » N vu sur B2S était un échantillon chanceux ; réalisé(N) est non-monotone/aléatoire (N=3→0,90 mais N=5→0). Aucun seuil déterministe. NE PAS re-tenter.
   const cache=(dryCache[dk]||{})[ckey(mode,T)]||{fees:{}};   // frais exacts déjà arrivés (remplissage progressif)
   for(let n=1;n<=splitMax;n++){
@@ -418,7 +418,7 @@ function renderReco(best,dk,T,sel){
   if(!best){ el.innerHTML=""; return; }   // aucun découpage faisable → on ne bloque pas : seule l'alerte liquidité non bloquante (#out) subsiste, + le tableau (tranches à choisir)
   const pct=f=>best.sent>0?f/best.sent*100:0;   // % = frais/ENVOYÉ (AUDIT R2)
   const min=best.feeFlat!=null?best.feeFlat:best.fee, max=best.feeWorst!=null?best.feeWorst:best.fee;
-  const head=best.fee!=null?best.fee:min;   // estimation prudente (headline ≈ KRAP×pire cas : 0,70 sur S2B — seul sens à afficher un coût probable), AUDIT R8
+  const head=best.fee!=null?best.fee:min;   // cautious estimate (headline ≈ KRAP×worst case: 0.70 on S2B — the only direction that shows a likely cost), AUDIT R8
   const uncertain=best.n>1&&max>min+0.005;  // frais INCERTAIN (rapide, fourchette réelle) → barre + « ≈/probable » ; sinon frais CERTAIN → on éteint tout ça (#2/#8)
   const recvChain=dk==="B2S"?"Stellar":"Base";
   const plan=best.n===1?(fr?"1 envoi":"1 send"):`${best.n} ${fr?"envois de":"sends of"} ${eur(best.c)} €`;
