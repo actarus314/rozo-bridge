@@ -24,3 +24,5 @@ data/
 # misc
 .DS_Store
 *.log
+*.bak
+*.bak-*

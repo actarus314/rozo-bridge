@@ -1,0 +1,288 @@
+/* ============================================================
+   Rozo Bridge — refonte UI. Palette = projet anyone (slate Tailwind).
+   Thème : :root = SOMBRE (défaut) ; :root.light = CLAIR (classe posée sur <html> par script inline en <head>, anti-FOUC — cf. app.js).
+   ⚠ Noms de variables conservés (--b2s/--s2b/--bd/--card/--chartbg/--chartgrid/--btn/
+   --ok/--warn/--mut/--fg/--bg) car lus par drawChart() et les tables générées en JS.
+   Marques officielles : Base #0000ff (Cerulean #3c8aff en sombre) · Stellar Gold #fdda24.
+   ============================================================ */
+:root{
+  /* ---- SOMBRE (défaut) ---- */
+  --bg:#0f172a; --card:#151c28; --panel2:#1e293b; --bd:#2b3a4e; --bd2:#3f5069;
+  --fg:#f1f5f9; --mut:#94a3b8; --mut2:#8291a6; --heading:#cbd5e1;   /* RC-7 : #6b7a8f ne tenait pas 4.5:1 sur --bg (≈4.1:1) ; #8291a6 ≈5.6:1 */
+  --chartbg:#0f172a; --chartgrid:#1b212b; --btn:#1e293b;
+  --accent:#3b82f6; --on-accent:#ffffff;
+  --cta:#14b8a6; --cta-fg:#04201d;   /* action/validation — vert sarcelle (teal, cf. stellar-swap), distinct du bleu Base */
+  --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444;
+  --b2s:#3c8aff;   /* Base (chart/texte) — Cerulean officiel, lisible en sombre */
+  --s2b:#fdda24;   /* Stellar (chart/texte) — Gold, lisible en sombre */
+  --base:#3c8aff; --base-fg:#04122b; --stellar:#fdda24; --stellar-ink:#0f0f0f;
+  --shadow:0 1px 0 rgba(0,0,0,.25);
+  --r:12px; --r2:8px;
+  --f-num:"SF Mono",ui-monospace,"Cascadia Code",Menlo,monospace;
+  --f-ui:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --accent-dim:color-mix(in srgb,var(--accent) 18%,transparent);
+  --ok-dim:color-mix(in srgb,var(--ok) 15%,transparent);
+  --warn-dim:color-mix(in srgb,var(--warn) 17%,transparent);
+  --sel-dim:color-mix(in srgb,var(--cta) 22%,transparent);   /* ligne de découpage SÉLECTIONNÉE (≠ reco vert) */
+}
+:root.light{
+  --bg:#f1f5f9; --card:#ffffff; --panel2:#f8fafc; --bd:#e2e8f0; --bd2:#cbd5e1;
+  --fg:#0f172a; --mut:#64748b; --mut2:#56667c; --heading:#475569;   /* RC-7 : #94a3b8 ne tenait pas 4.5:1 sur --bg (≈2.3:1) ; #56667c ≈5.3:1, distinct de --mut */
+  --chartbg:#f8fafc; --chartgrid:#eaeef2; --btn:#eaeef2;
+  --accent:#2563eb; --on-accent:#ffffff;
+  --cta:#0d9488; --cta-fg:#ffffff;   /* teal foncé pour texte blanc sur clair */
+  --ok:#16a34a; --warn:#ea7317; --bad:#dc2626;
+  --b2s:#0000ff;   /* Base Blue officiel */
+  --s2b:#a97400;   /* Stellar : gold assombri pour lisibilité sur blanc (chip reste #fdda24) */
+  --base:#0000ff; --base-fg:#ffffff; --stellar:#fdda24; --stellar-ink:#0f0f0f;
+  --shadow:0 1px 2px rgba(16,30,54,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:14px/1.5 var(--f-ui);-webkit-font-smoothing:antialiased}
+.num,.mono,code{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+h1,h2,h3{margin:0;font-weight:640;letter-spacing:-.01em;text-wrap:balance}
+h2{font-size:16px} h3{font-size:14px;color:var(--heading)}
+a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+button{font-family:inherit;cursor:pointer}
+.mut{color:var(--mut)} .mut2{color:var(--mut2)}
+.b2s{color:var(--b2s)} .s2b{color:var(--s2b)} .ok{color:var(--ok)} .warn{color:var(--warn)}
+.big{font-size:22px;font-weight:700;letter-spacing:-.01em}
+.eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--mut2);font-weight:600}
+.pill{display:inline-block;padding:1px 8px;border-radius:99px;background:var(--panel2);border:1px solid var(--bd);font-size:12px}
+
+/* ---- top bar ---- */
+.topbar{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:14px;padding:9px 20px;flex-wrap:wrap}
+.brand{font-weight:680;letter-spacing:-.02em;display:flex;align-items:center;gap:9px;font-size:15px;cursor:pointer}
+.brand:hover{opacity:.8}
+.brand .dot{width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,var(--stellar),var(--base))}
+.brand .brandlogo{width:22px;height:22px;border-radius:6px;object-fit:cover}
+.blk{margin-top:16px}
+.morebtn{text-align:center;margin-top:10px}
+.morebtn button{background:none;border:1px solid var(--bd2);color:var(--mut);border-radius:8px;padding:6px 16px;font-size:12.5px;font-weight:600}
+.morebtn button:hover{color:var(--fg);border-color:var(--mut)}
+.nav{display:flex;gap:3px;background:var(--panel2);border:1px solid var(--bd);border-radius:10px;padding:3px;margin-left:6px}
+.nav button{background:none;border:0;color:var(--mut);padding:7px 15px;border-radius:7px;font-size:13px;font-weight:600}
+.nav button.on{background:color-mix(in srgb,var(--cta) 15%,transparent);color:var(--cta)}
+.spacer{margin-left:auto}
+.wallets{display:flex;gap:8px}
+.wbtn{display:inline-flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--bd2);border-radius:8px;padding:6px 11px;font-size:12.5px;font-weight:600;color:var(--fg)}
+.wbtn .d{width:7px;height:7px;border-radius:50%;background:var(--mut2);flex:none}
+.wbtn.on .d{background:var(--ok)} .wbtn.on{border-color:color-mix(in srgb,var(--ok) 45%,var(--bd2))}
+.wbtn .st{color:var(--mut2);font-weight:500;font-size:11px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.toggle{display:inline-flex;background:var(--panel2);border:1px solid var(--bd);border-radius:8px;padding:2px}
+.toggle button{background:none;border:0;color:var(--mut);padding:5px 10px;border-radius:6px;font-size:12px;font-weight:600}
+.toggle button.on{background:var(--card);color:var(--fg);box-shadow:var(--shadow)}
+
+/* ---- pages / sections ---- */
+.stage{max-width:960px;margin:0 auto;padding:24px 22px 90px}
+.page{display:none}.page.on{display:block}
+.sectlabel{display:flex;align-items:center;gap:8px;margin:24px 2px 10px}
+.sectlabel .n{width:20px;height:20px;border-radius:50%;background:var(--panel2);border:1px solid var(--bd2);display:grid;place-items:center;font-size:11px;color:var(--mut);font-weight:700;flex:none}
+.sectlabel .hint{margin-left:auto;font-size:11.5px;color:var(--mut2)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--shadow)}
+.pad{padding:16px 18px}
+
+/* ---- chips de marque (remplis, contraste garanti) ---- */
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;line-height:1.3}
+.chip.s{color:var(--stellar-ink);background:var(--stellar)}
+.chip.b{color:var(--base-fg);background:var(--base)}
+.chip .logo{width:12px;height:11px;flex:none}
+.chip.b .sq{width:9px;height:9px;border-radius:2px;background:currentColor;flex:none}
+.dirflow{display:inline-flex;align-items:center;gap:8px;font-weight:600}
+.dirflow .arw{color:var(--mut2)}
+
+/* ---- boutons / inputs ---- */
+.btn{background:var(--cta);color:var(--cta-fg);border:0;border-radius:var(--r2);padding:11px 18px;font-weight:680;font-size:14px}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--bd2)}
+.btn.sm{padding:6px 12px;font-size:12.5px;font-weight:600;border-radius:6px}
+input,select{font:inherit;background:var(--card);color:var(--fg);border:1px solid var(--bd2);border-radius:8px;padding:8px 10px}
+select{cursor:pointer}
+button.plain{background:var(--btn);color:var(--fg);border:1px solid var(--bd);border-radius:8px;padding:7px 11px;font-size:12.5px;font-weight:600}
+button.plain:hover{border-color:var(--mut)}
+
+/* ---- liquidité duale (cliquable) ---- */
+.liq{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.liq .cell{padding:14px 16px;border-right:1px solid var(--bd);cursor:pointer;position:relative;opacity:.4;transition:opacity .15s}
+.liq .cell:last-child{border-right:0}
+.liq .cell.active{opacity:1;background:color-mix(in srgb,var(--accent) 7%,transparent)}   /* sens non utilisé = éclairage baissé */
+.liq .cell.active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+.liq .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.liq .k{font-size:11px;color:var(--mut2)}
+.liq .v{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.liq .v.match{color:var(--ok)} .liq .v.diff{color:var(--warn)}
+.splitnote{font-size:11px;line-height:1.35;flex:1;min-width:0}   /* #2 : note d'estimation sur la même ligne que le bouton Générer (n'agrandit pas le tableau) */
+.splitnote b{color:var(--fg)}
+.liq .chain{font-size:11.5px;color:var(--mut);margin-top:5px}
+.liq .chain a{color:var(--mut)} .liq .chain b{color:var(--fg);font-weight:600}
+.liq .chain a:hover{color:var(--cta)} .liq .chain a:hover b{color:var(--cta)}
+.liq .pick{font-size:10.5px;color:var(--mut2);font-weight:600}
+.liq .cell.active .pick{color:var(--accent)}
+
+/* ---- montant + reco (fusion) ---- */
+/* deux blocs entrée/sortie sur une ligne + sélecteur de sens au milieu (flip au clic) */
+.io{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;margin-bottom:18px}
+.amtbox{flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:4px;background:var(--bg);border:1px solid var(--bd2);border-radius:10px;padding:10px 14px}
+.amtbox .lbl{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--mut2);font-weight:600}
+.amtbox .row{display:flex;align-items:baseline;gap:8px}
+.amtbox input{flex:1;min-width:0;background:none;border:0;color:var(--fg);font-family:var(--f-num);font-size:24px;font-weight:640;width:100%;letter-spacing:-.02em;padding:0}
+.amtbox .cur{color:var(--mut);font-weight:600;flex:none}
+/* sélecteur de sens : pas de bloc, deux cartouches côte à côte + flèche à sens unique, flip au clic */
+.dirbtn{flex:none;align-self:center;display:inline-flex;flex-direction:row;align-items:center;gap:8px;background:none;border:0;padding:2px 4px;cursor:pointer;color:var(--fg)}
+.dirbtn .arw{color:var(--mut2);font-size:18px;line-height:1;transition:color .12s}
+.dirbtn:hover .arw{color:var(--cta)}
+@media(max-width:520px){.amtbox{flex:1 1 100%}.dirbtn{align-self:center}}
+#reco .plan{font-size:26px;font-weight:700;letter-spacing:-.02em;margin:2px 0 2px}
+#reco .sub{color:var(--mut);font-size:13px}
+#reco .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:16px 0 6px;padding:16px 0;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd)}
+#reco .grid.two{grid-template-columns:repeat(2,minmax(0,1fr));max-width:560px}
+#reco .grid .k{font-size:11px;color:var(--mut2);letter-spacing:.03em;display:inline-flex;align-items:center;gap:5px}
+#reco .grid .k .help{font-size:11px}
+#reco .grid .big{display:block}
+#reco .grid .sub2{font-size:12px;color:var(--mut)}
+
+/* ---- fourchette min/max + zone probable ---- */
+.range{--lo:0%;--hi:100%;--pmax:24%;position:relative;height:44px;margin:14px 0 18px}
+.range .track{position:absolute;top:20px;left:0;right:0;height:6px;border-radius:3px;background:var(--panel2);border:1px solid var(--bd)}
+.range .band{position:absolute;top:20px;height:6px;border-radius:3px;left:var(--lo);right:calc(100% - var(--hi));background:linear-gradient(90deg,var(--ok),var(--warn))}
+.range .prob{position:absolute;top:16px;height:14px;border-radius:4px;left:var(--lo);right:calc(100% - var(--pmax));background:color-mix(in srgb,var(--ok) 26%,transparent);border:1px solid color-mix(in srgb,var(--ok) 55%,transparent)}
+.range .cap{position:absolute;top:15px;width:2px;height:16px;border-radius:2px;background:var(--fg);opacity:.5}
+.range .cap.lo{left:var(--lo)}.range .cap.hi{left:var(--hi)}
+/* point = position du "coût probable" (headline) sur la barre */
+.range .dot{position:absolute;top:13px;left:var(--pmax);width:12px;height:12px;border-radius:50%;background:var(--ok);border:2px solid var(--card);box-shadow:0 0 0 1px color-mix(in srgb,var(--ok) 60%,transparent);transform:translateX(-50%)}
+.range .lbl{position:absolute;bottom:-2px;font-size:10.5px;color:var(--mut2);white-space:nowrap}
+.range .lbl.lo{left:0;transform:none}
+.range .lbl.hi{left:100%;transform:translateX(-100%)}
+.range .lbl.mid{left:var(--pmax);top:-13px;bottom:auto;transform:translateX(-50%);color:var(--ok);font-weight:700}   /* A1 : coût probable au-dessus du point */
+.range .lbl b{color:var(--fg)}
+/* #1 : au survol, la zone probable passe en COULEUR PLEINE (le reste de la barre reste normal) → montre que le tooltip vise la zone probable, pas la barre entière */
+.range .prob{transition:background .15s,border-color .15s}
+.range .prob:hover{background:var(--ok);border-color:var(--ok)}
+
+/* (mode espacé supprimé — toggle segmenté .seg/.tblhead retirés) */
+.help{color:var(--mut2);cursor:help;font-weight:400}
+/* ---- tooltips au survol (contenu direct, thème + langue) — calqué sur stellar-swap "Confiance".
+   .tip-box = source de contenu (cachée) ; rendu via #tipPortal en position:fixed → échappe au
+   clipping overflow des tables et passe au-dessus du sticky. Thème via variables CSS. ---- */
+.tip-wrap{position:relative;display:inline-flex;align-items:center;cursor:help}
+.tip-wrap .tip-icon{font-size:11px;color:var(--mut2);margin-left:4px;font-weight:400}
+.tip-wrap .tip-box{display:none}
+#tipPortal{position:fixed;z-index:99999;display:none;width:max-content;max-width:300px;
+  background:var(--fg);color:var(--bg);border-radius:8px;   /* thème INVERSÉ (lisibilité) — cf. stellar-swap "Confiance" */
+  padding:9px 12px;font-size:12px;font-weight:400;line-height:1.5;letter-spacing:0;text-transform:none;
+  box-shadow:0 10px 30px rgba(0,0,0,.35);pointer-events:none}
+#tipPortal b{color:inherit;font-weight:640}   /* héritage du texte inversé */
+.maxbtn{flex:none;background:var(--panel2);border:1px solid var(--bd2);color:var(--mut);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;letter-spacing:.02em;cursor:pointer;text-transform:uppercase}
+.maxbtn:hover{color:var(--cta);border-color:var(--cta)}
+.gen{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px}
+.gen #genbtn{margin-left:auto}   /* bouton poussé à droite, la note occupe la place à gauche */
+
+/* ---- intents générés : en-tête propre + réservation de liquidité ---- */
+/* lots empilés (#15/#16) : une carte repliable <details> par lot, source unique = window._batches */
+.bcard{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:12px}
+.bcard>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px}
+.bcard>summary::-webkit-details-marker{display:none}
+.bcard>summary::before{content:"▸";color:var(--mut2);font-size:12px;transition:transform .15s;flex:none}
+.bcard[open]>summary::before{transform:rotate(90deg)}
+.bcard>summary:hover{background:var(--panel2)}
+.bcard .bsum{font-size:12.5px;color:var(--mut)}
+.bcard .bsum b{color:var(--fg)}
+.bcard .bbadge{margin-left:auto;font-size:11px;font-weight:700;color:var(--cta);background:color-mix(in srgb,var(--cta) 14%,transparent);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.bcard .bbadge.g{color:var(--ok);background:var(--ok-dim)}
+.bcard .bbadge.o{color:var(--warn);background:var(--warn-dim)}
+.bcard .bbadge.r{color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
+.bcard .bbadge.exp{color:#fff;background:#000}                 /* D5 : expiré = noir/blanc */
+.bcard.expired .bbody{opacity:.55}                            /* D5 : corps grisé mais lisible au dépliage */
+.bcard.expired>summary{opacity:.7}
+.bcard .bbody{padding:0 16px 16px}
+.bcard .path{font-size:11.5px;color:var(--mut);font-family:var(--f-num);margin:2px 0 4px}
+.bcard .trackfoot{margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);display:flex}   /* #5 : le bouton de suivi dans un pied séparé (plus « dans le vide ») */
+.bcard .trkpanel:not(:empty){margin-top:10px}
+.reserved{font-size:12px;color:var(--mut);background:var(--panel2);border:1px solid var(--bd);border-radius:8px;padding:8px 11px;margin:8px 0;display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+.reserved b{color:var(--fg)}
+.reserved .ico{color:var(--warn);flex:none}
+
+/* ---- alertes (liquidité insuffisante, frais élevés) : présentation unifiée ---- */
+.alert{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.55;
+  background:var(--warn-dim);border:1px solid color-mix(in srgb,var(--warn) 40%,var(--bd));
+  border-radius:9px;padding:10px 13px;margin:10px 0;color:var(--fg)}
+.alert .ico{color:var(--warn);flex:none;font-weight:700;font-size:14px;line-height:1.3}
+.alert b{color:var(--fg);font-weight:640}
+.alert.bad{background:var(--warn-dim);border-color:color-mix(in srgb,var(--bad) 45%,var(--bd))}
+.alert.bad .ico{color:var(--bad)}
+
+/* ---- tables (générées par JS) ---- */
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut2);font-weight:600;text-align:right;padding:8px 10px;border-bottom:1px solid var(--bd)}
+th:first-child,td:first-child{text-align:left}
+td{padding:8px 10px;border-bottom:1px solid var(--bd);text-align:right}
+tr:last-child td{border-bottom:0}
+tr[onclick]{cursor:pointer} tr[onclick]:hover td{background:var(--panel2)}
+/* lignes surbrillées : recommandé (vert) / sélectionné (teal) — le survol FONCE la teinte au lieu de l'effacer */
+tr.recorow td{background:var(--ok-dim)}
+tr.selrow td{background:var(--sel-dim)}
+tr.recorow:hover td{background:color-mix(in srgb,var(--ok) 30%,transparent)}
+tr.selrow:hover td{background:color-mix(in srgb,var(--cta) 34%,transparent)}
+.mono{font-size:12.5px}
+
+/* ---- sûreté / notes ---- */
+.safe{font-size:11.5px;color:var(--mut);display:flex;gap:7px;align-items:flex-start;margin-top:10px;padding:9px 12px;background:var(--panel2);border-radius:8px;border:1px solid var(--bd)}
+.safe b{color:var(--fg)}
+
+/* ---- tx générées : expiration + ligne de total ---- */
+.tblwrap{overflow-x:auto}
+/* ---- chargement : overlay (graphe + cartouches liquidité) + spinner de ligne (tableau progressif) ---- */
+@keyframes spin{to{transform:rotate(360deg)}}
+.minispin{display:inline-block;width:12px;height:12px;border:2px solid var(--bd2);border-top-color:var(--mut);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px}
+.loadrow td{opacity:.7}
+.loader-ov{position:absolute;inset:0;z-index:6;border-radius:inherit;background:color-mix(in srgb,var(--card) 90%,transparent);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;padding:18px;text-align:center}
+.loader-ov .spin{width:26px;height:26px;border:3px solid var(--bd2);border-top-color:var(--fg);border-radius:50%;animation:spin .7s linear infinite}
+.loader-ov .lbl{font-size:13px;color:var(--heading);font-weight:600;max-width:300px;line-height:1.45}
+.loader-ov .bar{width:min(260px,72%);height:6px;border-radius:3px;background:var(--panel2);overflow:hidden}
+.loader-ov .bar i{display:block;height:100%;width:0;background:var(--fg);border-radius:3px;transition:width .25s ease}
+.loader-ov .cnt{font-size:11.5px;color:var(--mut2);font-variant-numeric:tabular-nums}
+.exp{color:var(--mut)}
+.exp.o{color:var(--warn);font-weight:600}      /* D4 : 2-5 min restantes */
+.exp.r{color:var(--bad);font-weight:700}       /* D4 : <2 min restantes */
+.totrow td{border-top:2px solid var(--bd2)}
+
+/* ---- suivi (trackBridge) : une ligne par tranche ---- */
+.trk{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--bd)}
+.trk:last-child{border-bottom:0}
+.trk .ic{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;flex:none;background:var(--panel2);color:var(--mut2)}
+.trk.done .ic{background:var(--ok-dim);color:var(--ok)}
+.trk.live .ic{background:var(--accent-dim);color:var(--accent)}
+.trk.warn .ic{background:var(--warn-dim);color:var(--warn)}
+.trk .n{color:var(--mut2);font-size:11px;width:18px;flex:none}
+.trk .lk{font-size:12px;color:var(--mut)}
+.trk .lk a{color:inherit}
+.trk .status{margin-left:auto;font-size:12px;font-weight:600}
+
+/* ---- documentation (référence technique groupée) ---- */
+.doc .lead{font-size:15px;color:var(--fg);margin:6px 0 2px}
+.docgroup{display:flex;align-items:center;gap:12px;margin:36px 0 4px}
+.docgroup h2{font-size:19px;color:var(--fg);margin:0;flex:none}
+.docgroup .rule{flex:1;height:1px;background:var(--bd)}
+.doc h3.docsub{font-size:15px;color:var(--fg);font-weight:640;margin:22px 0 8px}
+.doc p{color:var(--mut);margin:10px 0;line-height:1.65}   /* max-width retiré : les paragraphes utilisent toute la largeur (plus de coupure prématurée) */
+.doc .formula{font-family:var(--f-num);background:var(--panel2);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;color:var(--fg);font-size:13.5px;margin:10px 0;line-height:1.7}
+.doc ul{color:var(--mut);margin:8px 0;padding-left:18px}.doc li{margin:7px 0;line-height:1.6}
+/* bloc "signer & suivre" : deux cartes par sens + encarts aérés */
+.doc .signblock{margin-top:10px}
+.doc .signblock .grid2{margin:10px 0}
+.doc .signblock ul{margin:8px 0 0;padding-left:16px}
+.doc .signblock .eyebrow{letter-spacing:.04em}
+.doc .signblock code{white-space:nowrap}
+.doc .addrs{display:grid;gap:10px;margin-top:8px}
+.doc .addrs a{color:var(--fg)} .doc .addrs a:hover{color:var(--cta)}
+.doc b{color:var(--fg);font-weight:640}
+.doc .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+.doc .grid2>*{min-width:0}   /* laisse le .tblwrap interne rétrécir/scroller au lieu de déborder la grille (mobile) */
+.doc code{background:var(--panel2);padding:1px 5px;border-radius:4px;font-size:12.5px}
+canvas{width:100%;height:auto;background:var(--chartbg);border-radius:8px;border:1px solid var(--bd);margin-top:4px}
+
+@media(max-width:720px){
+  #reco .grid{grid-template-columns:1fr}
+  .liq,.doc .grid2{grid-template-columns:minmax(0,1fr)}   /* minmax(0,…) : la piste peut rétrécir sous son min-content → le .tblwrap interne scrolle au lieu de déborder */
+  .liq .cell{border-right:0;border-bottom:1px solid var(--bd)}
+}

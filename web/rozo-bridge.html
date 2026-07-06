@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rozo Bridge EURC Base ⇄ Stellar — coût, liquidité, modèle</title>
+<!-- anti-FOUC : classe posée sur <html> avant le 1er paint (CSS lit :root.light) — cf. toggleTheme()/persistance en fin d'app.js -->
+<script>try{if(localStorage.getItem("rozoTheme")!=="dark")document.documentElement.classList.add("light")}catch(e){}</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<!-- sprite : symbole Stellar officiel (pack presse, 2 swooshes) — hérite currentColor -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="stellar-mark" viewBox="0 0 187 161">
+<path d="M93.29,0C103.93,0,114.23,2.1,123.97,6.22c5.17,2.19,10.13,4.98,14.74,8.24l-.98.52-12.65,6.48c-9.66-5.41-20.64-8.24-31.79-8.24h-.51c-8.59.09-16.97,1.8-24.87,5.11-7.91,3.35-15,8.11-21.07,14.21-12.39,12.49-19.23,29.06-19.23,46.65,0,2.88.17,5.75.56,8.63l.13.9.81-.43,109.19-55.92,22.61-11.59,25.6-13.13v14.85l-26.37,13.52-12.95,6.61-115.09,59.02-.51.3-5.9,3.01-5.98,3.05v-.04l-.56.26L0,118.03v-14.85l6.5-3.3c5.43-2.79,8.68-8.54,8.21-14.68-.13-2.02-.21-4.03-.21-6.05,0-10.69,2.09-21.07,6.2-30.86,3.97-9.44,9.66-17.9,16.88-25.19,7.22-7.25,15.64-13,25.04-17C72.31,2.1,82.65,0,93.29,0Z"/>
+<path d="M186.54,42.36v14.85l-6.5,3.3c-5.43,2.79-8.68,8.54-8.21,14.68.17,2.02.21,4.08.21,6.09,0,10.69-2.09,21.07-6.2,30.86-3.97,9.44-9.66,17.9-16.88,25.19-7.22,7.3-15.68,13.01-25.04,17-9.7,4.12-20.04,6.22-30.68,6.22s-20.94-2.1-30.68-6.22c-5.21-2.23-10.17-5.02-14.79-8.28l13.08-6.7.51-.26c9.66,5.41,20.68,8.28,31.88,8.28h.47c8.59-.04,16.97-1.76,24.87-5.11,7.91-3.35,15-8.11,21.07-14.21,12.39-12.45,19.23-29.06,19.23-46.65,0-2.88-.17-5.79-.56-8.67l-.13-.9-.81.43-109.27,55.84-22.61,11.59L0,152.75v-14.85l26.28-13.48,12.95-6.61L186.54,42.36Z"/>
+</symbol></svg>
+
+<!-- barre du haut -->
+<div class="topbar">
+  <div class="brand" id="brandBtn" onclick="goHome()" title="Retour à l'accueil"><img src="assets/rozo-logo.png" alt="Rozo" class="brandlogo">Rozo Bridge</div>
+  <div class="nav">
+    <button class="on" onclick="showPage('tool',this)"><span id="navTool">Bridge</span></button>
+    <button onclick="showPage('doc',this)"><span id="navDoc">Documentation</span></button>
+  </div>
+  <button id="btnRefresh" class="plain" onclick="refresh()" title="Rafraîchir">↻</button>
+  <span id="ts" class="mut2" style="font-size:11.5px"></span>
+  <div class="spacer"></div>
+  <div class="wallets">
+    <button class="wbtn" onclick="window.evmToggle&&evmToggle()"><span class="d"></span><span class="chip b"><span class="sq"></span>Base</span><span id="evmStatus" class="st">non connecté</span></button>
+    <button class="wbtn" onclick="window.stellarToggle&&stellarToggle()"><span class="d"></span><span class="chip s"><svg class="logo"><use href="#stellar-mark"/></svg>Stellar</span><span id="sStatus" class="st">non connecté</span></button>
+  </div>
+  <button id="lang" class="plain" onclick="toggleLang()">FR</button>
+  <button id="theme" class="plain" onclick="toggleTheme()">☾ sombre</button>
+</div>
+
+<div class="stage">
+
+<!-- ==================== OUTIL ==================== -->
+<section id="tool" class="page on">
+
+  <!-- Liquidité duale (cliquable) -->
+  <div class="card liq">
+    <div class="cell" data-dir="S2B" onclick="setDir('S2B')" role="button" tabindex="0" onkeydown="cellKey(event,'S2B')">
+      <div class="top"><span class="dirflow"><span class="chip s"><svg class="logo"><use href="#stellar-mark"/></svg>Stellar</span><span class="arw">→</span><span class="chip b"><span class="sq"></span>Base</span></span></div>
+      <div class="k" id="thLiqAvail">Liquidité disponible API Rozo</div><div class="v num" id="liqS">…</div>
+      <div class="chain"><span id="thOnchain">Vérification on-chain</span> : <a id="hubBaseA" href="https://basescan.org/address/0x05c84533299625df3aCe2215742124c1644e2705" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Hub Base sur BaseScan"><b class="num" id="chS">…</b> ↗</a></div>
+    </div>
+    <div class="cell" data-dir="B2S" onclick="setDir('B2S')" role="button" tabindex="0" onkeydown="cellKey(event,'B2S')">
+      <div class="top"><span class="dirflow"><span class="chip b"><span class="sq"></span>Base</span><span class="arw">→</span><span class="chip s"><svg class="logo"><use href="#stellar-mark"/></svg>Stellar</span></span></div>
+      <div class="k" id="thLiqAvail2">Liquidité disponible API Rozo</div><div class="v num" id="liqB">…</div>
+      <div class="chain"><span id="thOnchain2">Vérification on-chain</span> : <a id="hubStellarA" href="https://stellar.expert/explorer/public/account/GB4CLV3UMXDPFP5OQJQKUCWPRJXPXPJSHTUKZEJLAIZFZR7UHYAQ6EB4" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Hub Stellar sur stellar.expert"><b class="num" id="chB">…</b> ↗</a></div>
+    </div>
+  </div>
+
+  <!-- Montant & recommandation -->
+  <div class="card pad blk">
+    <div class="io">
+      <!-- bloc ENTRÉE (source) : saisie ici → exactIn -->
+      <div class="amtbox"><span class="lbl" id="lblSend">EURC envoyés</span><div class="row"><input id="amtSend" class="num" type="number" min="1" step="any" placeholder="montant" aria-label="EURC envoyés" oninput="onAmt('exactIn',this.value)"><button class="maxbtn" type="button" id="maxbtn" onclick="fillMax()" title="Remplir avec le solde du wallet d'envoi">max</button><span class="cur">EURC</span></div></div>
+      <!-- sélecteur de sens (source ⇄ dest) : flip au clic (updateDirUI remplit le flux) -->
+      <button class="dirbtn" id="dirbtn" type="button" onclick="toggleDir()" title="Inverser le sens"></button>
+      <!-- bloc SORTIE (destination) : saisie ici → exactOut -->
+      <div class="amtbox"><span class="lbl" id="lblRecv">EURC reçus</span><div class="row"><input id="amtRecv" class="num" type="number" min="1" step="any" placeholder="montant" aria-label="EURC reçus" oninput="onAmt('exactOut',this.value)"><span class="cur">EURC</span></div></div>
+      <!-- contrôles canoniques (source de vérité pour toute la logique aval) -->
+      <input id="amt" type="hidden">
+      <select id="dir" onchange="quote()" style="display:none"><option value="B2S">Base → Stellar</option><option value="S2B">Stellar → Base</option></select>
+      <select id="mode" style="display:none"><option value="exactIn" selected>exactIn</option><option value="exactOut">exactOut</option></select>
+      <span id="amtlbl" style="display:none"></span>
+    </div>
+    <div id="out" class="mut" style="margin:0 0 8px"></div>
+    <div id="reco"></div>
+  </div>
+
+  <!-- Découpage : tableau rendu par simul() (mode espacé supprimé) -->
+  <div class="card pad blk" id="splitcard" style="display:none">
+    <div id="splitout"></div>
+    <div class="gen"><span class="splitnote mut" id="splitnote"></span><button id="genbtn" class="btn" onclick="genBatch()">⚙ Générer les transactions</button></div>
+    <div id="genstatus" class="mut" style="margin-top:8px"></div>
+  </div>
+  <div id="batchout" class="blk"></div>
+
+</section>
+
+<!-- ==================== DOCUMENTATION ==================== -->
+<section id="doc" class="page doc">
+
+  <!-- ══ Groupe 1 : Les frais ══ -->
+  <div class="docgroup"><h2 id="docGrpFees">Le bridge Rozo &amp; ses frais</h2><span class="rule"></span></div>
+
+  <h3 class="docsub" id="h3Bridge">Le bridge en bref</h3>
+  <p id="pBridge">Rozo transfère de l'<b>EURC entre Base et Stellar</b> via des <b>intents</b>. Chaque sens a un <b>hub</b> (compte à liquidité) sur la <b>chaîne de réception</b> : il avance les fonds et se fait rembourser côté départ. <b>Créer un intent réserve</b> la liquidité du hub ~10&nbsp;min (elle se libère seule si tu ne signes pas). Le <b>frais est figé à la création</b> et honoré à la livraison, dans les deux sens. Pas de bridge « atomique » : <b>N tranches = N transactions</b> à signer.</p>
+
+  <h3 class="docsub" id="h2Model">Le modèle de frais Rozo</h3>
+  <div id="pModelDisclaimer" class="alert"><span class="ico">ⓘ</span><span><b>Modèle non officiel :</b> inféré d'observations (dryrun + créations réelles), pas de la doc Rozo. Le frais % d'un montant <b>livrable</b> monte en continu vers le <b>cap dur 0,50 %</b>, d'autant plus vite que le hub se <b>draine</b>. Au-dessus de la liquidité disponible (montant non livrable en un envoi), l'API renvoie un <b>forfait fixe</b> (cap protocole <code>MAX_PROTOCOL_FEE_BPS</code>) — un artefact d'affichage, pas le vrai barème.</span></div>
+  <div id="formulaText" class="formula">frais/tranche = ⌈ montant · fee%(montant, L) ⌉ au cent · plancher 0,01 €<ul><li><b>L</b> = Available restant du hub (baisse à chaque tranche empilée)</li><li><b>fee%(montant, L)</b> = surface mesurée (mesures historiques en drainage réel)</li><li>monte en continu vers le <b>cap dur 0,50 %</b>, d'autant plus vite que le hub se draine</li><li>sert à <b>projeter</b> le max et le coût probable ; le frais réellement facturé reste un devis <b>dryrun exact</b></li></ul></div>
+  <div class="grid2">
+    <div class="card pad"><div class="tblwrap"><table>
+      <tr><th id="thSens2">Sens</th><th id="thBaseFull">base % (plein)</th><th>cap</th><th>min/tx</th></tr>
+      <tr><td class="b2s">Base→Stellar</td><td>~0,09 %</td><td>0,50 %</td><td>0,01 €</td></tr>
+      <tr><td class="s2b">Stellar→Base</td><td>~0,12 %</td><td>0,50 %</td><td>0,01 €</td></tr>
+    </table></div></div>
+    <div class="card pad"><ul class="mut" style="font-size:13px;margin:0">
+      <li id="modelLi1">Déterministe (même entrée → même frais), indépendant de l'appId.</li>
+      <li id="modelLi2">Driver dominant = remplissage du hub (Available), pas le ratio montant/liquidité.</li>
+      <li id="modelLi3">Créer un intent réserve l'Available → empiler les tranches fait baisser le L restant → le frais % monte le long d'une surface mesurée <code>fee%(montant, L)</code> (mesures historiques en drainage réel — distinctes du balayage de la page Doc, qui ne sert qu'au graphe), plafonnée à 0,50 %.</li>
+      <li id="modelLi4">Routes : le niveau base% et la montée diffèrent (B→S ~0,09 &lt; S→B ~0,12 %) → une surface par route, mesurée séparément pour projeter max et coût probable ; max ≤0,03 € / 16 séries — le min est un devis dryrun réel (exact, pas une projection).</li>
+      <li id="modelLi5">Frais figés à la création et honorés à la livraison — vérifié dans les 2 sens (03/07/2026).</li>
+    </ul></div>
+  </div>
+
+  <h3 class="docsub" id="h2WhyRange">Pourquoi une fourchette min/max</h3>
+  <p id="pWhyRange">Un découpage en n tranches se lit en trois valeurs : <b>min</b> (n devis dryrun réels — un par taille de tranche T/n, sommés : le frais exact, aucune interpolation), <b>max</b> (tranches en série, chaque intent draine le hub → la suivante plus chère, cap 0,50 %, estimé depuis la surface mesurée), et le <b>coût probable</b> entre les deux. En pratique les N requêtes de création partent en parallèle → le serveur partage souvent le snapshot par <b>vagues</b> → le coût réel est une <b>variable aléatoire</b> entre min et max. À petit nombre de tranches, le réel colle au min. La <b>génération donne le chiffre exact</b>.</p>
+
+  <h3 class="docsub" id="h2Curve">Courbe des frais (frais % vs montant)</h3>
+  <div class="card pad">
+    <canvas id="chart" width="940" height="420" role="img" aria-label="Courbe du frais % en fonction du montant, par sens"></canvas>
+    <div id="pCurveExplain" class="mut" style="font-size:12.5px;margin-bottom:0"><ul style="margin:0 0 0 -2px">
+      <li>Points = mesures live (dryrun, identiques pour tous les appId).</li>
+      <li>Balayage paresseux : lancé à l'ouverture de la page Doc, seulement pour les montants ≤ plafond de liquidité (+ un point exact au plafond) — sert uniquement à ce graphe, pas au devis.</li>
+      <li>Lignes verticales = plafond de liquidité live (= solde du hub) ; chaque courbe s'arrête à son plafond.</li>
+      <li>Au-delà du plafond, un envoi unique est refusé (fractionne).</li>
+      <li>Le frais % est le plus élevé près du plafond, et grimpe encore quand le hub se draine.</li>
+      <li>Les petits montants montent vers ~0,50 % (plancher 0,01 € + arrondi cent).</li>
+      <li>La génération donne le chiffre engageant.</li>
+    </ul></div>
+  </div>
+
+  <!-- ══ Groupe 2 : Comment l'outil calcule ══ -->
+  <div class="docgroup"><h2 id="docGrpCalc">Comment l'outil calcule ce devis</h2><span class="rule"></span></div>
+
+  <h3 class="docsub" id="h3Calc">Ce que l'outil affiche</h3>
+  <div id="pCalc">Tu saisis un montant (<b>reçu</b> ou <b>envoyé</b>) ; l'outil interroge l'API en <b>dryrun</b> (aucune réservation) et affiche :<ul><li>pour un <b>envoi unique</b>, une tuile <b>COÛT</b> — chiffre <b>exact</b>, un devis dryrun réel, au centime ;</li><li>pour un <b>découpage</b> en n tranches, une tuile <b>COÛT PROBABLE</b> (≈) + une <b>FOURCHETTE min – max</b> : le <b>min est exact</b> (n devis dryrun sommés), le <b>max</b> reste une estimation (surface mesurée, cap 0,50 %) ;</li><li>un <b>tableau des découpages</b> qui se remplit <b>tranche par tranche</b> : chaque ligne affiche « … » puis son frais exact dès que son dryrun répond, tranches infaisables grisées.</li></ul>La <b>reco</b> = le plus petit découpage qui capte <b>≥90 %</b> de l'économie possible (au-delà, on gagne des centimes contre des signatures en plus). Le devis n'engage à rien (aucune réservation) ; <b>« Générer »</b> crée les intents et fige les <b>mêmes chiffres exacts</b>.</div>
+
+  <h3 class="docsub" id="h3Src">D'où viennent les chiffres</h3>
+  <div id="pSrc">Rien n'est codé en dur — le frais suit la liquidité, qui bouge :<ul><li><b>Devis (min, max, coût probable)</b> : le <b>min</b> vient de <b>n devis dryrun réels</b> (un par taille de tranche T/n), <b>mis en cache</b> par (sens, mode, montant) et invalidés si l'Available bouge de <b>&gt;1 EURC</b> — à liquidité inchangée, un re-devis ne relance aucun dryrun. Le tableau de découpage se remplit tranche par tranche.</li><li><b>Courbe de frais</b> (page Doc uniquement) : balayage <b>dryrun paresseux</b>, lancé à l'ouverture de la Doc, limité aux montants <b>≤ plafond de liquidité</b> (+ un point exact au plafond) — sert au graphe, pas au devis.</li><li><b>Liquidité (Available)</b> : un intent volontairement trop gros → le refus renvoie « Available:&nbsp;X ».</li><li><b>Vérification on-chain</b> : solde EURC des hubs (Horizon côté Stellar, RPC côté Base), comparé à l'API — alerte si écart.</li></ul>Pas de rafraîchissement automatique : au chargement de la page, puis via le bouton ↻.</div>
+
+  <h3 class="docsub" id="h3Math">Les formules &amp; la précision</h3>
+  <div id="pMath">Notations : <b>c = T/n</b> (montant d'une tranche), <b>dryrun(c)</b> = devis réel de l'API pour une tranche de taille c (exact, déjà arrondi au cent), <b>p₁ = dryrun(c)/c</b> (taux exact mesuré sur la 1ʳᵉ tranche), <b>Lᵢ = L0 − i·c</b> (Available restant avant la tranche i), <b>fee%(c, L)</b> = surface mesurée (interp bilinéaire, cap 0,50 %), escalade <b>R(c,i) = fee%(c, Lᵢ) / fee%(c, L0)</b>, <b>⌈·⌉¢</b> = arrondi au centime supérieur (plancher 0,01 €).<div class="formula">min = n · dryrun(c) — exact, aucune interpolation<br>max = Σᵢ ⌈ min( 0,5%·c , c · p₁ · R(c,i) ) ⌉¢<br>coût probable = Σᵢ ⌈ max( c·p₁ , 0,85 · c·p₁·R(c,i) ) ⌉¢</div><b>Précision mesurée</b> : le <b>min</b> est <b>exact</b> — c'est la somme de n devis dryrun réels, pas une borne. Le <b>max</b> colle au réel à <b>≤0,03 €</b> (16 séries réelles en série stricte). Surface <b>stable</b> (pas de dérive), re-mesurable par dryrun si Rozo change son algo.</div>
+
+  <!-- ══ Groupe 3 : Exécution ══ -->
+  <div class="docgroup"><h2 id="docGrpExec">Exécution</h2><span class="rule"></span></div>
+
+  <h3 class="docsub" id="h2NoAtomic">Pas de batch atomique</h3>
+  <p id="pNoAtomic">Sur Stellar le mémo est <b>par transaction</b> ; sur Base un batch = 1 tx source dont Rozo ne règle qu'un paiement. Donc <b>N tranches = N signatures</b> dans les 2 sens. Mémo <b>TEXT</b> obligatoire (sinon fonds perdus). En cas de batch mal formé, <b>pas de refund automatique</b> → support Rozo (<code>discord.gg/rozoai</code> ou <code>hi@rozo.ai</code>).</p>
+
+  <h3 class="docsub" id="h2SignTrack">Signer &amp; suivre les intents</h3>
+  <div id="pSignTrack" class="signblock"></div>
+
+  <!-- ══ Groupe 3 : Références ══ -->
+  <div class="docgroup"><h2 id="docGrpRef">Références</h2><span class="rule"></span></div>
+
+  <p id="pOfficialBridge" class="lead">Bridge officiel Rozo : <a href="https://intents.rozo.ai/bridge" target="_blank" rel="noopener">intents.rozo.ai/bridge ↗</a></p>
+  <p id="pRefContact" class="mut">Contact Rozo : <a href="https://discord.gg/rozoai" target="_blank" rel="noopener">discord.gg/rozoai ↗</a> ou <a href="mailto:hi@rozo.ai">hi@rozo.ai</a>.</p>
+
+  <h3 class="docsub" id="h2Addresses">Adresses</h3>
+  <div class="addrs">
+    <div class="card pad"><div id="hubStellarLabel" class="eyebrow">Hub Stellar (reçoit Base→Stellar)</div><p class="mono" style="margin:6px 0 0;word-break:break-all"><a href="https://stellar.expert/explorer/public/account/GB4CLV3UMXDPFP5OQJQKUCWPRJXPXPJSHTUKZEJLAIZFZR7UHYAQ6EB4" target="_blank" rel="noopener">GB4CLV3UMXDPFP5OQJQKUCWPRJXPXPJSHTUKZEJLAIZFZR7UHYAQ6EB4 ↗</a></p></div>
+    <div class="card pad"><div id="hubBaseLabel" class="eyebrow">Hub Base (reçoit Stellar→Base)</div><p class="mono" style="margin:6px 0 0;word-break:break-all"><a href="https://basescan.org/address/0x05c84533299625df3aCe2215742124c1644e2705" target="_blank" rel="noopener">0x05c84533299625df3aCe2215742124c1644e2705 ↗</a></p></div>
+  </div>
+  <p id="pSources" class="mut" style="font-size:12px;margin-top:14px">Sources : API <code>intentapiv4.rozo.ai</code> (sans clé), Horizon, RPC Base, contrat <code>RozoIntents.sol</code>, repos <code>rozo-intents-skills</code> / <code>rozo-docs</code>. Généré le <span id="ts2"></span>.</p>
+
+</section>
+
+</div>
+
+<!-- portal des tooltips au survol (position:fixed, au-dessus de tout) — cf. #tipPortal dans app.js -->
+<div id="tipPortal"></div>
+
+<!-- RC-4 : version majeure flottante @16 sans SRI → pinnée à la version exacte (dernière 16.x, 2026-07) + intégrité sha384 (vérifiée contre jsDelivr ET unpkg, fichiers identiques) -->
+<script defer src="https://cdn.jsdelivr.net/npm/@stellar/stellar-sdk@16.0.1/dist/stellar-sdk.min.js" integrity="sha384-REcmfSi4RUqS194PHQSo3M8WtbY0KYNrXqA8ewN7HdIaiY5MFTdBvlA/SFfZdOMS" crossorigin="anonymous"></script>
+<script src="assets/app.js"></script>
+<script type="module" src="assets/wallet.js"></script>
+</body>
+</html>
