@@ -22,6 +22,7 @@
   <div class="nav">
     <button class="on" onclick="showPage('tool',this)"><span id="navTool">Bridge</span></button>
     <button onclick="showPage('doc',this)"><span id="navDoc">Documentation</span></button>
+    <button onclick="showPage('disp',this)"><span id="navDisp">Dispersion</span></button>
   </div>
   <button id="btnRefresh" class="plain" onclick="refresh()" title="Rafraîchir">↻</button>
   <span id="ts" class="mut2" style="font-size:11.5px"></span>
@@ -160,6 +161,14 @@
   </div>
   <p id="pSources" class="mut" style="font-size:12px;margin-top:14px">Sources : API <code>intentapiv4.rozo.ai</code> (sans clé), Horizon, RPC Base, contrat <code>RozoIntents.sol</code>, repos <code>rozo-intents-skills</code> / <code>rozo-docs</code>. Généré le <span id="ts2"></span>.</p>
 
+</section>
+
+<!-- ==================== DISPERSION ==================== -->
+<section id="disp" class="page">
+  <div class="docgroup"><h2 id="dispTitle">Dispersion de θ (Stellar→Base)</h2><span class="rule"></span></div>
+  <p id="dispIntro" class="mut">θ = (réalisé − min) / (max − min) — position du coût réel dans la fourchette, mesurée sur les batchs S→B réellement générés. Le point (coût probable) devrait viser le <b>θ médian empirique</b>, pas un poids arbitraire.</p>
+  <div class="card pad"><canvas id="dispChart" width="940" height="420" role="img" aria-label="Dispersion de theta en fonction du nombre de tranches"></canvas></div>
+  <div id="dispStats" class="mut" style="margin-top:10px"></div>
 </section>
 
 </div>
