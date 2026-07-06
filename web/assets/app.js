@@ -632,15 +632,15 @@ async function genBatch(){
     const b=buildBatch(dk,okJs); window._batches[b.id]=b; saveBatches();   // #15 : le store accumule les lots
     renderBatches(b.id);   // lot frais = déplié, empilé avec les précédents
     refreshLiqDir(dk);     // intents créés → la réservation a bougé l'Available de CE sens → refresh ciblé de sa liquidité + cache devis périmé
-    // LOG PASSIF S2B (chantier C) : accumule θ des batchs S2B RÉELS pour recaler le point (KRAP) empiriquement. Gardes = ne pas fausser θ :
-    //  S2B uniquement · batch COMPLET (okJs.length===n, sinon fees/realise ne couvrent pas tout le découpage) · row pricée (ok, non-loading, feeFlat non nul).
+    // PASSIVE S2B LOG (task C): accumulate θ of REAL S2B batches to recalibrate the dot (KRAP) empirically. Guards = don't skew θ:
+    //  S2B only · COMPLETE batch (okJs.length===n, else fees/realise don't cover the whole split) · priced row (ok, not loading, feeFlat not null).
     if(dk==="S2B" && okJs.length===n && row && row.ok && !row.loading && row.feeFlat!=null){
-      const fees=okJs.map(j=>+j.source.fee);   // frais RÉELS créés (pas des dryrun)
+      const fees=okJs.map(j=>+j.source.fee);   // REAL created fees (not dryrun)
       const rec={ts:new Date().toISOString(), route:"S2B", mode, T, n, chunk:T/n,
         model:{min:row.feeFlat, max:row.feeWorst, probable:row.fee},
         measured:{min:row.feeFlat, realise:fees.reduce((a,b)=>a+b,0), fees, waves:new Set(fees).size},
-        intent_ids:okJs.map(j=>j.id), src:"live"};   // θ NON stocké — recalculé côté onglet depuis realise/min/max
-      fetch("/__log",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(rec)}).catch(()=>{});   // .catch : pas de rejection non gérée hors serve.py (prod / file://, endpoint absent)
+        intent_ids:okJs.map(j=>j.id), src:"live"};   // θ NOT stored — recomputed in the tab from realise/min/max
+      fetch("/__log",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(rec)}).catch(()=>{});   // .catch: no unhandled rejection off serve.py (prod / file://, endpoint absent)
     }
     const totalFailed=failed.length+netFailed, firstMsg=escapeHtml((failed[0]&&failed[0].error&&failed[0].error.message)||"");
     msg(totalFailed ? `<span class="warn" style="font-weight:600">⚠ ${LANG==="fr"?`Lot INCOMPLET : ${okJs.length}/${n} intents créés, ${totalFailed} en échec (${firstMsg}). Signe les tranches créées puis relance le reste.`:`INCOMPLETE batch: ${okJs.length}/${n} intents created, ${totalFailed} failed (${firstMsg}). Sign the created chunks then retry the rest.`}</span>` : "");   // signal fort d'under-delivery (gate /code-review)
@@ -956,7 +956,7 @@ function drawChart(){
     g.textBaseline="middle";
   }
 }
-// onglet Dispersion (chantier C) : trace θ vs n des batchs S→B loggés (θ RECALCULÉ, jamais stocké) + N / médiane / p90. Canvas maison, sans dépendance (comme drawChart).
+// Dispersion tab (task C): plot θ vs n of the logged S→B batches (θ RECOMPUTED, never stored) + N / median / p90. Self-contained canvas, no dependency (like drawChart).
 async function renderDisp(){
   const c=document.getElementById("dispChart"); if(!c) return;
   const g=c.getContext("2d"), st=document.getElementById("dispStats"), D=I18N[LANG];
@@ -964,31 +964,31 @@ async function renderDisp(){
   const COL={grid:v('--bd'),grid2:v('--chartgrid'),text:v('--mut'),s2b:v('--s2b'),warn:v('--warn'),fg:v('--fg')};
   const W=c.width,H=c.height,L=48,R=18,T=18,B=44, x0=L,x1=W-R,y0=H-B,y1=T;
   g.clearRect(0,0,W,H); g.font="12px sans-serif"; g.textBaseline="middle";
-  // log JSONL via serve.py ; erreur réseau (file:// / pas de serveur) → offline ; 404 → traité comme vide
+  // JSONL log via serve.py; network error (file:// / no server) → offline; 404 → treated as empty
   let rows=[];
   try{ const r=await fetch("/__log",{cache:"no-store"});
     if(r.ok){ const t=await r.text(); rows=t.split("\n").filter(l=>l.trim()).map(l=>{try{return JSON.parse(l)}catch(e){return null}}).filter(Boolean); }
     else if(r.status!==404){ throw 0; } }
   catch(e){ g.fillStyle=COL.text; g.textAlign="center"; g.fillText("—",(x0+x1)/2,(y0+y1)/2); if(st) st.innerHTML=D.dispOffline; return; }
-  // S2B uniquement · θ = (réalisé−min)/(max−min) · exclut max=min (n=1 → division par 0 ; θ n'a de sens qu'avec drainage)
+  // S2B only · θ = (realise−min)/(max−min) · exclude max=min (n=1 → divide-by-zero; θ only means something with drain)
   const pts=rows.filter(o=>o&&o.route==="S2B"&&o.model&&o.measured&&o.model.max>o.model.min)
     .map(o=>({n:o.n, th:(o.measured.realise-o.model.min)/(o.model.max-o.model.min)}));
   if(!pts.length){ g.fillStyle=COL.text; g.textAlign="center"; g.fillText("∅",(x0+x1)/2,(y0+y1)/2); if(st) st.innerHTML=D.dispEmpty; return; }
   const maxN=Math.max(...pts.map(p=>p.n)), NX=Math.max(10,maxN+1);
-  const X=n=>x0+((n-1)/(NX-1))*(x1-x0), Y=th=>y0-Math.max(0,Math.min(1,th))*(y0-y1);   // θ clampé [0,1] à l'affichage
+  const X=n=>x0+((n-1)/(NX-1))*(x1-x0), Y=th=>y0-Math.max(0,Math.min(1,th))*(y0-y1);   // θ clamped to [0,1] for display
   g.fillStyle=COL.text; g.lineWidth=1;
   for(let th=0;th<=1.0001;th+=0.2){ g.strokeStyle=COL.grid; g.beginPath(); g.moveTo(x0,Y(th)); g.lineTo(x1,Y(th)); g.stroke(); g.textAlign="right"; g.fillText(th.toFixed(1),x0-8,Y(th)); }
   for(let n=1;n<=NX;n++){ if(n>1){ g.strokeStyle=COL.grid2; g.beginPath(); g.moveTo(X(n),y0); g.lineTo(X(n),y1); g.stroke(); } g.textAlign="center"; g.fillText(String(n),X(n),y0+16); }
   g.fillText(D.dispAxisN,(x0+x1)/2,H-10);
   g.save(); g.translate(14,(y0+y1)/2); g.rotate(-Math.PI/2); g.textAlign="center"; g.fillText("θ",0,0); g.restore();
-  // médiane + p90 (nearest-rank) — lignes horizontales de repère
+  // median + p90 (nearest-rank) — horizontal reference lines
   const ths=pts.map(p=>p.th).sort((a,b)=>a-b);
   const q=(arr,p)=>arr[Math.min(arr.length-1,Math.max(0,Math.ceil(p*arr.length)-1))];
   const med=q(ths,0.5), p90=q(ths,0.9);
   const hline=(th,col,lbl)=>{ g.strokeStyle=col; g.globalAlpha=.85; g.setLineDash([5,4]); g.beginPath(); g.moveTo(x0,Y(th)); g.lineTo(x1,Y(th)); g.stroke(); g.setLineDash([]); g.globalAlpha=1; g.fillStyle=col; g.textAlign="left"; g.fillText(lbl,x0+4,Y(th)-8); };
   hline(med,COL.warn,"med "+med.toFixed(2));
   hline(p90,COL.fg,"p90 "+p90.toFixed(2));
-  // points θ vs n (léger décalage horizontal si superposition sur un même n)
+  // θ vs n points (slight horizontal offset when several land on the same n)
   const byN={}; g.fillStyle=COL.s2b;
   for(const p of pts){ const k=p.n, i=(byN[k]=byN[k]||0); const off=(i%2?1:-1)*Math.ceil(i/2)*4; byN[k]=i+1; g.beginPath(); g.arc(X(p.n)+off,Y(p.th),4,0,7); g.fill(); }
   if(st) st.innerHTML=D.dispStatsFmt(pts.length, med.toFixed(2), p90.toFixed(2));
@@ -1034,7 +1034,7 @@ function applyI18N(){
   const langEl=document.getElementById("lang"); if(langEl) langEl.value=LANG;
   setT("navTool",D.navTool); setT("navDoc",D.navDoc);
   setT("navDisp",D.navDisp); setT("dispTitle",D.dispTitle); setH("dispIntro",D.dispIntro);
-  if(document.getElementById("disp")&&document.getElementById("disp").classList.contains("on")) renderDisp();   // re-rend l'onglet Dispersion à un changement de langue (libellés canvas/stats)
+  if(document.getElementById("disp")&&document.getElementById("disp").classList.contains("on")) renderDisp();   // re-render the Dispersion tab on a language change (canvas/stats labels)
   const rb=document.getElementById("btnRefresh"); if(rb) rb.title=D.refreshTitle;
   const bb=document.getElementById("brandBtn"); if(bb) bb.title=D.brandTitle;
   const hba=document.getElementById("hubBaseA"); if(hba) hba.title=D.hubBaseTitle;
