@@ -22,6 +22,7 @@
   <div class="nav">
     <button class="on" onclick="showPage('tool',this)"><span id="navTool">Bridge</span></button>
     <button onclick="showPage('doc',this)"><span id="navDoc">Documentation</span></button>
+    <button onclick="showPage('disp',this)"><span id="navDisp">Dispersion</span></button>
   </div>
   <button id="btnRefresh" class="plain" onclick="refresh()" title="Rafraîchir">↻</button>
   <span id="ts" class="mut2" style="font-size:11.5px"></span>
@@ -136,7 +137,7 @@
   <div id="pSrc">Rien n'est codé en dur — le frais suit la liquidité, qui bouge :<ul><li><b>Devis (min, max, coût probable)</b> : le <b>min</b> vient de <b>n devis dryrun réels</b> (un par taille de tranche T/n), <b>mis en cache</b> par (sens, mode, montant) et invalidés si l'Available bouge de <b>&gt;1 EURC</b> — à liquidité inchangée, un re-devis ne relance aucun dryrun. Le tableau de découpage se remplit tranche par tranche.</li><li><b>Courbe de frais</b> (page Doc uniquement) : balayage <b>dryrun paresseux</b>, lancé à l'ouverture de la Doc, limité aux montants <b>≤ plafond de liquidité</b> (+ un point exact au plafond) — sert au graphe, pas au devis.</li><li><b>Liquidité (Available)</b> : un intent volontairement trop gros → le refus renvoie « Available:&nbsp;X ».</li><li><b>Vérification on-chain</b> : solde EURC des hubs (Horizon côté Stellar, RPC côté Base), comparé à l'API — alerte si écart.</li></ul>Pas de rafraîchissement automatique : au chargement de la page, puis via le bouton ↻.</div>
 
   <h3 class="docsub" id="h3Math">Les formules &amp; la précision</h3>
-  <div id="pMath">Notations : <b>c = T/n</b> (montant d'une tranche), <b>dryrun(c)</b> = devis réel de l'API pour une tranche de taille c (exact, déjà arrondi au cent), <b>p₁ = dryrun(c)/c</b> (taux exact mesuré sur la 1ʳᵉ tranche), <b>Lᵢ = L0 − i·c</b> (Available restant avant la tranche i), <b>fee%(c, L)</b> = surface mesurée (interp bilinéaire, cap 0,50 %), escalade <b>R(c,i) = fee%(c, Lᵢ) / fee%(c, L0)</b>, <b>⌈·⌉¢</b> = arrondi au centime supérieur (plancher 0,01 €).<div class="formula">min = n · dryrun(c) — exact, aucune interpolation<br>max = Σᵢ ⌈ min( 0,5%·c , c · p₁ · R(c,i) ) ⌉¢<br>coût probable = Σᵢ ⌈ max( c·p₁ , 0,85 · c·p₁·R(c,i) ) ⌉¢</div>Les formules <b>max</b> et <b>coût probable</b> décrivent le sens <b>Stellar→Base</b> (créer un intent réserve l'Available → l'escalade R(c,i) monte). Sur <b>Base→Stellar</b>, aucune réservation → <b>R(c,i)=1</b> pour tout i → max et coût probable retombent sur le min : la <b>valeur affichée = n·dryrun(c)</b>, unique. <b>Précision mesurée</b> : le <b>min</b> est <b>exact</b> — c'est la somme de n devis dryrun réels, pas une borne. Le <b>max</b> colle au réel à <b>≤0,03 €</b> (16 séries réelles en série stricte). Surface <b>stable</b> (pas de dérive), re-mesurable par dryrun si Rozo change son algo.</div>
+  <div id="pMath">Notations : <b>c = T/n</b> (montant d'une tranche), <b>dryrun(c)</b> = devis réel de l'API pour une tranche de taille c (exact, déjà arrondi au cent), <b>p₁ = dryrun(c)/c</b> (taux exact mesuré sur la 1ʳᵉ tranche), <b>Lᵢ = L0 − i·c</b> (Available restant avant la tranche i), <b>fee%(c, L)</b> = surface mesurée (interp bilinéaire, cap 0,50 %), escalade <b>R(c,i) = fee%(c, Lᵢ) / fee%(c, L0)</b>, <b>⌈·⌉¢</b> = arrondi au centime supérieur (plancher 0,01 €).<div class="formula">min = n · dryrun(c) — exact, aucune interpolation<br>max = Σᵢ ⌈ min( 0,5%·c , c · p₁ · R(c,i) ) ⌉¢<br>coût probable = Σᵢ ⌈ max( c·p₁ , 0,70 · c·p₁·R(c,i) ) ⌉¢</div>Les formules <b>max</b> et <b>coût probable</b> décrivent le sens <b>Stellar→Base</b> (créer un intent réserve l'Available → l'escalade R(c,i) monte). Sur <b>Base→Stellar</b>, aucune réservation → <b>R(c,i)=1</b> pour tout i → max et coût probable retombent sur le min : la <b>valeur affichée = n·dryrun(c)</b>, unique. <b>Précision mesurée</b> : le <b>min</b> est <b>exact</b> — c'est la somme de n devis dryrun réels, pas une borne. Le <b>max</b> colle au réel à <b>≤0,03 €</b> (16 séries réelles en série stricte). Surface <b>stable</b> (pas de dérive), re-mesurable par dryrun si Rozo change son algo.</div>
 
   <!-- ══ Groupe 3 : Exécution ══ -->
   <div class="docgroup"><h2 id="docGrpExec">Exécution</h2><span class="rule"></span></div>
@@ -160,6 +161,14 @@
   </div>
   <p id="pSources" class="mut" style="font-size:12px;margin-top:14px">Sources : API <code>intentapiv4.rozo.ai</code> (sans clé), Horizon, RPC Base, contrat <code>RozoIntents.sol</code>, repos <code>rozo-intents-skills</code> / <code>rozo-docs</code>. Généré le <span id="ts2"></span>.</p>
 
+</section>
+
+<!-- ==================== DISPERSION ==================== -->
+<section id="disp" class="page">
+  <div class="docgroup"><h2 id="dispTitle">Dispersion de θ (Stellar→Base)</h2><span class="rule"></span></div>
+  <p id="dispIntro" class="mut">θ = (réalisé − min) / (max − min) — position du coût réel dans la fourchette, mesurée sur les batchs S→B réellement générés. Le point (coût probable) devrait viser le <b>θ médian empirique</b>, pas un poids arbitraire.</p>
+  <div class="card pad"><canvas id="dispChart" width="940" height="420" role="img" aria-label="Dispersion de theta en fonction du nombre de tranches"></canvas></div>
+  <div id="dispStats" class="mut" style="margin-top:10px"></div>
 </section>
 
 </div>

@@ -35,7 +35,7 @@ const I18N={
     pageTitle:"Rozo Bridge EURC Base ⇄ Stellar — coût, liquidité, modèle",
     themeLight:"☀︎ clair", themeDark:"☾ sombre",
     subtext:"Coût à l'avance, liquidité, modèle de frais reverse-engineeré. Page autonome — données live via API Rozo + on-chain.",
-    navTool:"Bridge", navDoc:"Documentation", refreshTitle:"Rafraîchir",
+    navTool:"Bridge", navDoc:"Documentation", navDisp:"Dispersion", refreshTitle:"Rafraîchir",
     brandTitle:"Retour à l'accueil", hubBaseTitle:"Hub Base sur BaseScan", hubStellarTitle:"Hub Stellar sur stellar.expert",
     maxbtnTitle:"Remplir avec le solde du wallet d'envoi", dirbtnTitle:"Inverser le sens",
     chartAriaLabel:"Courbe du frais % en fonction du montant, par sens",
@@ -101,7 +101,7 @@ const I18N={
     h3Src:"D'où viennent les chiffres",
     pSrc:`Rien n'est codé en dur — le frais suit la liquidité, qui bouge :<ul><li><b>Devis (min, max, coût probable)</b> : le <b>min</b> vient de <b>n devis dryrun réels</b> (un par taille de tranche T/n), <b>mis en cache</b> par (sens, mode, montant) et invalidés si l'Available bouge de <b>&gt;1 EURC</b> — à liquidité inchangée, un re-devis ne relance aucun dryrun. Le <b>tableau de découpage</b> se remplit <b>tranche par tranche</b>, chaque ligne passant de « … » à son frais exact dès que son dryrun répond.</li><li><b>Courbe de frais</b> (page Doc uniquement) : balayage <b>dryrun paresseux</b>, lancé à l'ouverture de la Doc, limité aux montants <b>≤ plafond de liquidité</b> (+ un point exact au plafond) — sert au <b>graphe</b>, pas au devis.</li><li><b>Liquidité (Available)</b> : un intent volontairement trop gros → le refus renvoie « Available:&nbsp;X ».</li><li><b>Vérification on-chain</b> : solde EURC des hubs (Horizon côté Stellar, RPC côté Base), comparé à l'API — alerte si écart.</li></ul>Pas de rafraîchissement automatique : au chargement de la page, puis via le bouton ↻.`,
     h3Math:"Les formules & la précision",
-    pMath:`Notations : <b>c = T/n</b> (montant d'une tranche), <b>dryrun(c)</b> = devis réel de l'API pour une tranche de taille c (exact, déjà arrondi au cent), <b>p₁ = dryrun(c)/c</b> (taux exact mesuré sur la 1ʳᵉ tranche), <b>Lᵢ = L0 − i·c</b> (Available restant avant la tranche i), <b>fee%(c, L)</b> = surface mesurée (interp bilinéaire, cap 0,50 %), escalade <b>R(c,i) = fee%(c, Lᵢ) / fee%(c, L0)</b>, <b>⌈·⌉¢</b> = arrondi au centime supérieur (plancher 0,01 €).<div class="formula">min = n · dryrun(c) — exact, aucune interpolation<br>max = Σᵢ ⌈ min( 0,5%·c , c · p₁ · R(c,i) ) ⌉¢<br>coût probable = Σᵢ ⌈ max( c·p₁ , 0,85 · c·p₁·R(c,i) ) ⌉¢</div>Les formules <b>max</b> et <b>coût probable</b> décrivent le sens <b>Stellar→Base</b> (créer un intent réserve l'Available → l'escalade R(c,i) monte). Sur <b>Base→Stellar</b>, aucune réservation → <b>R(c,i)=1</b> pour tout i → max et coût probable retombent sur le min : la <b>valeur affichée = n·dryrun(c)</b>, unique. <b>Précision mesurée</b> : le <b>min</b> est <b>exact</b> — c'est la somme de n devis dryrun réels, pas une borne. Le <b>max</b> colle au réel à <b>≤0,03 €</b> (16 séries réelles en série stricte). Surface <b>stable</b> (pas de dérive), re-mesurable par dryrun si Rozo change son algo.`,
+    pMath:`Notations : <b>c = T/n</b> (montant d'une tranche), <b>dryrun(c)</b> = devis réel de l'API pour une tranche de taille c (exact, déjà arrondi au cent), <b>p₁ = dryrun(c)/c</b> (taux exact mesuré sur la 1ʳᵉ tranche), <b>Lᵢ = L0 − i·c</b> (Available restant avant la tranche i), <b>fee%(c, L)</b> = surface mesurée (interp bilinéaire, cap 0,50 %), escalade <b>R(c,i) = fee%(c, Lᵢ) / fee%(c, L0)</b>, <b>⌈·⌉¢</b> = arrondi au centime supérieur (plancher 0,01 €).<div class="formula">min = n · dryrun(c) — exact, aucune interpolation<br>max = Σᵢ ⌈ min( 0,5%·c , c · p₁ · R(c,i) ) ⌉¢<br>coût probable = Σᵢ ⌈ max( c·p₁ , 0,70 · c·p₁·R(c,i) ) ⌉¢</div>Les formules <b>max</b> et <b>coût probable</b> décrivent le sens <b>Stellar→Base</b> (créer un intent réserve l'Available → l'escalade R(c,i) monte). Sur <b>Base→Stellar</b>, aucune réservation → <b>R(c,i)=1</b> pour tout i → max et coût probable retombent sur le min : la <b>valeur affichée = n·dryrun(c)</b>, unique. <b>Précision mesurée</b> : le <b>min</b> est <b>exact</b> — c'est la somme de n devis dryrun réels, pas une borne. Le <b>max</b> colle au réel à <b>≤0,03 €</b> (16 séries réelles en série stricte). Surface <b>stable</b> (pas de dérive), re-mesurable par dryrun si Rozo change son algo.`,
     pSources:'Données : API <code>intentapiv4.rozo.ai</code> (sans clé), Horizon, RPC Base. Généré le <span id="ts2"></span>.',
     errFallback:"erreur",
     quoteWarnOverLiq:(recv,avail)=>`<div class="alert"><span class="ico">ⓘ</span><span><b>${eur(recv)} EURC</b> en un seul envoi &gt; liquidité dispo <b>${eur(avail)}</b> : un bridge 1-shot échouerait. <b>Fractionne</b> ci-dessous ou attends que le hub soit rechargé.</span></div>`,
@@ -131,6 +131,12 @@ const I18N={
     trackUnreachable:"injoignable",
     trackQuerying:`<span class="mut">Interrogation…</span>`,
     chartAmountAxis:"montant (EURC reçus)", chartCap:"plafond ",
+    dispTitle:"Dispersion de θ (Stellar→Base)",
+    dispIntro:'θ = (réalisé − min) / (max − min) — position du coût réel dans la fourchette, mesurée sur les batchs S→B réellement générés. Le point (coût probable) devrait viser le <b>θ médian empirique</b>, pas un poids arbitraire.',
+    dispEmpty:"Aucun batch S→B enregistré pour l'instant. Génère un découpage S→B (n≥2) et il apparaîtra ici.",
+    dispOffline:"Log indisponible (page non servie par serve.py). Lance <code>cd web &amp;&amp; python3 serve.py</code> pour l'accumulation passive.",
+    dispAxisN:"tranches (n)",
+    dispStatsFmt:(N,med,p90)=>`<b>N = ${N}</b> batch(s) S→B · θ médian <b>${med}</b> · θ p90 <b>${p90}</b>`,
     fileWarnHtml:path=>`⚠ <b>Ouvre cette page via http</b>, pas en <code>file://</code> — sinon les wallets (Ambire/Rabby/Freighter) et la signature ne fonctionnent pas. Dans un terminal :<br><code>cd ${path} &amp;&amp; python3 -m http.server 8787</code><br>puis ouvre <code>http://localhost:8787/rozo-bridge.html</code>`,
     moduleNoEvm:"aucun wallet EVM injecté — active Ambire/Rabby (et sers la page en http)",
     moduleRejected:m=>`refusé: ${m}`,
@@ -151,7 +157,7 @@ const I18N={
     pageTitle:"Rozo Bridge EURC Base ⇄ Stellar — cost, liquidity, model",
     themeLight:"☀︎ light", themeDark:"☾ dark",
     subtext:"Upfront cost, liquidity, reverse-engineered fee model. Standalone page — live data via Rozo API + on-chain.",
-    navTool:"Bridge", navDoc:"Documentation", refreshTitle:"Refresh",
+    navTool:"Bridge", navDoc:"Documentation", navDisp:"Dispersion", refreshTitle:"Refresh",
     brandTitle:"Back to home", hubBaseTitle:"Base hub on BaseScan", hubStellarTitle:"Stellar hub on stellar.expert",
     maxbtnTitle:"Fill with the sending wallet's balance", dirbtnTitle:"Reverse direction",
     chartAriaLabel:"Fee % versus amount curve, per direction",
@@ -217,7 +223,7 @@ const I18N={
     h3Src:"Where the numbers come from",
     pSrc:`Nothing is hard-coded — the fee follows liquidity, which moves:<ul><li><b>Quote (min, max, likely cost)</b>: the <b>min</b> comes from <b>n real dryrun quotes</b> (one per chunk size T/n), <b>cached</b> by (direction, mode, amount) and invalidated if the Available moves by <b>&gt;1 EURC</b> — at unchanged liquidity, re-quoting fires zero new dryrun calls. The <b>split table</b> fills in <b>chunk by chunk</b>, each row moving from “…” to its exact fee as soon as its dryrun answers.</li><li><b>Fee curve</b> (Doc page only): a <b>lazy dryrun</b> sweep, launched when the Doc opens, limited to amounts <b>≤ the liquidity cap</b> (+ one exact point at the cap) — feeds the <b>chart</b>, not the quote.</li><li><b>Liquidity (Available)</b>: a deliberately oversized intent → the rejection returns “Available:&nbsp;X”.</li><li><b>On-chain check</b>: the hubs' EURC balance (Horizon on Stellar, RPC on Base), compared to the API — flagged on mismatch.</li></ul>No automatic refresh: on page load, then via the ↻ button.`,
     h3Math:"The formulas & the accuracy",
-    pMath:`Notation: <b>c = T/n</b> (one chunk), <b>dryrun(c)</b> = the API's real quote for a chunk of size c (exact, already rounded to the cent), <b>p₁ = dryrun(c)/c</b> (exact rate measured on the 1st chunk), <b>Lᵢ = L0 − i·c</b> (Available remaining before chunk i), <b>fee%(c, L)</b> = measured surface (bilinear interp, 0.50% cap), escalation <b>R(c,i) = fee%(c, Lᵢ) / fee%(c, L0)</b>, <b>⌈·⌉¢</b> = round up to the cent (€0.01 floor).<div class="formula">min = n · dryrun(c) — exact, no interpolation<br>max = Σᵢ ⌈ min( 0.5%·c , c · p₁ · R(c,i) ) ⌉¢<br>likely cost = Σᵢ ⌈ max( c·p₁ , 0.85 · c·p₁·R(c,i) ) ⌉¢</div>The <b>max</b> and <b>likely cost</b> formulas describe the <b>Stellar→Base</b> direction (creating an intent reserves the Available → the escalation R(c,i) climbs). On <b>Base→Stellar</b>, no reservation → <b>R(c,i)=1</b> for every i → max and likely cost collapse onto the min: the <b>displayed value = n·dryrun(c)</b>, single. <b>Measured accuracy</b>: the <b>min</b> is <b>exact</b> — it's the sum of n real dryrun quotes, not a bound. The <b>max</b> tracks reality within <b>≤0.03€</b> (16 real strict-serial series). The surface is <b>stable</b> (no drift), re-measurable by dryrun if Rozo changes its algorithm.`,
+    pMath:`Notation: <b>c = T/n</b> (one chunk), <b>dryrun(c)</b> = the API's real quote for a chunk of size c (exact, already rounded to the cent), <b>p₁ = dryrun(c)/c</b> (exact rate measured on the 1st chunk), <b>Lᵢ = L0 − i·c</b> (Available remaining before chunk i), <b>fee%(c, L)</b> = measured surface (bilinear interp, 0.50% cap), escalation <b>R(c,i) = fee%(c, Lᵢ) / fee%(c, L0)</b>, <b>⌈·⌉¢</b> = round up to the cent (€0.01 floor).<div class="formula">min = n · dryrun(c) — exact, no interpolation<br>max = Σᵢ ⌈ min( 0.5%·c , c · p₁ · R(c,i) ) ⌉¢<br>likely cost = Σᵢ ⌈ max( c·p₁ , 0.70 · c·p₁·R(c,i) ) ⌉¢</div>The <b>max</b> and <b>likely cost</b> formulas describe the <b>Stellar→Base</b> direction (creating an intent reserves the Available → the escalation R(c,i) climbs). On <b>Base→Stellar</b>, no reservation → <b>R(c,i)=1</b> for every i → max and likely cost collapse onto the min: the <b>displayed value = n·dryrun(c)</b>, single. <b>Measured accuracy</b>: the <b>min</b> is <b>exact</b> — it's the sum of n real dryrun quotes, not a bound. The <b>max</b> tracks reality within <b>≤0.03€</b> (16 real strict-serial series). The surface is <b>stable</b> (no drift), re-measurable by dryrun if Rozo changes its algorithm.`,
     pSources:'Data: API <code>intentapiv4.rozo.ai</code> (no key), Horizon, Base RPC. Generated on <span id="ts2"></span>.',
     errFallback:"error",
     quoteWarnOverLiq:(recv,avail)=>`<div class="alert"><span class="ico">ⓘ</span><span><b>${eur(recv)} EURC</b> in a single send &gt; available liquidity <b>${eur(avail)}</b>: a one-shot bridge would fail. <b>Split it</b> below or wait for the hub to refill.</span></div>`,
@@ -247,6 +253,12 @@ const I18N={
     trackUnreachable:"unreachable",
     trackQuerying:`<span class="mut">Querying…</span>`,
     chartAmountAxis:"amount (EURC received)", chartCap:"cap ",
+    dispTitle:"θ dispersion (Stellar→Base)",
+    dispIntro:'θ = (realized − min) / (max − min) — where the real cost lands in the range, measured on the S→B batches actually generated. The dot (likely cost) should aim at the <b>empirical median θ</b>, not an arbitrary weight.',
+    dispEmpty:"No S→B batch recorded yet. Generate an S→B split (n≥2) and it will show up here.",
+    dispOffline:"Log unavailable (page not served by serve.py). Run <code>cd web &amp;&amp; python3 serve.py</code> for passive accumulation.",
+    dispAxisN:"chunks (n)",
+    dispStatsFmt:(N,med,p90)=>`<b>N = ${N}</b> S→B batch(es) · median θ <b>${med}</b> · p90 θ <b>${p90}</b>`,
     fileWarnHtml:path=>`⚠ <b>Open this page via http</b>, not <code>file://</code> — otherwise wallets (Ambire/Rabby/Freighter) and signing won't work. In a terminal:<br><code>cd ${path} &amp;&amp; python3 -m http.server 8787</code><br>then open <code>http://localhost:8787/rozo-bridge.html</code>`,
     moduleNoEvm:"no EVM wallet injected — enable Ambire/Rabby (and serve the page over http)",
     moduleRejected:m=>`rejected: ${m}`,
@@ -357,7 +369,7 @@ function simul(){
   // Espacé : on crée+signe une tranche à la fois, L se soigne (~10 min) entre → chaque tranche à L0 plein, R=1 (économie réelle).
   // Rapide (batch = ce que genBatch fait) : réservations empilées → L baisse → tranches suivantes plus chères (pire cas série).
   // Surface Campaign E (sweep dryrun, 2 routes, drain complet) : écart agrégé ≤0,04 €/série sur 16 séries mesurées. Cf. fee-study/METHODOLOGIE §6.
-  const KRAP=0.85;           // headline rapide = 0,85 × worst-case série. « Conservateur dans le cas normal » : le réalisé est une variable ALÉATOIRE (0 à ~0,9 selon le tirage, prouvé sur 2 routes) → 0,85 couvre la plupart des tirages mais PAS tous (S2B N=3 = 0,90 l'a franchi). Seul k=1 serait jamais-optimiste en toutes circonstances.
+  const KRAP = dk==="S2B" ? 0.70 : 0.85;   // fast headline = KRAP × serial worst-case, ROUTE-SPECIFIC. S2B=0.70 (Romain's call: the realized cost hugs the min, 0.85 read too high). B2S=0.85 kept for the RESERVES.B2S=true revert, but INERT while B2S doesn't reserve (ratio=1 → feeWorst≤feeFlat → fee=feeFlat, no likely cost). Realized = RANDOM variable (0 to ~0.9 per draw, proven on 2 routes): 0.70 covers fewer draws than 0.85 — assumed. Only k=1 would be never-optimistic in all cases.
   // NB : une pondération par N (« petit N moins cher ») a été tentée 2× puis DÉFINITIVEMENT retirée — le sweep S2B (03/07) a montré que le « seuil » N vu sur B2S était un échantillon chanceux ; réalisé(N) est non-monotone/aléatoire (N=3→0,90 mais N=5→0). Aucun seuil déterministe. NE PAS re-tenter.
   const cache=(dryCache[dk]||{})[ckey(mode,T)]||{fees:{}};   // frais exacts déjà arrivés (remplissage progressif)
   for(let n=1;n<=splitMax;n++){
@@ -418,7 +430,7 @@ function renderReco(best,dk,T,sel){
   if(!best){ el.innerHTML=""; return; }   // aucun découpage faisable → on ne bloque pas : seule l'alerte liquidité non bloquante (#out) subsiste, + le tableau (tranches à choisir)
   const pct=f=>best.sent>0?f/best.sent*100:0;   // % = frais/ENVOYÉ (AUDIT R2)
   const min=best.feeFlat!=null?best.feeFlat:best.fee, max=best.feeWorst!=null?best.feeWorst:best.fee;
-  const head=best.fee!=null?best.fee:min;   // estimation prudente (headline ≈ 0,85×pire cas), AUDIT R8
+  const head=best.fee!=null?best.fee:min;   // cautious estimate (headline ≈ KRAP×worst case: 0.70 on S2B — the only direction that shows a likely cost), AUDIT R8
   const uncertain=best.n>1&&max>min+0.005;  // frais INCERTAIN (rapide, fourchette réelle) → barre + « ≈/probable » ; sinon frais CERTAIN → on éteint tout ça (#2/#8)
   const recvChain=dk==="B2S"?"Stellar":"Base";
   const plan=best.n===1?(fr?"1 envoi":"1 send"):`${best.n} ${fr?"envois de":"sends of"} ${eur(best.c)} €`;
@@ -426,7 +438,7 @@ function renderReco(best,dk,T,sel){
   const why=best.n===1
     ?(fr?"un seul envoi suffit à ce montant":"a single send is enough here")
     :(fr?"plus petit découpage captant ≥90 % de l'économie · moins de signatures":"smallest split capturing ≥90% of the saving · fewer signatures");
-  const tipProb=fr?"Estimation prudente = 0,85 × le pire cas (réservations empilées en série). En parallèle le réel tombe en général plus bas ; « Générer » donne le chiffre exact.":"Cautious estimate = 0.85 × the worst case (reservations stacked serially). In parallel the real value usually lands lower; generating gives the exact figure.";
+  const tipProb=fr?"Estimation prudente = 0,70 × le pire cas (réservations empilées en série). En parallèle le réel tombe en général plus bas ; « Générer » donne le chiffre exact.":"Cautious estimate = 0.70 × the worst case (reservations stacked serially). In parallel the real value usually lands lower; generating gives the exact figure.";
   const tipCertain=fr?"Frais figé, connu au centime : aucun empilement de réservations ici, le coût ne varie pas.":"Fixed fee, known to the cent: no stacked reservations here, so the cost doesn't vary.";
   const help=t=>`<span class="tip-wrap" tabindex="0"><span class="tip-icon">ⓘ</span><span class="tip-box">${t}</span></span>`;   // tooltip au survol + focus clavier (portal thémé/localisé), remplace title=
   const costTile=uncertain
@@ -474,7 +486,7 @@ function updateDirUI(){
   if(btn) btn.innerHTML=src+`<span class="arw">→</span>`+dst;   // cartouches côte à côte + flèche à sens unique (flip au clic)
 }
 // onglets Bridge / Documentation
-function showPage(p,btn){ document.querySelectorAll(".page").forEach(x=>x.classList.toggle("on",x.id===p)); document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("on",b===btn)); if(p==="doc"){ drawChart(); ensureChartCurve().then(drawChart); } window.scrollTo({top:0,behavior:"instant"}); }
+function showPage(p,btn){ document.querySelectorAll(".page").forEach(x=>x.classList.toggle("on",x.id===p)); document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("on",b===btn)); if(p==="doc"){ drawChart(); ensureChartCurve().then(drawChart); } if(p==="disp"){ renderDisp(); } window.scrollTo({top:0,behavior:"instant"}); }
 // clic sur le titre = retour accueil (onglet Bridge) + rechargement des données live
 function goHome(){ showPage("tool",document.querySelector(".nav button")); refresh(); }
 // (showTx() + drawer supprimés — feature morte : aucun #drawer dans le HTML, aucun appelant ; les lignes du tableau appellent selRow(). AUDIT R9)
@@ -620,6 +632,16 @@ async function genBatch(){
     const b=buildBatch(dk,okJs); window._batches[b.id]=b; saveBatches();   // #15 : le store accumule les lots
     renderBatches(b.id);   // lot frais = déplié, empilé avec les précédents
     refreshLiqDir(dk);     // intents créés → la réservation a bougé l'Available de CE sens → refresh ciblé de sa liquidité + cache devis périmé
+    // PASSIVE S2B LOG (task C): accumulate θ of REAL S2B batches to recalibrate the dot (KRAP) empirically. Guards = don't skew θ:
+    //  S2B only · COMPLETE batch (okJs.length===n, else fees/realise don't cover the whole split) · priced row (ok, not loading, feeFlat not null).
+    if(dk==="S2B" && okJs.length===n && row && row.ok && !row.loading && row.feeFlat!=null){
+      const fees=okJs.map(j=>+j.source.fee);   // REAL created fees (not dryrun)
+      const rec={ts:new Date().toISOString(), route:"S2B", mode, T, n, chunk:T/n,
+        model:{min:row.feeFlat, max:row.feeWorst, probable:row.fee},
+        measured:{min:row.feeFlat, realise:fees.reduce((a,b)=>a+b,0), fees, waves:new Set(fees).size},
+        intent_ids:okJs.map(j=>j.id), src:"live"};   // θ NOT stored — recomputed in the tab from realise/min/max
+      fetch("/__log",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(rec)}).catch(()=>{});   // .catch: no unhandled rejection off serve.py (prod / file://, endpoint absent)
+    }
     const totalFailed=failed.length+netFailed, firstMsg=escapeHtml((failed[0]&&failed[0].error&&failed[0].error.message)||"");
     msg(totalFailed ? `<span class="warn" style="font-weight:600">⚠ ${LANG==="fr"?`Lot INCOMPLET : ${okJs.length}/${n} intents créés, ${totalFailed} en échec (${firstMsg}). Signe les tranches créées puis relance le reste.`:`INCOMPLETE batch: ${okJs.length}/${n} intents created, ${totalFailed} failed (${firstMsg}). Sign the created chunks then retry the rest.`}</span>` : "");   // signal fort d'under-delivery (gate /code-review)
   } finally { window._genInFlight=false; const g=document.getElementById("genbtn"); if(g) g.disabled=false; }   // RC-2 : release sur TOUS les chemins (retours early inclus)
@@ -934,6 +956,43 @@ function drawChart(){
     g.textBaseline="middle";
   }
 }
+// Dispersion tab (task C): plot θ vs n of the logged S→B batches (θ RECOMPUTED, never stored) + N / median / p90. Self-contained canvas, no dependency (like drawChart).
+async function renderDisp(){
+  const c=document.getElementById("dispChart"); if(!c) return;
+  const g=c.getContext("2d"), st=document.getElementById("dispStats"), D=I18N[LANG];
+  const cs=getComputedStyle(document.body),v=n=>cs.getPropertyValue(n).trim();
+  const COL={grid:v('--bd'),grid2:v('--chartgrid'),text:v('--mut'),s2b:v('--s2b'),warn:v('--warn'),fg:v('--fg')};
+  const W=c.width,H=c.height,L=48,R=18,T=18,B=44, x0=L,x1=W-R,y0=H-B,y1=T;
+  g.clearRect(0,0,W,H); g.font="12px sans-serif"; g.textBaseline="middle";
+  // JSONL log via serve.py; network error (file:// / no server) → offline; 404 → treated as empty
+  let rows=[];
+  try{ const r=await fetch("/__log",{cache:"no-store"});
+    if(r.ok){ const t=await r.text(); rows=t.split("\n").filter(l=>l.trim()).map(l=>{try{return JSON.parse(l)}catch(e){return null}}).filter(Boolean); }
+    else if(r.status!==404){ throw 0; } }
+  catch(e){ g.fillStyle=COL.text; g.textAlign="center"; g.fillText("—",(x0+x1)/2,(y0+y1)/2); if(st) st.innerHTML=D.dispOffline; return; }
+  // S2B only · θ = (realise−min)/(max−min) · exclude max=min (n=1 → divide-by-zero; θ only means something with drain)
+  const pts=rows.filter(o=>o&&o.route==="S2B"&&o.model&&o.measured&&o.model.max>o.model.min)
+    .map(o=>({n:o.n, th:(o.measured.realise-o.model.min)/(o.model.max-o.model.min)}));
+  if(!pts.length){ g.fillStyle=COL.text; g.textAlign="center"; g.fillText("∅",(x0+x1)/2,(y0+y1)/2); if(st) st.innerHTML=D.dispEmpty; return; }
+  const maxN=Math.max(...pts.map(p=>p.n)), NX=Math.max(10,maxN+1);
+  const X=n=>x0+((n-1)/(NX-1))*(x1-x0), Y=th=>y0-Math.max(0,Math.min(1,th))*(y0-y1);   // θ clamped to [0,1] for display
+  g.fillStyle=COL.text; g.lineWidth=1;
+  for(let th=0;th<=1.0001;th+=0.2){ g.strokeStyle=COL.grid; g.beginPath(); g.moveTo(x0,Y(th)); g.lineTo(x1,Y(th)); g.stroke(); g.textAlign="right"; g.fillText(th.toFixed(1),x0-8,Y(th)); }
+  for(let n=1;n<=NX;n++){ if(n>1){ g.strokeStyle=COL.grid2; g.beginPath(); g.moveTo(X(n),y0); g.lineTo(X(n),y1); g.stroke(); } g.textAlign="center"; g.fillText(String(n),X(n),y0+16); }
+  g.fillText(D.dispAxisN,(x0+x1)/2,H-10);
+  g.save(); g.translate(14,(y0+y1)/2); g.rotate(-Math.PI/2); g.textAlign="center"; g.fillText("θ",0,0); g.restore();
+  // median + p90 (nearest-rank) — horizontal reference lines
+  const ths=pts.map(p=>p.th).sort((a,b)=>a-b);
+  const q=(arr,p)=>arr[Math.min(arr.length-1,Math.max(0,Math.ceil(p*arr.length)-1))];
+  const med=q(ths,0.5), p90=q(ths,0.9);
+  const hline=(th,col,lbl)=>{ g.strokeStyle=col; g.globalAlpha=.85; g.setLineDash([5,4]); g.beginPath(); g.moveTo(x0,Y(th)); g.lineTo(x1,Y(th)); g.stroke(); g.setLineDash([]); g.globalAlpha=1; g.fillStyle=col; g.textAlign="left"; g.fillText(lbl,x0+4,Y(th)-8); };
+  hline(med,COL.warn,"med "+med.toFixed(2));
+  hline(p90,COL.fg,"p90 "+p90.toFixed(2));
+  // θ vs n points (slight horizontal offset when several land on the same n)
+  const byN={}; g.fillStyle=COL.s2b;
+  for(const p of pts){ const k=p.n, i=(byN[k]=byN[k]||0); const off=(i%2?1:-1)*Math.ceil(i/2)*4; byN[k]=i+1; g.beginPath(); g.arc(X(p.n)+off,Y(p.th),4,0,7); g.fill(); }
+  if(st) st.innerHTML=D.dispStatsFmt(pts.length, med.toFixed(2), p90.toFixed(2));
+}
 function toggleTheme(){
   const light=document.documentElement.classList.toggle("light");
   try{localStorage.setItem("rozoTheme",light?"light":"dark")}catch(e){}
@@ -974,6 +1033,8 @@ function applyI18N(){
   const setH=(id,v)=>{const e=document.getElementById(id); if(e) e.innerHTML=v;};
   const langEl=document.getElementById("lang"); if(langEl) langEl.value=LANG;
   setT("navTool",D.navTool); setT("navDoc",D.navDoc);
+  setT("navDisp",D.navDisp); setT("dispTitle",D.dispTitle); setH("dispIntro",D.dispIntro);
+  if(document.getElementById("disp")&&document.getElementById("disp").classList.contains("on")) renderDisp();   // re-render the Dispersion tab on a language change (canvas/stats labels)
   const rb=document.getElementById("btnRefresh"); if(rb) rb.title=D.refreshTitle;
   const bb=document.getElementById("brandBtn"); if(bb) bb.title=D.brandTitle;
   const hba=document.getElementById("hubBaseA"); if(hba) hba.title=D.hubBaseTitle;

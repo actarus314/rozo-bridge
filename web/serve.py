@@ -11,10 +11,11 @@ Arrêt auto : la page envoie un battement toutes les 5 s + un beacon à la
 fermeture (pagehide). Le serveur coupe ~5 s après la fermeture réelle, mais
 survit à un refresh et aux onglets mis en arrière-plan. Ctrl+C pour couper à la main.
 """
-import http.server, socketserver, threading, time, os, sys, webbrowser
+import http.server, socketserver, threading, time, os, sys, webbrowser, json
 
 DIR   = os.path.dirname(os.path.abspath(__file__))
 PAGE  = "rozo-bridge.html"
+LOG   = os.path.join(DIR, "..", "data", "intent-log.jsonl")   # passive log of real S2B intents → repo/data/ (gitignored, persists on disk/NAS)
 PORT  = int(sys.argv[1]) if len(sys.argv) > 1 else 8787
 IDLE  = 120   # backstop : coupe si aucun battement depuis 120 s (crash/veille)
 BYE   = 5     # coupe 5 s après un pagehide si aucun battement ne revient (= refresh annule)
@@ -42,6 +43,15 @@ class H(http.server.SimpleHTTPRequestHandler):
         if self.path.startswith("/__bye"):
             with lock: state["bye"] = time.time()
             self.send_response(204); self.end_headers(); return
+        if self.path.startswith("/__log"):   # returns the raw JSONL (the Dispersion tab parses it line by line); 404 if absent
+            try:
+                with open(LOG, "rb") as f: data = f.read()
+            except OSError:
+                self.send_response(404); self.end_headers(); return
+            self.send_response(200)
+            self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers(); self.wfile.write(data); return
         # injecter le heartbeat dans les pages .html, servir le reste normalement
         path = self.translate_path(self.path)
         if path.endswith(".html") and os.path.isfile(path):
@@ -56,6 +66,18 @@ class H(http.server.SimpleHTTPRequestHandler):
     def do_POST(self):
         if self.path.startswith("/__bye"):
             with lock: state["bye"] = time.time()
+            self.send_response(204); self.end_headers(); return
+        if self.path.startswith("/__log"):   # append one validated JSON line; create data/ on demand
+            n = int(self.headers.get("Content-Length") or 0)
+            body = self.rfile.read(n) if n > 0 else b""
+            try:
+                rec = json.loads(body)
+            except Exception:
+                self.send_response(400); self.end_headers(); return
+            with lock:   # ThreadingTCPServer: serialize the append with the existing lock
+                os.makedirs(os.path.dirname(LOG), exist_ok=True)
+                with open(LOG, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(rec, ensure_ascii=False) + "\n")
             self.send_response(204); self.end_headers(); return
         self.send_response(404); self.end_headers()
 
