@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Lightweight checks for a zero-build, zero-dependency static app: syntax + i18n parity + fee-model
+# self-check. No `npm install` — the scripts use only Node built-ins. CodeQL runs separately (default setup).
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Syntax check
+        run: |
+          node --check web/assets/app.js
+          node --check web/assets/wallet.js
+      - name: i18n fr/en parity
+        run: node scripts/check-i18n.mjs
+      - name: Fee-model self-check
+        run: node scripts/test-model.mjs
