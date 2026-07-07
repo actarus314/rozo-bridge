@@ -11,9 +11,9 @@ user actually has — *"what will this really cost me, and how do I get the best
 > worth double-checking before signing anything. Used at the user's own risk.
 
 <p align="center">
-  <img src="docs/img/bridge-preview.jpg" width="820" alt="Rozo Bridge — quote, split table and live intent tracking, light and dark theme side by side">
+  <img src="docs/img/bridge-preview.jpg" width="640" alt="Rozo Bridge — quote, split table and live intent tracking; light and dark theme shown at once, split diagonally">
 </p>
-<p align="center"><sub>Full-resolution originals: <a href="docs/img/bridge-light-full.png">light</a> · <a href="docs/img/bridge-dark-full.png">dark</a></sub></p>
+<p align="center"><sub>Same screen, both themes, split on the diagonal. Full-resolution originals: <a href="docs/img/bridge-light-full.png">light</a> · <a href="docs/img/bridge-dark-full.png">dark</a></sub></p>
 
 ## Why this exists
 
