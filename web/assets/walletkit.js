@@ -1,4 +1,4 @@
-// @creit.tech/stellar-wallets-kit@2.3.0 — bundle vendoré (esbuild) ; régénérer: npm run build:walletkit
+// @creit.tech/stellar-wallets-kit@2.5.0 — vendored bundle (esbuild); regenerate: npm run build:walletkit
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -34,6 +34,313 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
+
+// node_modules/@stellar/freighter-api/build/index.min.js
+var require_index_min = __commonJS({
+  "node_modules/@stellar/freighter-api/build/index.min.js"(exports, module) {
+    !(function(r7, e5) {
+      "object" == typeof exports && "object" == typeof module ? module.exports = e5() : "function" == typeof define && define.amd ? define([], e5) : "object" == typeof exports ? exports.freighterApi = e5() : r7.freighterApi = e5();
+    })(exports, () => (() => {
+      "use strict";
+      var r7, e5, s5 = { d: (r8, e6) => {
+        for (var t8 in e6) s5.o(e6, t8) && !s5.o(r8, t8) && Object.defineProperty(r8, t8, { enumerable: true, get: e6[t8] });
+      }, o: (r8, e6) => Object.prototype.hasOwnProperty.call(r8, e6), r: (r8) => {
+        "undefined" != typeof Symbol && Symbol.toStringTag && Object.defineProperty(r8, Symbol.toStringTag, { value: "Module" }), Object.defineProperty(r8, "__esModule", { value: true });
+      } }, t7 = {};
+      s5.r(t7), s5.d(t7, { WatchWalletChanges: () => u4, addToken: () => S3, default: () => D3, getAddress: () => _5, getNetwork: () => C4, getNetworkDetails: () => O2, isAllowed: () => R2, isBrowser: () => U, isConnected: () => N2, requestAccess: () => w6, setAllowed: () => I2, signAuthEntry: () => l5, signMessage: () => c4, signTransaction: () => d5 }), (function(r8) {
+        r8.CREATE_ACCOUNT = "CREATE_ACCOUNT", r8.FUND_ACCOUNT = "FUND_ACCOUNT", r8.ADD_ACCOUNT = "ADD_ACCOUNT", r8.IMPORT_ACCOUNT = "IMPORT_ACCOUNT", r8.IMPORT_HARDWARE_WALLET = "IMPORT_HARDWARE_WALLET", r8.LOAD_ACCOUNT = "LOAD_ACCOUNT", r8.MAKE_ACCOUNT_ACTIVE = "MAKE_ACCOUNT_ACTIVE", r8.UPDATE_ACCOUNT_NAME = "UPDATE_ACCOUNT_NAME", r8.GET_MNEMONIC_PHRASE = "GET_MNEMONIC_PHRASE", r8.CONFIRM_MNEMONIC_PHRASE = "CONFIRM_MNEMONIC_PHRASE", r8.CONFIRM_MIGRATED_MNEMONIC_PHRASE = "CONFIRM_MIGRATED_MNEMONIC_PHRASE", r8.RECOVER_ACCOUNT = "RECOVER_ACCOUNT", r8.CONFIRM_PASSWORD = "CONFIRM_PASSWORD", r8.REJECT_ACCESS = "REJECT_ACCESS", r8.GRANT_ACCESS = "GRANT_ACCESS", r8.ADD_TOKEN = "ADD_TOKEN", r8.SIGN_TRANSACTION = "SIGN_TRANSACTION", r8.SIGN_BLOB = "SIGN_BLOB", r8.SIGN_AUTH_ENTRY = "SIGN_AUTH_ENTRY", r8.HANDLE_SIGNED_HW_PAYLOAD = "HANDLE_SIGNED_HW_PAYLOAD", r8.REJECT_TRANSACTION = "REJECT_TRANSACTION", r8.SIGN_FREIGHTER_TRANSACTION = "SIGN_FREIGHTER_TRANSACTION", r8.SIGN_FREIGHTER_SOROBAN_TRANSACTION = "SIGN_FREIGHTER_SOROBAN_TRANSACTION", r8.ADD_RECENT_ADDRESS = "ADD_RECENT_ADDRESS", r8.LOAD_RECENT_ADDRESSES = "LOAD_RECENT_ADDRESSES", r8.LOAD_LAST_USED_ACCOUNT = "LOAD_LAST_USED_ACCOUNT", r8.SIGN_OUT = "SIGN_OUT", r8.SHOW_BACKUP_PHRASE = "SHOW_BACKUP_PHRASE", r8.SAVE_ALLOWLIST = "SAVE_ALLOWLIST", r8.SAVE_SETTINGS = "SAVE_SETTINGS", r8.SAVE_EXPERIMENTAL_FEATURES = "SAVE_EXPERIMENTAL_FEATURES", r8.LOAD_SETTINGS = "LOAD_SETTINGS", r8.GET_CACHED_ASSET_ICON = "GET_CACHED_ASSET_ICON", r8.CACHE_ASSET_ICON = "CACHE_ASSET_ICON", r8.GET_CACHED_ASSET_DOMAIN = "GET_CACHED_ASSET_DOMAIN", r8.CACHE_ASSET_DOMAIN = "CACHE_ASSET_DOMAIN", r8.GET_MEMO_REQUIRED_ACCOUNTS = "GET_MEMO_REQUIRED_ACCOUNTS", r8.ADD_CUSTOM_NETWORK = "ADD_CUSTOM_NETWORK", r8.CHANGE_NETWORK = "CHANGE_NETWORK", r8.REMOVE_CUSTOM_NETWORK = "REMOVE_CUSTOM_NETWORK", r8.EDIT_CUSTOM_NETWORK = "EDIT_CUSTOM_NETWORK", r8.RESET_EXP_DATA = "RESET_EXP_DATA", r8.ADD_TOKEN_ID = "ADD_TOKEN_ID", r8.GET_TOKEN_IDS = "GET_TOKEN_IDS", r8.REMOVE_TOKEN_ID = "REMOVE_TOKEN_ID", r8.GET_MIGRATABLE_ACCOUNTS = "GET_MIGRATABLE_ACCOUNTS", r8.GET_MIGRATED_MNEMONIC_PHRASE = "GET_MIGRATED_MNEMONIC_PHRASE", r8.MIGRATE_ACCOUNTS = "MIGRATE_ACCOUNTS", r8.ADD_ASSETS_LIST = "ADD_ASSETS_LIST", r8.MODIFY_ASSETS_LIST = "MODIFY_ASSETS_LIST", r8.CHANGE_ASSET_VISIBILITY = "CHANGE_ASSET_VISIBILITY", r8.GET_HIDDEN_ASSETS = "GET_HIDDEN_ASSETS", r8.GET_IS_ACCOUNT_MISMATCH = "GET_IS_ACCOUNT_MISMATCH";
+      })(r7 || (r7 = {})), (function(r8) {
+        r8.REQUEST_ACCESS = "REQUEST_ACCESS", r8.REQUEST_PUBLIC_KEY = "REQUEST_PUBLIC_KEY", r8.SUBMIT_TOKEN = "SUBMIT_TOKEN", r8.SUBMIT_TRANSACTION = "SUBMIT_TRANSACTION", r8.SUBMIT_BLOB = "SUBMIT_BLOB", r8.SUBMIT_AUTH_ENTRY = "SUBMIT_AUTH_ENTRY", r8.REQUEST_NETWORK = "REQUEST_NETWORK", r8.REQUEST_NETWORK_DETAILS = "REQUEST_NETWORK_DETAILS", r8.REQUEST_CONNECTION_STATUS = "REQUEST_CONNECTION_STATUS", r8.REQUEST_ALLOWED_STATUS = "REQUEST_ALLOWED_STATUS", r8.SET_ALLOWED_STATUS = "SET_ALLOWED_STATUS", r8.REQUEST_USER_INFO = "REQUEST_USER_INFO";
+      })(e5 || (e5 = {}));
+      const n5 = (r8) => {
+        const s6 = Date.now() + Math.random();
+        return window.postMessage({ source: "FREIGHTER_EXTERNAL_MSG_REQUEST", messageId: s6, ...r8 }, window.location.origin), new Promise((t8) => {
+          let n6 = 0;
+          r8.type !== e5.REQUEST_CONNECTION_STATUS && r8.type !== e5.REQUEST_PUBLIC_KEY || (n6 = setTimeout(() => {
+            t8({ isConnected: false, publicKey: "" }), window.removeEventListener("message", o5);
+          }, 2e3));
+          const o5 = (r9) => {
+            var e6, E4;
+            r9.source === window && "FREIGHTER_EXTERNAL_MSG_RESPONSE" === (null === (e6 = null == r9 ? void 0 : r9.data) || void 0 === e6 ? void 0 : e6.source) && (null === (E4 = null == r9 ? void 0 : r9.data) || void 0 === E4 ? void 0 : E4.messagedId) === s6 && (t8(r9.data), window.removeEventListener("message", o5), clearTimeout(n6));
+          };
+          window.addEventListener("message", o5, false);
+        });
+      }, o4 = { code: -1, message: "Node environment is not supported" }, E3 = { code: -1, message: "The wallet encountered an internal error. Please try again or contact the wallet if the problem persists." }, T4 = async () => {
+        let r8;
+        try {
+          r8 = await n5({ type: e5.REQUEST_ACCESS });
+        } catch (r9) {
+          console.error(r9);
+        }
+        const { publicKey: s6 } = r8 || { publicKey: "" };
+        return { publicKey: s6, error: null == r8 ? void 0 : r8.apiError };
+      }, A3 = async () => {
+        let r8;
+        try {
+          r8 = await n5({ type: e5.REQUEST_PUBLIC_KEY });
+        } catch (r9) {
+          console.error(r9);
+        }
+        return { publicKey: (null == r8 ? void 0 : r8.publicKey) || "", error: null == r8 ? void 0 : r8.apiError };
+      }, a5 = async () => {
+        let r8;
+        try {
+          r8 = await n5({ type: e5.REQUEST_NETWORK_DETAILS });
+        } catch (r9) {
+          console.error(r9);
+        }
+        const { networkDetails: s6, apiError: t8 } = r8 || { networkDetails: { network: "", networkName: "", networkUrl: "", networkPassphrase: "", sorobanRpcUrl: void 0, apiError: "" } }, { network: o5, networkUrl: E4, networkPassphrase: T5, sorobanRpcUrl: A4 } = s6;
+        return { network: o5, networkUrl: E4, networkPassphrase: T5, sorobanRpcUrl: A4, error: t8 };
+      }, i6 = async () => {
+        let r8;
+        try {
+          r8 = await n5({ type: e5.REQUEST_ALLOWED_STATUS });
+        } catch (r9) {
+          console.error(r9);
+        }
+        const { isAllowed: s6 } = r8 || { isAllowed: false };
+        return { isAllowed: s6, error: null == r8 ? void 0 : r8.apiError };
+      }, _5 = async () => {
+        let r8 = "";
+        if (U) {
+          const e6 = await A3();
+          return r8 = e6.publicKey, e6.error ? { address: r8, error: e6.error } : { address: r8 };
+        }
+        return { address: r8, error: o4 };
+      }, S3 = async (r8) => {
+        if (U) {
+          const s6 = await (async (r9) => {
+            let s7;
+            try {
+              s7 = await n5({ contractId: r9.contractId, networkPassphrase: r9.networkPassphrase, type: e5.SUBMIT_TOKEN });
+            } catch (r10) {
+              return { error: E3 };
+            }
+            return { contractId: s7.contractId, error: null == s7 ? void 0 : s7.apiError };
+          })(r8);
+          return s6.error ? { contractId: "", error: s6.error } : { contractId: s6.contractId || "" };
+        }
+        return { contractId: "", error: o4 };
+      }, d5 = async (r8, s6) => {
+        if (U) {
+          const t8 = await (async (r9, s7) => {
+            let t9, o5, T5, A4;
+            "object" == typeof s7 ? (o5 = s7.accountToSign, T5 = s7.networkPassphrase) : (t9 = s7, o5 = void 0);
+            try {
+              A4 = await n5({ transactionXdr: r9, network: t9, networkPassphrase: T5, accountToSign: o5, type: e5.SUBMIT_TRANSACTION });
+            } catch (r10) {
+              return { signedTransaction: "", signerAddress: "", error: E3 };
+            }
+            const { signedTransaction: a6, signerAddress: i7 } = A4;
+            return { signedTransaction: a6, signerAddress: i7, error: null == A4 ? void 0 : A4.apiError };
+          })(r8, s6);
+          return t8.error ? { signedTxXdr: "", signerAddress: "", error: t8.error } : { signedTxXdr: t8.signedTransaction, signerAddress: t8.signerAddress };
+        }
+        return { signedTxXdr: "", signerAddress: "", error: o4 };
+      }, c4 = async (r8, s6) => {
+        if (U) {
+          const { isAllowed: t8 } = await i6();
+          if (!t8) {
+            const r9 = await T4();
+            if (r9.error) return { signedMessage: null, signerAddress: "", error: r9.error };
+          }
+          const o5 = await (async (r9, s7, t9) => {
+            let o6;
+            const T5 = (t9 || {}).address;
+            try {
+              o6 = await n5({ blob: r9, accountToSign: T5, apiVersion: "6.0.0", networkPassphrase: null == t9 ? void 0 : t9.networkPassphrase, type: e5.SUBMIT_BLOB });
+            } catch (r10) {
+              return { signedMessage: null, signerAddress: "", error: E3 };
+            }
+            const { signedBlob: A4, signerAddress: a6 } = o6;
+            return { signedMessage: A4 || null, signerAddress: a6, error: null == o6 ? void 0 : o6.apiError };
+          })(r8, 0, s6);
+          return o5.error ? { signedMessage: null, signerAddress: "", error: o5.error } : { signedMessage: o5.signedMessage, signerAddress: o5.signerAddress };
+        }
+        return { signedMessage: null, signerAddress: "", error: o4 };
+      }, l5 = async (r8, s6) => {
+        if (U) {
+          const { isAllowed: t8 } = await i6();
+          if (!t8) {
+            const r9 = await T4();
+            if (r9.error) return { signedAuthEntry: null, signerAddress: "", error: r9.error };
+          }
+          const o5 = await (async (r9, s7, t9) => {
+            const o6 = (t9 || {}).address;
+            let T5;
+            try {
+              T5 = await n5({ entryXdr: r9, accountToSign: o6, apiVersion: "6.0.0", networkPassphrase: null == t9 ? void 0 : t9.networkPassphrase, type: e5.SUBMIT_AUTH_ENTRY });
+            } catch (r10) {
+              return console.error(r10), { signedAuthEntry: null, signerAddress: "", error: E3 };
+            }
+            const { signedAuthEntry: A4, signerAddress: a6 } = T5;
+            return { signedAuthEntry: A4 || null, signerAddress: a6, error: null == T5 ? void 0 : T5.apiError };
+          })(r8, 0, s6);
+          return o5.error ? { signedAuthEntry: null, signerAddress: "", error: o5.error } : { signedAuthEntry: o5.signedAuthEntry, signerAddress: o5.signerAddress };
+        }
+        return { signedAuthEntry: null, signerAddress: "", error: o4 };
+      }, N2 = async () => U ? window.freighter ? Promise.resolve({ isConnected: window.freighter }) : (async () => {
+        let r8 = { isConnected: false };
+        try {
+          r8 = await n5({ type: e5.REQUEST_CONNECTION_STATUS });
+        } catch (r9) {
+          console.error(r9);
+        }
+        return { isConnected: r8.isConnected };
+      })() : { isConnected: false, error: o4 }, C4 = async () => {
+        if (U) {
+          const r8 = await (async () => {
+            let r9;
+            try {
+              r9 = await n5({ type: e5.REQUEST_NETWORK_DETAILS });
+            } catch (r10) {
+              console.error(r10);
+            }
+            const { networkDetails: s6 } = r9 || { networkDetails: { network: "", networkPassphrase: "" } };
+            return { network: null == s6 ? void 0 : s6.network, networkPassphrase: null == s6 ? void 0 : s6.networkPassphrase, error: null == r9 ? void 0 : r9.apiError };
+          })();
+          return r8.error ? { network: "", networkPassphrase: "", error: r8.error } : { network: r8.network, networkPassphrase: r8.networkPassphrase };
+        }
+        return { network: "", networkPassphrase: "", error: o4 };
+      }, O2 = async () => {
+        if (U) {
+          const r8 = await a5();
+          return r8.error ? { network: "", networkUrl: "", networkPassphrase: "", error: r8.error } : { network: r8.network, networkUrl: r8.networkUrl, networkPassphrase: r8.networkPassphrase, sorobanRpcUrl: r8.sorobanRpcUrl };
+        }
+        return { network: "", networkUrl: "", networkPassphrase: "", error: o4 };
+      }, R2 = async () => {
+        let r8 = false;
+        if (U) {
+          const e6 = await i6();
+          return r8 = e6.isAllowed, e6.error ? { isAllowed: r8, error: e6.error } : { isAllowed: r8 };
+        }
+        return { isAllowed: r8, error: o4 };
+      }, I2 = async () => {
+        let r8 = false;
+        if (U) {
+          const s6 = await (async () => {
+            let r9;
+            try {
+              r9 = await n5({ type: e5.SET_ALLOWED_STATUS });
+            } catch (r10) {
+              console.error(r10);
+            }
+            const { isAllowed: s7 } = r9 || { isAllowed: false };
+            return { isAllowed: s7, error: null == r9 ? void 0 : r9.apiError };
+          })();
+          return r8 = s6.isAllowed, s6.error ? { isAllowed: r8, error: s6.error } : { isAllowed: r8 };
+        }
+        return { isAllowed: r8, error: o4 };
+      }, w6 = async () => {
+        let r8 = "";
+        if (U) {
+          const e6 = await T4();
+          return r8 = e6.publicKey, e6.error ? { address: r8, error: e6.error } : { address: r8 };
+        }
+        return { address: r8, error: o4 };
+      };
+      class u4 {
+        constructor(r8 = 3e3) {
+          this.fetchInfo = async (r9) => {
+            if (!this.isRunning) return;
+            const e6 = await A3(), s6 = await a5();
+            (e6.error || s6.error) && r9({ address: "", network: "", networkPassphrase: "", error: e6.error || s6.error }), this.currentAddress === e6.publicKey && this.currentNetwork === s6.network && this.currentNetworkPassphrase === s6.networkPassphrase || (this.currentAddress = e6.publicKey, this.currentNetwork = s6.network, this.currentNetworkPassphrase = s6.networkPassphrase, r9({ address: e6.publicKey, network: s6.network, networkPassphrase: s6.networkPassphrase })), setTimeout(() => this.fetchInfo(r9), this.timeout);
+          }, this.timeout = r8, this.currentAddress = "", this.currentNetwork = "", this.currentNetworkPassphrase = "", this.isRunning = false;
+        }
+        watch(r8) {
+          return U ? (this.isRunning = true, this.fetchInfo(r8), {}) : { error: o4 };
+        }
+        stop() {
+          this.isRunning = false;
+        }
+      }
+      const U = "undefined" != typeof window, D3 = { getAddress: _5, addToken: S3, signTransaction: d5, signMessage: c4, signAuthEntry: l5, isConnected: N2, getNetwork: C4, getNetworkDetails: O2, isAllowed: R2, setAllowed: I2, requestAccess: w6, WatchWalletChanges: u4 };
+      return t7;
+    })());
+  }
+});
+
+// node_modules/@lobstrco/signer-extension-api/build/index.min.js
+var require_index_min2 = __commonJS({
+  "node_modules/@lobstrco/signer-extension-api/build/index.min.js"(exports, module) {
+    !(function(e5, n5) {
+      "object" == typeof exports && "object" == typeof module ? module.exports = n5() : "function" == typeof define && define.amd ? define([], n5) : "object" == typeof exports ? exports.lobstrExtensionApi = n5() : e5.lobstrExtensionApi = n5();
+    })(exports, () => (() => {
+      "use strict";
+      var e5 = { d: (n6, o5) => {
+        for (var t8 in o5) e5.o(o5, t8) && !e5.o(n6, t8) && Object.defineProperty(n6, t8, { enumerable: true, get: o5[t8] });
+      }, o: (e6, n6) => Object.prototype.hasOwnProperty.call(e6, n6), r: (e6) => {
+        "undefined" != typeof Symbol && Symbol.toStringTag && Object.defineProperty(e6, Symbol.toStringTag, { value: "Module" }), Object.defineProperty(e6, "__esModule", { value: true });
+      } }, n5 = {};
+      e5.r(n5), e5.d(n5, { default: () => u4, getPublicKey: () => a5, isBrowser: () => S3, isConnected: () => c4, signMessage: () => l5, signTransaction: () => d5 });
+      let o4 = (function(e6) {
+        return e6[e6.V1 = 0] = "V1", e6[e6.V2 = 1] = "V2", e6;
+      })({}), t7 = (function(e6) {
+        return e6.REQUEST_ACCESS = "REQUEST_ACCESS", e6.SIGN = "SIGN", e6.SUBMIT_TRANSACTION = "SUBMIT_TRANSACTION", e6.SIGN_TRANSACTION = "SIGN_TRANSACTION", e6.REQUEST_CONNECTION_STATUS = "REQUEST_CONNECTION_STATUS", e6;
+      })({});
+      const r7 = "LOBSTR_CONNECTION_KEY", i6 = (e6) => {
+        const n6 = Date.now() + Math.random();
+        return window.postMessage({ source: "LOBSTR_EXTERNAL_MSG_REQUEST", messageId: n6, ...e6 }, window.location.origin), new Promise((o5) => {
+          let r8 = 0;
+          e6.type === t7.REQUEST_CONNECTION_STATUS && (r8 = setTimeout(() => {
+            o5({ isConnected: false }), window.removeEventListener("message", i7);
+          }, 2e3));
+          const i7 = (e7) => {
+            var t8, s6;
+            e7.source === window && "LOBSTR_EXTERNAL_MSG_RESPONSE" === (null == e7 || null === (t8 = e7.data) || void 0 === t8 ? void 0 : t8.source) && (null == e7 || null === (s6 = e7.data) || void 0 === s6 ? void 0 : s6.messagedId) === n6 && (o5(e7.data), window.removeEventListener("message", i7), clearTimeout(r8));
+          };
+          window.addEventListener("message", i7, false);
+        });
+      }, s5 = async (e6, n6, r8) => {
+        let s6 = { signedData: "", error: "", signerAddress: "" };
+        try {
+          s6 = await i6({ dataToSign: e6, connectionKey: n6, signType: r8, type: t7.SIGN, version: o4.V2 });
+        } catch (e7) {
+          throw console.error(e7), e7;
+        }
+        if (s6.error) throw s6.error;
+        return s6;
+      }, a5 = async () => {
+        if (!S3) return "";
+        const { publicKey: e6, connectionKey: n6 } = await (async () => {
+          let e7 = { publicKey: "", error: "", connectionKey: "" };
+          try {
+            e7 = await i6({ type: t7.REQUEST_ACCESS, version: o4.V2 });
+          } catch (e8) {
+            console.error(e8);
+          }
+          const { publicKey: n7, connectionKey: r8, error: s6 } = e7;
+          if (s6) throw s6;
+          return { publicKey: n7, connectionKey: r8 };
+        })();
+        return ((e7) => {
+          var n7, o5;
+          null === (n7 = window) || void 0 === n7 || null === (o5 = n7.sessionStorage) || void 0 === o5 || o5.setItem(r7, e7);
+        })(n6), e6;
+      }, d5 = async (e6) => {
+        if (!S3) return Promise.resolve("");
+        const n6 = (null === (o5 = window) || void 0 === o5 || null === (t8 = o5.sessionStorage) || void 0 === t8 ? void 0 : t8.getItem(r7)) || "";
+        var o5, t8;
+        return (await s5(e6, n6, "transaction")).signedData;
+      }, c4 = async () => !!S3 && (window.lobstrSignerExtension ? window.lobstrSignerExtension : await (async () => {
+        let e6 = { isConnected: false };
+        try {
+          e6 = await i6({ type: t7.REQUEST_CONNECTION_STATUS, version: o4.V2 });
+        } catch (e7) {
+          console.error(e7);
+        }
+        return e6.isConnected;
+      })()), l5 = async (e6) => {
+        if (!S3) return Promise.resolve(null);
+        const n6 = (null === (o5 = window) || void 0 === o5 || null === (t8 = o5.sessionStorage) || void 0 === t8 ? void 0 : t8.getItem(r7)) || "";
+        var o5, t8;
+        const i7 = await s5(e6, n6, "message");
+        return { signedMessage: i7.signedData, signerAddress: i7.signerAddress };
+      }, S3 = "undefined" != typeof window, u4 = { getPublicKey: a5, signTransaction: d5, isConnected: c4, signMessage: l5 };
+      return n5;
+    })());
+  }
+});
 
 // (disabled):crypto
 var require_crypto = __commonJS({
@@ -2331,313 +2638,6 @@ var require_nacl_util = __commonJS({
   }
 });
 
-// node_modules/@stellar/freighter-api/build/index.min.js
-var require_index_min = __commonJS({
-  "node_modules/@stellar/freighter-api/build/index.min.js"(exports, module) {
-    !(function(r7, e5) {
-      "object" == typeof exports && "object" == typeof module ? module.exports = e5() : "function" == typeof define && define.amd ? define([], e5) : "object" == typeof exports ? exports.freighterApi = e5() : r7.freighterApi = e5();
-    })(exports, () => (() => {
-      "use strict";
-      var r7, e5, s5 = { d: (r8, e6) => {
-        for (var t8 in e6) s5.o(e6, t8) && !s5.o(r8, t8) && Object.defineProperty(r8, t8, { enumerable: true, get: e6[t8] });
-      }, o: (r8, e6) => Object.prototype.hasOwnProperty.call(r8, e6), r: (r8) => {
-        "undefined" != typeof Symbol && Symbol.toStringTag && Object.defineProperty(r8, Symbol.toStringTag, { value: "Module" }), Object.defineProperty(r8, "__esModule", { value: true });
-      } }, t7 = {};
-      s5.r(t7), s5.d(t7, { WatchWalletChanges: () => u4, addToken: () => S3, default: () => D3, getAddress: () => _5, getNetwork: () => C4, getNetworkDetails: () => O2, isAllowed: () => R2, isBrowser: () => U, isConnected: () => N2, requestAccess: () => w6, setAllowed: () => I2, signAuthEntry: () => l5, signMessage: () => c4, signTransaction: () => d5 }), (function(r8) {
-        r8.CREATE_ACCOUNT = "CREATE_ACCOUNT", r8.FUND_ACCOUNT = "FUND_ACCOUNT", r8.ADD_ACCOUNT = "ADD_ACCOUNT", r8.IMPORT_ACCOUNT = "IMPORT_ACCOUNT", r8.IMPORT_HARDWARE_WALLET = "IMPORT_HARDWARE_WALLET", r8.LOAD_ACCOUNT = "LOAD_ACCOUNT", r8.MAKE_ACCOUNT_ACTIVE = "MAKE_ACCOUNT_ACTIVE", r8.UPDATE_ACCOUNT_NAME = "UPDATE_ACCOUNT_NAME", r8.GET_MNEMONIC_PHRASE = "GET_MNEMONIC_PHRASE", r8.CONFIRM_MNEMONIC_PHRASE = "CONFIRM_MNEMONIC_PHRASE", r8.CONFIRM_MIGRATED_MNEMONIC_PHRASE = "CONFIRM_MIGRATED_MNEMONIC_PHRASE", r8.RECOVER_ACCOUNT = "RECOVER_ACCOUNT", r8.CONFIRM_PASSWORD = "CONFIRM_PASSWORD", r8.REJECT_ACCESS = "REJECT_ACCESS", r8.GRANT_ACCESS = "GRANT_ACCESS", r8.ADD_TOKEN = "ADD_TOKEN", r8.SIGN_TRANSACTION = "SIGN_TRANSACTION", r8.SIGN_BLOB = "SIGN_BLOB", r8.SIGN_AUTH_ENTRY = "SIGN_AUTH_ENTRY", r8.HANDLE_SIGNED_HW_PAYLOAD = "HANDLE_SIGNED_HW_PAYLOAD", r8.REJECT_TRANSACTION = "REJECT_TRANSACTION", r8.SIGN_FREIGHTER_TRANSACTION = "SIGN_FREIGHTER_TRANSACTION", r8.SIGN_FREIGHTER_SOROBAN_TRANSACTION = "SIGN_FREIGHTER_SOROBAN_TRANSACTION", r8.ADD_RECENT_ADDRESS = "ADD_RECENT_ADDRESS", r8.LOAD_RECENT_ADDRESSES = "LOAD_RECENT_ADDRESSES", r8.LOAD_LAST_USED_ACCOUNT = "LOAD_LAST_USED_ACCOUNT", r8.SIGN_OUT = "SIGN_OUT", r8.SHOW_BACKUP_PHRASE = "SHOW_BACKUP_PHRASE", r8.SAVE_ALLOWLIST = "SAVE_ALLOWLIST", r8.SAVE_SETTINGS = "SAVE_SETTINGS", r8.SAVE_EXPERIMENTAL_FEATURES = "SAVE_EXPERIMENTAL_FEATURES", r8.LOAD_SETTINGS = "LOAD_SETTINGS", r8.GET_CACHED_ASSET_ICON = "GET_CACHED_ASSET_ICON", r8.CACHE_ASSET_ICON = "CACHE_ASSET_ICON", r8.GET_CACHED_ASSET_DOMAIN = "GET_CACHED_ASSET_DOMAIN", r8.CACHE_ASSET_DOMAIN = "CACHE_ASSET_DOMAIN", r8.GET_MEMO_REQUIRED_ACCOUNTS = "GET_MEMO_REQUIRED_ACCOUNTS", r8.ADD_CUSTOM_NETWORK = "ADD_CUSTOM_NETWORK", r8.CHANGE_NETWORK = "CHANGE_NETWORK", r8.REMOVE_CUSTOM_NETWORK = "REMOVE_CUSTOM_NETWORK", r8.EDIT_CUSTOM_NETWORK = "EDIT_CUSTOM_NETWORK", r8.RESET_EXP_DATA = "RESET_EXP_DATA", r8.ADD_TOKEN_ID = "ADD_TOKEN_ID", r8.GET_TOKEN_IDS = "GET_TOKEN_IDS", r8.REMOVE_TOKEN_ID = "REMOVE_TOKEN_ID", r8.GET_MIGRATABLE_ACCOUNTS = "GET_MIGRATABLE_ACCOUNTS", r8.GET_MIGRATED_MNEMONIC_PHRASE = "GET_MIGRATED_MNEMONIC_PHRASE", r8.MIGRATE_ACCOUNTS = "MIGRATE_ACCOUNTS", r8.ADD_ASSETS_LIST = "ADD_ASSETS_LIST", r8.MODIFY_ASSETS_LIST = "MODIFY_ASSETS_LIST", r8.CHANGE_ASSET_VISIBILITY = "CHANGE_ASSET_VISIBILITY", r8.GET_HIDDEN_ASSETS = "GET_HIDDEN_ASSETS", r8.GET_IS_ACCOUNT_MISMATCH = "GET_IS_ACCOUNT_MISMATCH";
-      })(r7 || (r7 = {})), (function(r8) {
-        r8.REQUEST_ACCESS = "REQUEST_ACCESS", r8.REQUEST_PUBLIC_KEY = "REQUEST_PUBLIC_KEY", r8.SUBMIT_TOKEN = "SUBMIT_TOKEN", r8.SUBMIT_TRANSACTION = "SUBMIT_TRANSACTION", r8.SUBMIT_BLOB = "SUBMIT_BLOB", r8.SUBMIT_AUTH_ENTRY = "SUBMIT_AUTH_ENTRY", r8.REQUEST_NETWORK = "REQUEST_NETWORK", r8.REQUEST_NETWORK_DETAILS = "REQUEST_NETWORK_DETAILS", r8.REQUEST_CONNECTION_STATUS = "REQUEST_CONNECTION_STATUS", r8.REQUEST_ALLOWED_STATUS = "REQUEST_ALLOWED_STATUS", r8.SET_ALLOWED_STATUS = "SET_ALLOWED_STATUS", r8.REQUEST_USER_INFO = "REQUEST_USER_INFO";
-      })(e5 || (e5 = {}));
-      const n5 = (r8) => {
-        const s6 = Date.now() + Math.random();
-        return window.postMessage({ source: "FREIGHTER_EXTERNAL_MSG_REQUEST", messageId: s6, ...r8 }, window.location.origin), new Promise((t8) => {
-          let n6 = 0;
-          r8.type !== e5.REQUEST_CONNECTION_STATUS && r8.type !== e5.REQUEST_PUBLIC_KEY || (n6 = setTimeout(() => {
-            t8({ isConnected: false, publicKey: "" }), window.removeEventListener("message", o5);
-          }, 2e3));
-          const o5 = (r9) => {
-            var e6, E4;
-            r9.source === window && "FREIGHTER_EXTERNAL_MSG_RESPONSE" === (null === (e6 = null == r9 ? void 0 : r9.data) || void 0 === e6 ? void 0 : e6.source) && (null === (E4 = null == r9 ? void 0 : r9.data) || void 0 === E4 ? void 0 : E4.messagedId) === s6 && (t8(r9.data), window.removeEventListener("message", o5), clearTimeout(n6));
-          };
-          window.addEventListener("message", o5, false);
-        });
-      }, o4 = { code: -1, message: "Node environment is not supported" }, E3 = { code: -1, message: "The wallet encountered an internal error. Please try again or contact the wallet if the problem persists." }, T4 = async () => {
-        let r8;
-        try {
-          r8 = await n5({ type: e5.REQUEST_ACCESS });
-        } catch (r9) {
-          console.error(r9);
-        }
-        const { publicKey: s6 } = r8 || { publicKey: "" };
-        return { publicKey: s6, error: null == r8 ? void 0 : r8.apiError };
-      }, A3 = async () => {
-        let r8;
-        try {
-          r8 = await n5({ type: e5.REQUEST_PUBLIC_KEY });
-        } catch (r9) {
-          console.error(r9);
-        }
-        return { publicKey: (null == r8 ? void 0 : r8.publicKey) || "", error: null == r8 ? void 0 : r8.apiError };
-      }, a5 = async () => {
-        let r8;
-        try {
-          r8 = await n5({ type: e5.REQUEST_NETWORK_DETAILS });
-        } catch (r9) {
-          console.error(r9);
-        }
-        const { networkDetails: s6, apiError: t8 } = r8 || { networkDetails: { network: "", networkName: "", networkUrl: "", networkPassphrase: "", sorobanRpcUrl: void 0, apiError: "" } }, { network: o5, networkUrl: E4, networkPassphrase: T5, sorobanRpcUrl: A4 } = s6;
-        return { network: o5, networkUrl: E4, networkPassphrase: T5, sorobanRpcUrl: A4, error: t8 };
-      }, i6 = async () => {
-        let r8;
-        try {
-          r8 = await n5({ type: e5.REQUEST_ALLOWED_STATUS });
-        } catch (r9) {
-          console.error(r9);
-        }
-        const { isAllowed: s6 } = r8 || { isAllowed: false };
-        return { isAllowed: s6, error: null == r8 ? void 0 : r8.apiError };
-      }, _5 = async () => {
-        let r8 = "";
-        if (U) {
-          const e6 = await A3();
-          return r8 = e6.publicKey, e6.error ? { address: r8, error: e6.error } : { address: r8 };
-        }
-        return { address: r8, error: o4 };
-      }, S3 = async (r8) => {
-        if (U) {
-          const s6 = await (async (r9) => {
-            let s7;
-            try {
-              s7 = await n5({ contractId: r9.contractId, networkPassphrase: r9.networkPassphrase, type: e5.SUBMIT_TOKEN });
-            } catch (r10) {
-              return { error: E3 };
-            }
-            return { contractId: s7.contractId, error: null == s7 ? void 0 : s7.apiError };
-          })(r8);
-          return s6.error ? { contractId: "", error: s6.error } : { contractId: s6.contractId || "" };
-        }
-        return { contractId: "", error: o4 };
-      }, d5 = async (r8, s6) => {
-        if (U) {
-          const t8 = await (async (r9, s7) => {
-            let t9, o5, T5, A4;
-            "object" == typeof s7 ? (o5 = s7.accountToSign, T5 = s7.networkPassphrase) : (t9 = s7, o5 = void 0);
-            try {
-              A4 = await n5({ transactionXdr: r9, network: t9, networkPassphrase: T5, accountToSign: o5, type: e5.SUBMIT_TRANSACTION });
-            } catch (r10) {
-              return { signedTransaction: "", signerAddress: "", error: E3 };
-            }
-            const { signedTransaction: a6, signerAddress: i7 } = A4;
-            return { signedTransaction: a6, signerAddress: i7, error: null == A4 ? void 0 : A4.apiError };
-          })(r8, s6);
-          return t8.error ? { signedTxXdr: "", signerAddress: "", error: t8.error } : { signedTxXdr: t8.signedTransaction, signerAddress: t8.signerAddress };
-        }
-        return { signedTxXdr: "", signerAddress: "", error: o4 };
-      }, c4 = async (r8, s6) => {
-        if (U) {
-          const { isAllowed: t8 } = await i6();
-          if (!t8) {
-            const r9 = await T4();
-            if (r9.error) return { signedMessage: null, signerAddress: "", error: r9.error };
-          }
-          const o5 = await (async (r9, s7, t9) => {
-            let o6;
-            const T5 = (t9 || {}).address;
-            try {
-              o6 = await n5({ blob: r9, accountToSign: T5, apiVersion: "6.0.0", networkPassphrase: null == t9 ? void 0 : t9.networkPassphrase, type: e5.SUBMIT_BLOB });
-            } catch (r10) {
-              return { signedMessage: null, signerAddress: "", error: E3 };
-            }
-            const { signedBlob: A4, signerAddress: a6 } = o6;
-            return { signedMessage: A4 || null, signerAddress: a6, error: null == o6 ? void 0 : o6.apiError };
-          })(r8, 0, s6);
-          return o5.error ? { signedMessage: null, signerAddress: "", error: o5.error } : { signedMessage: o5.signedMessage, signerAddress: o5.signerAddress };
-        }
-        return { signedMessage: null, signerAddress: "", error: o4 };
-      }, l5 = async (r8, s6) => {
-        if (U) {
-          const { isAllowed: t8 } = await i6();
-          if (!t8) {
-            const r9 = await T4();
-            if (r9.error) return { signedAuthEntry: null, signerAddress: "", error: r9.error };
-          }
-          const o5 = await (async (r9, s7, t9) => {
-            const o6 = (t9 || {}).address;
-            let T5;
-            try {
-              T5 = await n5({ entryXdr: r9, accountToSign: o6, apiVersion: "6.0.0", networkPassphrase: null == t9 ? void 0 : t9.networkPassphrase, type: e5.SUBMIT_AUTH_ENTRY });
-            } catch (r10) {
-              return console.error(r10), { signedAuthEntry: null, signerAddress: "", error: E3 };
-            }
-            const { signedAuthEntry: A4, signerAddress: a6 } = T5;
-            return { signedAuthEntry: A4 || null, signerAddress: a6, error: null == T5 ? void 0 : T5.apiError };
-          })(r8, 0, s6);
-          return o5.error ? { signedAuthEntry: null, signerAddress: "", error: o5.error } : { signedAuthEntry: o5.signedAuthEntry, signerAddress: o5.signerAddress };
-        }
-        return { signedAuthEntry: null, signerAddress: "", error: o4 };
-      }, N2 = async () => U ? window.freighter ? Promise.resolve({ isConnected: window.freighter }) : (async () => {
-        let r8 = { isConnected: false };
-        try {
-          r8 = await n5({ type: e5.REQUEST_CONNECTION_STATUS });
-        } catch (r9) {
-          console.error(r9);
-        }
-        return { isConnected: r8.isConnected };
-      })() : { isConnected: false, error: o4 }, C4 = async () => {
-        if (U) {
-          const r8 = await (async () => {
-            let r9;
-            try {
-              r9 = await n5({ type: e5.REQUEST_NETWORK_DETAILS });
-            } catch (r10) {
-              console.error(r10);
-            }
-            const { networkDetails: s6 } = r9 || { networkDetails: { network: "", networkPassphrase: "" } };
-            return { network: null == s6 ? void 0 : s6.network, networkPassphrase: null == s6 ? void 0 : s6.networkPassphrase, error: null == r9 ? void 0 : r9.apiError };
-          })();
-          return r8.error ? { network: "", networkPassphrase: "", error: r8.error } : { network: r8.network, networkPassphrase: r8.networkPassphrase };
-        }
-        return { network: "", networkPassphrase: "", error: o4 };
-      }, O2 = async () => {
-        if (U) {
-          const r8 = await a5();
-          return r8.error ? { network: "", networkUrl: "", networkPassphrase: "", error: r8.error } : { network: r8.network, networkUrl: r8.networkUrl, networkPassphrase: r8.networkPassphrase, sorobanRpcUrl: r8.sorobanRpcUrl };
-        }
-        return { network: "", networkUrl: "", networkPassphrase: "", error: o4 };
-      }, R2 = async () => {
-        let r8 = false;
-        if (U) {
-          const e6 = await i6();
-          return r8 = e6.isAllowed, e6.error ? { isAllowed: r8, error: e6.error } : { isAllowed: r8 };
-        }
-        return { isAllowed: r8, error: o4 };
-      }, I2 = async () => {
-        let r8 = false;
-        if (U) {
-          const s6 = await (async () => {
-            let r9;
-            try {
-              r9 = await n5({ type: e5.SET_ALLOWED_STATUS });
-            } catch (r10) {
-              console.error(r10);
-            }
-            const { isAllowed: s7 } = r9 || { isAllowed: false };
-            return { isAllowed: s7, error: null == r9 ? void 0 : r9.apiError };
-          })();
-          return r8 = s6.isAllowed, s6.error ? { isAllowed: r8, error: s6.error } : { isAllowed: r8 };
-        }
-        return { isAllowed: r8, error: o4 };
-      }, w6 = async () => {
-        let r8 = "";
-        if (U) {
-          const e6 = await T4();
-          return r8 = e6.publicKey, e6.error ? { address: r8, error: e6.error } : { address: r8 };
-        }
-        return { address: r8, error: o4 };
-      };
-      class u4 {
-        constructor(r8 = 3e3) {
-          this.fetchInfo = async (r9) => {
-            if (!this.isRunning) return;
-            const e6 = await A3(), s6 = await a5();
-            (e6.error || s6.error) && r9({ address: "", network: "", networkPassphrase: "", error: e6.error || s6.error }), this.currentAddress === e6.publicKey && this.currentNetwork === s6.network && this.currentNetworkPassphrase === s6.networkPassphrase || (this.currentAddress = e6.publicKey, this.currentNetwork = s6.network, this.currentNetworkPassphrase = s6.networkPassphrase, r9({ address: e6.publicKey, network: s6.network, networkPassphrase: s6.networkPassphrase })), setTimeout(() => this.fetchInfo(r9), this.timeout);
-          }, this.timeout = r8, this.currentAddress = "", this.currentNetwork = "", this.currentNetworkPassphrase = "", this.isRunning = false;
-        }
-        watch(r8) {
-          return U ? (this.isRunning = true, this.fetchInfo(r8), {}) : { error: o4 };
-        }
-        stop() {
-          this.isRunning = false;
-        }
-      }
-      const U = "undefined" != typeof window, D3 = { getAddress: _5, addToken: S3, signTransaction: d5, signMessage: c4, signAuthEntry: l5, isConnected: N2, getNetwork: C4, getNetworkDetails: O2, isAllowed: R2, setAllowed: I2, requestAccess: w6, WatchWalletChanges: u4 };
-      return t7;
-    })());
-  }
-});
-
-// node_modules/@lobstrco/signer-extension-api/build/index.min.js
-var require_index_min2 = __commonJS({
-  "node_modules/@lobstrco/signer-extension-api/build/index.min.js"(exports, module) {
-    !(function(e5, n5) {
-      "object" == typeof exports && "object" == typeof module ? module.exports = n5() : "function" == typeof define && define.amd ? define([], n5) : "object" == typeof exports ? exports.lobstrExtensionApi = n5() : e5.lobstrExtensionApi = n5();
-    })(exports, () => (() => {
-      "use strict";
-      var e5 = { d: (n6, o5) => {
-        for (var t8 in o5) e5.o(o5, t8) && !e5.o(n6, t8) && Object.defineProperty(n6, t8, { enumerable: true, get: o5[t8] });
-      }, o: (e6, n6) => Object.prototype.hasOwnProperty.call(e6, n6), r: (e6) => {
-        "undefined" != typeof Symbol && Symbol.toStringTag && Object.defineProperty(e6, Symbol.toStringTag, { value: "Module" }), Object.defineProperty(e6, "__esModule", { value: true });
-      } }, n5 = {};
-      e5.r(n5), e5.d(n5, { default: () => u4, getPublicKey: () => a5, isBrowser: () => S3, isConnected: () => c4, signMessage: () => l5, signTransaction: () => d5 });
-      let o4 = (function(e6) {
-        return e6[e6.V1 = 0] = "V1", e6[e6.V2 = 1] = "V2", e6;
-      })({}), t7 = (function(e6) {
-        return e6.REQUEST_ACCESS = "REQUEST_ACCESS", e6.SIGN = "SIGN", e6.SUBMIT_TRANSACTION = "SUBMIT_TRANSACTION", e6.SIGN_TRANSACTION = "SIGN_TRANSACTION", e6.REQUEST_CONNECTION_STATUS = "REQUEST_CONNECTION_STATUS", e6;
-      })({});
-      const r7 = "LOBSTR_CONNECTION_KEY", i6 = (e6) => {
-        const n6 = Date.now() + Math.random();
-        return window.postMessage({ source: "LOBSTR_EXTERNAL_MSG_REQUEST", messageId: n6, ...e6 }, window.location.origin), new Promise((o5) => {
-          let r8 = 0;
-          e6.type === t7.REQUEST_CONNECTION_STATUS && (r8 = setTimeout(() => {
-            o5({ isConnected: false }), window.removeEventListener("message", i7);
-          }, 2e3));
-          const i7 = (e7) => {
-            var t8, s6;
-            e7.source === window && "LOBSTR_EXTERNAL_MSG_RESPONSE" === (null == e7 || null === (t8 = e7.data) || void 0 === t8 ? void 0 : t8.source) && (null == e7 || null === (s6 = e7.data) || void 0 === s6 ? void 0 : s6.messagedId) === n6 && (o5(e7.data), window.removeEventListener("message", i7), clearTimeout(r8));
-          };
-          window.addEventListener("message", i7, false);
-        });
-      }, s5 = async (e6, n6, r8) => {
-        let s6 = { signedData: "", error: "", signerAddress: "" };
-        try {
-          s6 = await i6({ dataToSign: e6, connectionKey: n6, signType: r8, type: t7.SIGN, version: o4.V2 });
-        } catch (e7) {
-          throw console.error(e7), e7;
-        }
-        if (s6.error) throw s6.error;
-        return s6;
-      }, a5 = async () => {
-        if (!S3) return "";
-        const { publicKey: e6, connectionKey: n6 } = await (async () => {
-          let e7 = { publicKey: "", error: "", connectionKey: "" };
-          try {
-            e7 = await i6({ type: t7.REQUEST_ACCESS, version: o4.V2 });
-          } catch (e8) {
-            console.error(e8);
-          }
-          const { publicKey: n7, connectionKey: r8, error: s6 } = e7;
-          if (s6) throw s6;
-          return { publicKey: n7, connectionKey: r8 };
-        })();
-        return ((e7) => {
-          var n7, o5;
-          null === (n7 = window) || void 0 === n7 || null === (o5 = n7.sessionStorage) || void 0 === o5 || o5.setItem(r7, e7);
-        })(n6), e6;
-      }, d5 = async (e6) => {
-        if (!S3) return Promise.resolve("");
-        const n6 = (null === (o5 = window) || void 0 === o5 || null === (t8 = o5.sessionStorage) || void 0 === t8 ? void 0 : t8.getItem(r7)) || "";
-        var o5, t8;
-        return (await s5(e6, n6, "transaction")).signedData;
-      }, c4 = async () => !!S3 && (window.lobstrSignerExtension ? window.lobstrSignerExtension : await (async () => {
-        let e6 = { isConnected: false };
-        try {
-          e6 = await i6({ type: t7.REQUEST_CONNECTION_STATUS, version: o4.V2 });
-        } catch (e7) {
-          console.error(e7);
-        }
-        return e6.isConnected;
-      })()), l5 = async (e6) => {
-        if (!S3) return Promise.resolve(null);
-        const n6 = (null === (o5 = window) || void 0 === o5 || null === (t8 = o5.sessionStorage) || void 0 === t8 ? void 0 : t8.getItem(r7)) || "";
-        var o5, t8;
-        const i7 = await s5(e6, n6, "message");
-        return { signedMessage: i7.signedData, signerAddress: i7.signerAddress };
-      }, S3 = "undefined" != typeof window, u4 = { getPublicKey: a5, signTransaction: d5, isConnected: c4, signMessage: l5 };
-      return n5;
-    })());
-  }
-});
-
 // node_modules/preact/dist/preact.module.js
 var n;
 var l;
@@ -2771,39 +2771,39 @@ function V(n5) {
   };
 }
 function q(n5, u4, t7, i6, r7, o4, e5, f4, c4, a5) {
-  var s5, h5, p5, v4, y5, d5, _5, k3, x4, M, $2, I2, P2, A3, H2, T4 = u4.type;
+  var s5, h5, p5, v4, y5, d5, _5, k3, x4, M, $2, I2, P2, A3, H2, T4, j4 = u4.type;
   if (void 0 !== u4.constructor) return null;
   128 & t7.__u && (c4 = !!(32 & t7.__u), o4 = [f4 = u4.__e = t7.__e]), (s5 = l.__b) && s5(u4);
-  n: if ("function" == typeof T4) try {
-    if (k3 = u4.props, x4 = T4.prototype && T4.prototype.render, M = (s5 = T4.contextType) && i6[s5.__c], $2 = s5 ? M ? M.props.value : s5.__ : i6, t7.__c ? _5 = (h5 = u4.__c = t7.__c).__ = h5.__E : (x4 ? u4.__c = h5 = new T4(k3, $2) : (u4.__c = h5 = new C(k3, $2), h5.constructor = T4, h5.render = Q), M && M.sub(h5), h5.state || (h5.state = {}), h5.__n = i6, p5 = h5.__d = true, h5.__h = [], h5._sb = []), x4 && null == h5.__s && (h5.__s = h5.state), x4 && null != T4.getDerivedStateFromProps && (h5.__s == h5.state && (h5.__s = m({}, h5.__s)), m(h5.__s, T4.getDerivedStateFromProps(k3, h5.__s))), v4 = h5.props, y5 = h5.state, h5.__v = u4, p5) x4 && null == T4.getDerivedStateFromProps && null != h5.componentWillMount && h5.componentWillMount(), x4 && null != h5.componentDidMount && h5.__h.push(h5.componentDidMount);
-    else {
-      if (x4 && null == T4.getDerivedStateFromProps && k3 !== v4 && null != h5.componentWillReceiveProps && h5.componentWillReceiveProps(k3, $2), u4.__v == t7.__v || !h5.__e && null != h5.shouldComponentUpdate && false === h5.shouldComponentUpdate(k3, h5.__s, $2)) {
-        u4.__v != t7.__v && (h5.props = k3, h5.state = h5.__s, h5.__d = false), u4.__e = t7.__e, u4.__k = t7.__k, u4.__k.some(function(n6) {
-          n6 && (n6.__ = u4);
-        }), w.push.apply(h5.__h, h5._sb), h5._sb = [], h5.__h.length && e5.push(h5);
-        break n;
+  n: if ("function" == typeof j4) {
+    h5 = e5.length;
+    try {
+      if (x4 = u4.props, M = j4.prototype && j4.prototype.render, $2 = (s5 = j4.contextType) && i6[s5.__c], I2 = s5 ? $2 ? $2.props.value : s5.__ : i6, t7.__c ? k3 = (p5 = u4.__c = t7.__c).__ = p5.__E : (M ? u4.__c = p5 = new j4(x4, I2) : (u4.__c = p5 = new C(x4, I2), p5.constructor = j4, p5.render = Q), $2 && $2.sub(p5), p5.state || (p5.state = {}), p5.__n = i6, v4 = p5.__d = true, p5.__h = [], p5._sb = []), M && null == p5.__s && (p5.__s = p5.state), M && null != j4.getDerivedStateFromProps && (p5.__s == p5.state && (p5.__s = m({}, p5.__s)), m(p5.__s, j4.getDerivedStateFromProps(x4, p5.__s))), y5 = p5.props, d5 = p5.state, p5.__v = u4, v4) M && null == j4.getDerivedStateFromProps && null != p5.componentWillMount && p5.componentWillMount(), M && null != p5.componentDidMount && p5.__h.push(p5.componentDidMount);
+      else {
+        if (M && null == j4.getDerivedStateFromProps && x4 !== y5 && null != p5.componentWillReceiveProps && p5.componentWillReceiveProps(x4, I2), u4.__v == t7.__v || !p5.__e && null != p5.shouldComponentUpdate && false === p5.shouldComponentUpdate(x4, p5.__s, I2)) {
+          u4.__v != t7.__v && (p5.props = x4, p5.state = p5.__s, p5.__d = false), u4.__e = t7.__e, u4.__k = t7.__k, u4.__k.some(function(n6) {
+            n6 && (n6.__ = u4);
+          }), w.push.apply(p5.__h, p5._sb), p5._sb = [], p5.__h.length && e5.push(p5);
+          break n;
+        }
+        null != p5.componentWillUpdate && p5.componentWillUpdate(x4, p5.__s, I2), M && null != p5.componentDidUpdate && p5.__h.push(function() {
+          p5.componentDidUpdate(y5, d5, _5);
+        });
       }
-      null != h5.componentWillUpdate && h5.componentWillUpdate(k3, h5.__s, $2), x4 && null != h5.componentDidUpdate && h5.__h.push(function() {
-        h5.componentDidUpdate(v4, y5, d5);
-      });
+      if (p5.context = I2, p5.props = x4, p5.__P = n5, p5.__e = false, P2 = l.__r, A3 = 0, M) p5.state = p5.__s, p5.__d = false, P2 && P2(u4), s5 = p5.render(p5.props, p5.state, p5.context), w.push.apply(p5.__h, p5._sb), p5._sb = [];
+      else do {
+        p5.__d = false, P2 && P2(u4), s5 = p5.render(p5.props, p5.state, p5.context), p5.state = p5.__s;
+      } while (p5.__d && ++A3 < 25);
+      p5.state = p5.__s, null != p5.getChildContext && (i6 = m(m({}, i6), p5.getChildContext())), M && !v4 && null != p5.getSnapshotBeforeUpdate && (_5 = p5.getSnapshotBeforeUpdate(y5, d5)), H2 = null != s5 && s5.type === S && null == s5.key ? E(s5.props.children) : s5, f4 = L(n5, g(H2) ? H2 : [H2], u4, t7, i6, r7, o4, e5, f4, c4, a5), p5.base = u4.__e, u4.__u &= -161, p5.__h.length && e5.push(p5), k3 && (p5.__E = p5.__ = null);
+    } catch (n6) {
+      if (e5.length = h5, u4.__v = null, c4 || null != o4) {
+        if (n6.then) {
+          for (u4.__u |= c4 ? 160 : 128; f4 && 8 == f4.nodeType && f4.nextSibling; ) f4 = f4.nextSibling;
+          null != o4 && (o4[o4.indexOf(f4)] = null), u4.__e = f4;
+        } else if (null != o4) for (T4 = o4.length; T4--; ) b(o4[T4]);
+      } else u4.__e = t7.__e;
+      null == u4.__k && (u4.__k = t7.__k || []), n6.then || B(u4), l.__e(n6, u4, t7);
     }
-    if (h5.context = $2, h5.props = k3, h5.__P = n5, h5.__e = false, I2 = l.__r, P2 = 0, x4) h5.state = h5.__s, h5.__d = false, I2 && I2(u4), s5 = h5.render(h5.props, h5.state, h5.context), w.push.apply(h5.__h, h5._sb), h5._sb = [];
-    else do {
-      h5.__d = false, I2 && I2(u4), s5 = h5.render(h5.props, h5.state, h5.context), h5.state = h5.__s;
-    } while (h5.__d && ++P2 < 25);
-    h5.state = h5.__s, null != h5.getChildContext && (i6 = m(m({}, i6), h5.getChildContext())), x4 && !p5 && null != h5.getSnapshotBeforeUpdate && (d5 = h5.getSnapshotBeforeUpdate(v4, y5)), A3 = null != s5 && s5.type === S && null == s5.key ? E(s5.props.children) : s5, f4 = L(n5, g(A3) ? A3 : [A3], u4, t7, i6, r7, o4, e5, f4, c4, a5), h5.base = u4.__e, u4.__u &= -161, h5.__h.length && e5.push(h5), _5 && (h5.__E = h5.__ = null);
-  } catch (n6) {
-    if (u4.__v = null, c4 || null != o4) if (n6.then) {
-      for (u4.__u |= c4 ? 160 : 128; f4 && 8 == f4.nodeType && f4.nextSibling; ) f4 = f4.nextSibling;
-      o4[o4.indexOf(f4)] = null, u4.__e = f4;
-    } else {
-      for (H2 = o4.length; H2--; ) b(o4[H2]);
-      B(u4);
-    }
-    else u4.__e = t7.__e, u4.__k = t7.__k, n6.then || B(u4);
-    l.__e(n6, u4, t7);
-  }
-  else null == o4 && u4.__v == t7.__v ? (u4.__k = t7.__k, u4.__e = t7.__e) : f4 = u4.__e = G(t7.__e, u4, t7, i6, r7, o4, e5, c4, a5);
+  } else null == o4 && u4.__v == t7.__v ? (u4.__k = t7.__k, u4.__e = t7.__e) : f4 = u4.__e = G(t7.__e, u4, t7, i6, r7, o4, e5, c4, a5);
   return (s5 = l.diffed) && s5(u4), 128 & u4.__u ? void 0 : f4;
 }
 function B(n5) {
@@ -2865,7 +2865,7 @@ function K(n5, u4, t7) {
     } catch (n6) {
       l.__e(n6, u4);
     }
-    i6.base = i6.__P = null;
+    i6.base = i6.__P = i6.__n = null;
   }
   if (i6 = n5.__k) for (r7 = 0; r7 < i6.length; r7++) i6[r7] && K(i6[r7], u4, t7 || "function" != typeof n5.type);
   t7 || b(n5.__e), n5.__c = n5.__ = n5.__e = void 0;
@@ -2875,7 +2875,7 @@ function Q(n5, l5, u4) {
 }
 function R(u4, t7, i6) {
   var r7, o4, e5, f4;
-  t7 == document && (t7 = document.documentElement), l.__ && l.__(u4, t7), o4 = (r7 = "function" == typeof i6) ? null : i6 && i6.__k || t7.__k, e5 = [], f4 = [], q(t7, u4 = (!r7 && i6 || t7).__k = k(S, null, [u4]), o4 || d, d, t7.namespaceURI, !r7 && i6 ? [i6] : o4 ? null : t7.firstChild ? n.call(t7.childNodes) : null, e5, !r7 && i6 ? i6 : o4 ? o4.__e : t7.firstChild, r7, f4), D(e5, u4, f4);
+  t7 == document && (t7 = document.documentElement), l.__ && l.__(u4, t7), o4 = (r7 = "function" == typeof i6) ? null : i6 && i6.__k || t7.__k, e5 = [], f4 = [], q(t7, u4 = (!r7 && i6 || t7).__k = k(S, null, [u4]), o4 || d, d, t7.namespaceURI, !r7 && i6 ? [i6] : o4 ? null : t7.firstChild ? n.call(t7.childNodes) : null, e5, !r7 && i6 ? i6 : o4 ? o4.__e : t7.firstChild, r7, f4), D(e5, u4, f4), u4.props.children = null;
 }
 n = w.slice, l = { __e: function(n5, l5, u4, t7) {
   for (var i6, r7, o4; l5 = l5.__; ) if ((i6 = l5.__c) && !i6.__) try {
@@ -2908,36 +2908,35 @@ var a2 = c2.__r;
 var v2 = c2.diffed;
 var l2 = c2.__c;
 var m2 = c2.unmount;
-var s2 = c2.__;
-function p2(n5, t7) {
+var p2 = c2.__;
+function s2(n5, t7) {
   c2.__h && c2.__h(r2, n5, o2 || t7), o2 = 0;
   var u4 = r2.__H || (r2.__H = { __: [], __h: [] });
   return n5 >= u4.__.length && u4.__.push({}), u4.__[n5];
 }
 function d2(n5) {
-  return o2 = 1, h2(D2, n5);
+  return o2 = 1, y2(D2, n5);
 }
-function h2(n5, u4, i6) {
-  var o4 = p2(t2++, 2);
+function y2(n5, u4, i6) {
+  var o4 = s2(t2++, 2);
   if (o4.t = n5, !o4.__c && (o4.__ = [i6 ? i6(u4) : D2(void 0, u4), function(n6) {
     var t7 = o4.__N ? o4.__N[0] : o4.__[0], r7 = o4.t(t7, n6);
     t7 !== r7 && (o4.__N = [r7, o4.__[1]], o4.__c.setState({}));
   }], o4.__c = r2, !r2.__f)) {
     var f4 = function(n6, t7, r7) {
       if (!o4.__c.__H) return true;
-      var u5 = o4.__c.__H.__.filter(function(n7) {
-        return n7.__c;
-      });
-      if (u5.every(function(n7) {
-        return !n7.__N;
-      })) return !c4 || c4.call(this, n6, t7, r7);
-      var i7 = o4.__c.props !== n6;
-      return u5.some(function(n7) {
+      var u5 = false, i7 = o4.__c.props !== n6;
+      if (o4.__c.__H.__.some(function(n7) {
         if (n7.__N) {
+          u5 = true;
           var t8 = n7.__[0];
           n7.__ = n7.__N, n7.__N = void 0, t8 !== n7.__[0] && (i7 = true);
         }
-      }), c4 && c4.call(this, n6, t7, r7) || i7;
+      }), c4) {
+        var f5 = c4.call(this, n6, t7, r7);
+        return u5 ? f5 || i7 : f5;
+      }
+      return !u5 || i7;
     };
     r2.__f = true;
     var c4 = r2.shouldComponentUpdate, e5 = r2.componentWillUpdate;
@@ -2951,12 +2950,12 @@ function h2(n5, u4, i6) {
   }
   return o4.__N || o4.__;
 }
-function y2(n5, u4) {
-  var i6 = p2(t2++, 3);
+function h2(n5, u4) {
+  var i6 = s2(t2++, 3);
   !c2.__s && C2(i6.__H, u4) && (i6.__ = n5, i6.u = u4, r2.__H.__h.push(i6));
 }
 function T2(n5, r7) {
-  var u4 = p2(t2++, 7);
+  var u4 = s2(t2++, 7);
   return C2(u4.__H, r7) && (u4.__ = n5(), u4.__H = r7, u4.__h = n5), u4.__;
 }
 function j2() {
@@ -2972,18 +2971,18 @@ function j2() {
 c2.__b = function(n5) {
   r2 = null, e2 && e2(n5);
 }, c2.__ = function(n5, t7) {
-  n5 && t7.__k && t7.__k.__m && (n5.__m = t7.__k.__m), s2 && s2(n5, t7);
+  n5 && t7.__k && t7.__k.__m && (n5.__m = t7.__k.__m), p2 && p2(n5, t7);
 }, c2.__r = function(n5) {
   a2 && a2(n5), t2 = 0;
   var i6 = (r2 = n5.__c).__H;
   i6 && (u2 === r2 ? (i6.__h = [], r2.__h = [], i6.__.some(function(n6) {
     n6.__N && (n6.__ = n6.__N), n6.u = n6.__N = void 0;
-  })) : (i6.__h.some(z2), i6.__h.some(B2), i6.__h = [], t2 = 0)), u2 = r2;
+  })) : (i6.__h.length && j2(), t2 = 0)), u2 = r2;
 }, c2.diffed = function(n5) {
   v2 && v2(n5);
   var t7 = n5.__c;
   t7 && t7.__H && (t7.__H.__h.length && (1 !== f2.push(t7) && i2 === c2.requestAnimationFrame || ((i2 = c2.requestAnimationFrame) || w2)(j2)), t7.__H.__.some(function(n6) {
-    n6.u && (n6.__H = n6.u), n6.u = void 0;
+    n6.u && (n6.__H = n6.u, n6.u = void 0);
   })), u2 = r2 = null;
 }, c2.__c = function(n5, t7) {
   t7.some(function(n6) {
@@ -3035,20 +3034,23 @@ function D2(n5, t7) {
 // node_modules/@preact/signals-core/dist/signals-core.module.js
 var i3 = /* @__PURE__ */ Symbol.for("preact-signals");
 function t3() {
-  if (!(s3 > 1)) {
+  if (!(v3 > 1)) {
     var i6, t7 = false;
     !(function() {
       var i7 = c3;
       c3 = void 0;
       while (void 0 !== i7) {
-        if (i7.S.v === i7.v) i7.S.i = i7.i;
+        var t8 = i7.S;
+        if (t8.v === i7.v) {
+          for (var n6 = t8.t; void 0 !== n6; n6 = n6.x) if (n6.i === i7.i) n6.i = t8.i;
+        }
         i7 = i7.o;
       }
     })();
     while (void 0 !== h3) {
       var n5 = h3;
       h3 = void 0;
-      v3++;
+      s3++;
       while (void 0 !== n5) {
         var r7 = n5.u;
         n5.u = void 0;
@@ -3064,58 +3066,60 @@ function t3() {
         n5 = r7;
       }
     }
-    v3 = 0;
-    s3--;
+    s3 = 0;
+    v3--;
     if (t7) throw i6;
-  } else s3--;
+  } else v3--;
 }
 function n2(i6) {
-  if (s3 > 0) return i6();
+  if (v3 > 0) return i6();
   e3 = ++u3;
-  s3++;
+  v3++;
   try {
     return i6();
   } finally {
     t3();
   }
 }
-var r3 = void 0;
-function o3(i6) {
-  var t7 = r3;
+var r3;
+var o3 = void 0;
+function f3(i6) {
+  var t7 = o3, n5 = r3;
+  o3 = void 0;
   r3 = void 0;
   try {
     return i6();
   } finally {
-    r3 = t7;
+    o3 = t7;
+    r3 = n5;
   }
 }
-var f3;
 var h3 = void 0;
-var s3 = 0;
 var v3 = 0;
+var s3 = 0;
 var u3 = 0;
 var e3 = 0;
 var c3 = void 0;
 var d3 = 0;
 function a3(i6) {
-  if (void 0 !== r3) {
+  if (void 0 !== o3) {
     var t7 = i6.n;
-    if (void 0 === t7 || t7.t !== r3) {
-      t7 = { i: 0, S: i6, p: r3.s, n: void 0, t: r3, e: void 0, x: void 0, r: t7 };
-      if (void 0 !== r3.s) r3.s.n = t7;
-      r3.s = t7;
+    if (void 0 === t7 || t7.t !== o3) {
+      t7 = { i: 0, S: i6, p: o3.s, n: void 0, t: o3, e: void 0, x: void 0, r: t7 };
+      if (void 0 !== o3.s) o3.s.n = t7;
+      o3.s = t7;
       i6.n = t7;
-      if (32 & r3.f) i6.S(t7);
+      if (32 & o3.f) i6.S(t7);
       return t7;
     } else if (-1 === t7.i) {
       t7.i = 0;
       if (void 0 !== t7.n) {
         t7.n.p = t7.p;
         if (void 0 !== t7.p) t7.p.n = t7.n;
-        t7.p = r3.s;
+        t7.p = o3.s;
         t7.n = void 0;
-        r3.s.n = t7;
-        r3.s = t7;
+        o3.s.n = t7;
+        o3.s = t7;
       }
       return t7;
     }
@@ -3141,7 +3145,7 @@ l3.prototype.S = function(i6) {
     i6.x = n5;
     this.t = i6;
     if (void 0 !== n5) n5.e = i6;
-    else o3(function() {
+    else f3(function() {
       var i7;
       null == (i7 = t7.W) || i7.call(t7);
     });
@@ -3161,7 +3165,7 @@ l3.prototype.U = function(i6) {
     }
     if (i6 === this.t) {
       this.t = r7;
-      if (void 0 === r7) o3(function() {
+      if (void 0 === r7) f3(function() {
         var i7;
         null == (i7 = t7.Z) || i7.call(t7);
       });
@@ -3171,13 +3175,10 @@ l3.prototype.U = function(i6) {
 l3.prototype.subscribe = function(i6) {
   var t7 = this;
   return j3(function() {
-    var n5 = t7.value, o4 = r3;
-    r3 = void 0;
-    try {
-      i6(n5);
-    } finally {
-      r3 = o4;
-    }
+    var n5 = t7.value;
+    f3(function() {
+      return i6(n5);
+    });
   }, { name: "sub" });
 };
 l3.prototype.valueOf = function() {
@@ -3191,7 +3192,7 @@ l3.prototype.toJSON = function() {
 };
 l3.prototype.peek = function() {
   var i6 = this;
-  return o3(function() {
+  return f3(function() {
     return i6.value;
   });
 };
@@ -3201,9 +3202,9 @@ Object.defineProperty(l3.prototype, "value", { get: function() {
   return this.v;
 }, set: function(i6) {
   if (i6 !== this.v) {
-    if (v3 > 100) throw new Error("Cycle detected");
+    if (s3 > 100) throw new Error("Cycle detected");
     !(function(i7) {
-      if (0 !== s3 && 0 === v3) {
+      if (0 !== v3 && 0 === s3) {
         if (i7.l !== e3) {
           i7.l = e3;
           c3 = { S: i7, v: i7.v, i: i7.i, o: c3 };
@@ -3213,7 +3214,7 @@ Object.defineProperty(l3.prototype, "value", { get: function() {
     this.v = i6;
     this.i++;
     d3++;
-    s3++;
+    v3++;
     try {
       for (var n5 = this.t; void 0 !== n5; n5 = n5.x) n5.t.N();
     } finally {
@@ -3256,14 +3257,11 @@ function b2(i6) {
   i6.s = n5;
 }
 function p3(i6, t7) {
-  l3.call(this, void 0);
+  l3.call(this, void 0, t7);
   this.x = i6;
   this.s = void 0;
   this.g = d3 - 1;
   this.f = 4;
-  this.W = null == t7 ? void 0 : t7.watched;
-  this.Z = null == t7 ? void 0 : t7.unwatched;
-  this.name = null == t7 ? void 0 : t7.name;
 }
 p3.prototype = new l3();
 p3.prototype.h = function() {
@@ -3278,10 +3276,10 @@ p3.prototype.h = function() {
     this.f &= -2;
     return true;
   }
-  var i6 = r3;
+  var i6 = o3;
   try {
     _2(this);
-    r3 = this;
+    o3 = this;
     var t7 = this.x();
     if (16 & this.f || this.v !== t7 || 0 === this.i) {
       this.v = t7;
@@ -3293,7 +3291,7 @@ p3.prototype.h = function() {
     this.f |= 16;
     this.i++;
   }
-  r3 = i6;
+  o3 = i6;
   b2(this);
   this.f &= -2;
   return true;
@@ -3335,9 +3333,9 @@ function S2(i6) {
   var n5 = i6.m;
   i6.m = void 0;
   if ("function" == typeof n5) {
-    s3++;
-    var o4 = r3;
-    r3 = void 0;
+    v3++;
+    var r7 = o3;
+    o3 = void 0;
     try {
       n5();
     } catch (t7) {
@@ -3346,7 +3344,7 @@ function S2(i6) {
       m3(i6);
       throw t7;
     } finally {
-      r3 = o4;
+      o3 = r7;
       t3();
     }
   }
@@ -3358,9 +3356,9 @@ function m3(i6) {
   S2(i6);
 }
 function x2(i6) {
-  if (r3 !== this) throw new Error("Out-of-order effect");
+  if (o3 !== this) throw new Error("Out-of-order effect");
   b2(this);
-  r3 = i6;
+  o3 = i6;
   this.f &= -2;
   if (8 & this.f) m3(this);
   t3();
@@ -3372,7 +3370,7 @@ function E2(i6, t7) {
   this.u = void 0;
   this.f = 32;
   this.name = null == t7 ? void 0 : t7.name;
-  if (f3) f3.push(this);
+  if (r3) r3.push(this);
 }
 E2.prototype.c = function() {
   var i6 = this.S();
@@ -3391,9 +3389,9 @@ E2.prototype.S = function() {
   this.f &= -9;
   S2(this);
   _2(this);
-  s3++;
-  var i6 = r3;
-  r3 = this;
+  v3++;
+  var i6 = o3;
+  o3 = this;
   return x2.bind(this, i6);
 };
 E2.prototype.N = function() {
@@ -7540,7 +7538,7 @@ function goBack() {
 function PageTransition({ children, isActive, duration = 300 }) {
   const [visible, setVisible] = d2(isActive);
   const [shouldRender, setShouldRender] = d2(isActive);
-  y2(() => {
+  h2(() => {
     if (isActive) {
       setShouldRender(true);
       globalThis.requestAnimationFrame(() => setVisible(true));
@@ -8257,6 +8255,1746 @@ var StellarWalletsKit = class _StellarWalletsKit {
     });
   }
 };
+
+// node_modules/@albedo-link/intent/src/random-token-generator.js
+function generateRandomToken() {
+  const rn = new Uint32Array(4);
+  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+    crypto.getRandomValues(rn);
+  } else {
+    for (let i6 = 0; i6 < rn.length; i6++) {
+      rn[i6] = Math.floor(Math.random() * 4294967295);
+    }
+  }
+  return Array.from(rn).map((n5) => n5.toString(36)).join("");
+}
+
+// node_modules/@albedo-link/intent/src/intent-interface.js
+var intentInterface = {
+  public_key: {
+    title: "View public key",
+    description: "Requests account public key. It's a simple way of authentication for Stellar-based applications. The response ensures that a user owns the corresponding secret key.",
+    implicitFlow: false,
+    params: {
+      token: {
+        description: "Verification token generated by the application (should be unique or random).",
+        type: "string",
+        required: false
+      },
+      callback: {
+        description: "Optional URL callback where Albedo will POST a signed token and public key.",
+        type: "string",
+        required: false
+      },
+      require_existing: {
+        description: "Allow existing Albedo accounts only.",
+        type: "boolean",
+        required: false
+      }
+    },
+    returns: {
+      pubkey: {
+        description: "User-selected public key.",
+        type: "string"
+      },
+      signed_message: {
+        description: "HEX-encoded authentication message derived from the public key and verification token.",
+        type: "string"
+      },
+      signature: {
+        description: "HEX-encoded ED25519 signature of the authentication message that can be further used to verify user's keypair ownership.",
+        type: "string"
+      }
+    }
+  },
+  sign_message: {
+    title: "Sign text message",
+    description: "Requests arbitrary message signing. Can be used to implement identity/ownership verification.",
+    implicitFlow: true,
+    params: {
+      message: {
+        description: "Text message to sign.",
+        type: "string",
+        required: true
+      },
+      pubkey: {
+        description: "Specific public key requested by the application.",
+        type: "string",
+        required: false
+      },
+      callback: {
+        description: "Optional URL callback where Albedo will POST a signed message.",
+        type: "string",
+        required: false
+      }
+    },
+    returns: {
+      pubkey: {
+        description: "User-selected public key.",
+        type: "string"
+      },
+      original_message: {
+        description: "Text message to sign from request.",
+        type: "string"
+      },
+      signed_message: {
+        description: "HEX-encoded message derived from the public key and original message.",
+        type: "string"
+      },
+      message_signature: {
+        description: "HEX-encoded ED25519 signature of the signed message.",
+        type: "string"
+      }
+    }
+  },
+  tx: {
+    title: "Sign transaction",
+    description: "Requests a signature for the transaction. Returns the signed transaction envelope that can be submitted to the network or used for multi-sig coordination.",
+    implicitFlow: true,
+    params: {
+      xdr: {
+        description: "XDR-encoded transaction envelope to sign.",
+        type: "string",
+        required: true
+      },
+      pubkey: {
+        description: "Specific public key requested by the application.",
+        type: "string",
+        required: false
+      },
+      network: {
+        description: "Stellar network identifier.",
+        type: "string",
+        required: false
+      },
+      callback: {
+        description: "Optional URL callback where Albedo will POST the signed transaction XDR instead of submitting it to Horizon.",
+        type: "string",
+        required: false
+      },
+      description: {
+        description: "Optional human-friendly short transaction description provided by developers.",
+        type: "string",
+        required: false
+      },
+      submit: {
+        description: "If set, the signed transaction will be submitted to the Horizon server instead of returning it to the application.",
+        type: "boolean",
+        required: false
+      }
+    },
+    returns: {
+      xdr: {
+        description: "XDR-encoded transaction envelope from request.",
+        type: "string"
+      },
+      tx_hash: {
+        description: "HEX-encoded transaction hash.",
+        type: "string"
+      },
+      signed_envelope_xdr: {
+        description: "XDR-encoded transaction envelope with new signatures.",
+        type: "string"
+      },
+      network: {
+        description: "Stellar network identifier.",
+        type: "string"
+      },
+      result: {
+        description: "Optional response from Horizon if the transaction has been submitted automatically.",
+        type: "object"
+      }
+    }
+  },
+  pay: {
+    title: "Make payment",
+    description: "Requests a payment from a user. Works with any Stellar asset, supports transaction memo.",
+    implicitFlow: true,
+    params: {
+      amount: {
+        description: "Requested payment amount.",
+        type: "string",
+        required: true
+      },
+      destination: {
+        description: "Payment destination address.",
+        type: "string",
+        required: true
+      },
+      asset_code: {
+        description: "Asset code (skip for XLM).",
+        type: "string",
+        required: false
+      },
+      asset_issuer: {
+        description: "Asset issuer (skip for XLM).",
+        type: "string",
+        required: false
+      },
+      memo: {
+        description: "Transaction memo (required for exchanges and some anchors).",
+        type: "string",
+        required: false
+      },
+      memo_type: {
+        description: "Transaction memo type.",
+        type: "string",
+        required: false
+      },
+      pubkey: {
+        description: "Specific public key requested by the application.",
+        type: "string",
+        required: false
+      },
+      network: {
+        description: "Stellar network identifier or private network passphrase.",
+        type: "string",
+        required: false
+      },
+      callback: {
+        description: "Optional URL callback where Albedo will POST the signed transaction XDR instead of submitting it to Horizon. ",
+        type: "string",
+        required: false
+      },
+      submit: {
+        description: "If set, the signed transaction will be submitted to the Horizon server instead of returning it to the application.",
+        type: "boolean",
+        required: false
+      }
+    },
+    returns: {
+      amount: {
+        description: "Payment amount from request.",
+        type: "string"
+      },
+      destination: {
+        description: "Payment destination address from request.",
+        type: "string"
+      },
+      asset_code: {
+        description: "Asset code from request.",
+        type: "string"
+      },
+      asset_issuer: {
+        description: "Asset issuer from request.",
+        type: "string"
+      },
+      memo: {
+        description: "Transaction memo from request.",
+        type: "string"
+      },
+      memo_type: {
+        description: "Transaction memo type from request.",
+        type: "string"
+      },
+      tx_hash: {
+        description: "HEX-encoded transaction hash.",
+        type: "string"
+      },
+      signed_envelope_xdr: {
+        description: "XDR-encoded transaction envelope with new signatures.",
+        type: "string"
+      },
+      pubkey: {
+        description: "User-selected public key.",
+        type: "string"
+      },
+      network: {
+        description: "Stellar network identifier.",
+        type: "string"
+      },
+      result: {
+        description: "Optional response from Horizon if the transaction has been submitted automatically.",
+        type: "object"
+      }
+    }
+  },
+  trust: {
+    title: "Establish trustline",
+    description: "Requests permission to create a trustline to a given Stellar asset. Gradually simplifies the process of creating trustlines for anchors, ICOs, and airdrops.",
+    implicitFlow: true,
+    params: {
+      asset_code: {
+        description: "Trustline asset code.",
+        type: "string",
+        required: true
+      },
+      asset_issuer: {
+        description: "Trustline asset issuer address.",
+        type: "string",
+        required: true
+      },
+      limit: {
+        description: "Trust limit.",
+        type: "string",
+        required: false
+      },
+      memo: {
+        description: "Transaction memo (required for exchanges and some anchors).",
+        type: "string",
+        required: false
+      },
+      memo_type: {
+        description: "Transaction memo type.",
+        type: "string",
+        required: false
+      },
+      pubkey: {
+        description: "Specific public key requested by the application.",
+        type: "string",
+        required: false
+      },
+      network: {
+        description: "Stellar network identifier or private network passphrase.",
+        type: "string",
+        required: false
+      },
+      callback: {
+        description: "Optional URL callback where Albedo will POST the signed transaction XDR instead of submitting it to Horizon. ",
+        type: "string",
+        required: false
+      },
+      submit: {
+        description: "If set, the signed transaction will be submitted to the Horizon server instead of returning it to the application.",
+        type: "boolean",
+        required: false
+      }
+    },
+    returns: {
+      asset_code: {
+        description: "Trustline asset code from request.",
+        type: "string"
+      },
+      asset_issuer: {
+        description: "Trustline asset issuer address from request.",
+        type: "string"
+      },
+      limit: {
+        description: "Trust limit from request.",
+        type: "string"
+      },
+      tx_hash: {
+        description: "HEX-encoded transaction hash.",
+        type: "string"
+      },
+      signed_envelope_xdr: {
+        description: "XDR-encoded transaction envelope with new signatures.",
+        type: "string"
+      },
+      pubkey: {
+        description: "User-selected public key.",
+        type: "string"
+      },
+      network: {
+        description: "Stellar network identifier.",
+        type: "string"
+      },
+      result: {
+        description: "Optional response from Horizon if the transaction has been submitted automatically.",
+        type: "object"
+      }
+    }
+  },
+  exchange: {
+    title: "Swap tokens",
+    description: "Requests permission to buy tokens on Stellar DEX at market price.",
+    implicitFlow: false,
+    params: {
+      amount: {
+        description: "The amount of asset to buy.",
+        type: "string",
+        required: true
+      },
+      max_price: {
+        description: "Maximum price the user willing to pay.",
+        type: "string",
+        required: true
+      },
+      sell_asset_code: {
+        description: "Asset code of the asset to sell.",
+        type: "string",
+        required: false
+      },
+      sell_asset_issuer: {
+        description: "Issuer account of the asset to sell.",
+        type: "string",
+        required: false
+      },
+      buy_asset_code: {
+        description: "Asset code of the asset to buy.",
+        type: "string",
+        required: false
+      },
+      buy_asset_issuer: {
+        description: "Issuer account of the asset to buy.",
+        type: "string",
+        required: false
+      },
+      memo: {
+        description: "Transaction memo (required for exchanges and some anchors).",
+        type: "string",
+        required: false
+      },
+      memo_type: {
+        description: "Transaction memo type.",
+        type: "string",
+        required: false
+      },
+      pubkey: {
+        description: "Specific public key requested by the application.",
+        type: "string",
+        required: false
+      },
+      network: {
+        description: "Stellar network identifier or private network passphrase.",
+        type: "string",
+        required: false
+      },
+      callback: {
+        description: "Optional URL callback where Albedo will POST the signed transaction XDR instead of submitting it to Horizon.",
+        type: "string",
+        required: false
+      },
+      submit: {
+        description: "If set, the signed transaction will be submitted to the Horizon server instead of returning it to the application.",
+        type: "boolean",
+        required: false
+      }
+    },
+    returns: {
+      amount: {
+        description: "The amount of asset to buy from request.",
+        type: "string"
+      },
+      max_price: {
+        description: "Maximum price the user willing to pay from request.",
+        type: "string"
+      },
+      sell_asset_code: {
+        description: "Asset code of the asset to sell from request.",
+        type: "string"
+      },
+      sell_asset_issuer: {
+        description: "Issuer account of the asset to sell from request.",
+        type: "string"
+      },
+      buy_asset_code: {
+        description: "Asset code of the asset to buy from request.",
+        type: "string"
+      },
+      buy_asset_issuer: {
+        description: "Issuer account of the asset to buy from request.",
+        type: "string"
+      },
+      tx_hash: {
+        description: "HEX-encoded transaction hash.",
+        type: "string"
+      },
+      signed_envelope_xdr: {
+        description: "XDR-encoded transaction envelope with new signatures.",
+        type: "string"
+      },
+      pubkey: {
+        description: "User-selected public key.",
+        type: "string"
+      },
+      network: {
+        description: "Stellar network identifier.",
+        type: "string"
+      },
+      result: {
+        description: "Optional response from Horizon if the transaction has been submitted automatically.",
+        type: "object"
+      }
+    }
+  },
+  implicit_flow: {
+    title: "Implicit permissions",
+    description: 'Requests temporary access token for one or more intents that can be used to execute actions without explicit confirmation from the user. In order to be executed implicitly, an implicit flow permissions for a given intent should be granted and "pubkey" parameter set.',
+    implicitFlow: false,
+    params: {
+      intents: {
+        description: "Requested implicit flow intents.",
+        type: "string|string[]",
+        required: true
+      },
+      network: {
+        description: "Stellar network identifier or private network passphrase.",
+        type: "string",
+        required: false
+      }
+    },
+    returns: {
+      granted: {
+        description: "Whether a user granted permissions or not.",
+        type: "boolean"
+      },
+      intents: {
+        description: "Requested implicit flow intents.",
+        type: "string[]"
+      },
+      grants: {
+        description: "Implicit flow intents that have been granted.",
+        type: "string[]"
+      },
+      session: {
+        description: "Unique implicit session id.",
+        type: "string"
+      },
+      valid_until: {
+        description: "Session expiration timestamp.",
+        type: "number"
+      },
+      pubkey: {
+        description: "User-selected public key.",
+        type: "string"
+      },
+      network: {
+        description: "Stellar network identifier.",
+        type: "string"
+      }
+    }
+  },
+  manage_account: {
+    title: "Open account settings",
+    description: "Opens account settings window for a given account.",
+    implicitFlow: false,
+    params: {
+      pubkey: {
+        description: "Specific public key requested by the application.",
+        type: "string",
+        required: true
+      },
+      network: {
+        description: "Stellar network identifier or private network passphrase.",
+        type: "string",
+        required: false
+      }
+    },
+    returns: {
+      pubkey: {
+        description: "Public key from intent request.",
+        type: "string"
+      }
+    }
+  },
+  batch: {
+    title: "Intents batch",
+    description: "Requests execution of several tx intents bundled together. This intent is atomic \u2013 a user confirms or rejects all bundled requests at once, with the same account and the same Stellar network.",
+    implicitFlow: true,
+    params: {
+      intents: {
+        description: "Requested tx intents that should be executed together.",
+        type: "object[]",
+        required: true
+      },
+      pubkey: {
+        description: "Specific public key requested by the application.",
+        type: "string",
+        required: false
+      },
+      network: {
+        description: "Stellar network identifier or private network passphrase.",
+        type: "string",
+        required: false
+      }
+    },
+    returns: {
+      intents: {
+        description: "Requested tx intents.",
+        type: "object[]"
+      },
+      results: {
+        description: "Array of results for each requested intent.",
+        type: "object[]"
+      },
+      pubkey: {
+        description: "User-selected public key.",
+        type: "string"
+      },
+      network: {
+        description: "Stellar network identifier.",
+        type: "string"
+      }
+    }
+  }
+};
+var intent_interface_default = intentInterface;
+
+// node_modules/@albedo-link/intent/src/intent-errors.js
+var intentErrors = {
+  unhandledError: {
+    message: "Unhandled error occurred. If this error persists, please contact Albedo support.",
+    code: -1
+  },
+  externalError: {
+    message: "External error occurred.",
+    code: -2
+  },
+  invalidIntentRequest: {
+    message: "Intent request is invalid.",
+    code: -3
+  },
+  actionRejectedByUser: {
+    message: "Action request was rejected by the user.",
+    code: -4
+  },
+  horizonError: {
+    message: "Transaction failed when submitted to Stellar network.",
+    code: -5
+  },
+  callbackError: {
+    message: "Callback redirect failed.",
+    code: -6
+  }
+};
+var intent_errors_default = intentErrors;
+
+// node_modules/@albedo-link/intent/src/transport-handler.js
+function TransportHandler(targetWindow, ephemeral = false) {
+  this.windowHandler = targetWindow;
+  this.ephemeral = !!ephemeral;
+  this.isLoaded = false;
+  this.pendingRequests = {};
+  this.preprocessRequestParams = null;
+  this.onLoaded = new Promise((resolve, reject) => this.onLoadedCallback = resolve).then(() => this);
+  this.messageHandler = this.messageHandler.bind(this);
+  window.addEventListener("message", this.messageHandler, false);
+}
+TransportHandler.prototype = {
+  isLoaded: false,
+  protocolVersion: 3,
+  markLoaded() {
+    const { onLoadedCallback } = this;
+    if (onLoadedCallback) {
+      this.onLoadedCallback = null;
+      this.isLoaded = true;
+      onLoadedCallback();
+    }
+  },
+  /**
+   * Handler for incoming communication messages processing.
+   * @param {Object} data - Received data.
+   */
+  messageHandler({ data }) {
+    if (data.albedo) {
+      this.matchProtocolVersion(data.albedo.protocol);
+      return this.markLoaded();
+    }
+    if (data.albedoIntentResult) {
+      const { __reqid, ...result } = data.albedoIntentResult, pending = this.pendingRequests[__reqid];
+      if (pending) {
+        delete this.pendingRequests[__reqid];
+        pending(result);
+        if (this.ephemeral) {
+          window.removeEventListener("message", this.messageHandler, false);
+          this.windowHandler.close();
+        }
+      }
+    }
+  },
+  /**
+   * Handler for the transport window close event.
+   */
+  transportCloseHandler() {
+    for (let key in this.pendingRequests)
+      if (this.pendingRequests.hasOwnProperty(key)) {
+        const pending = this.pendingRequests[key];
+        delete this.pendingRequests[key];
+        pending(intent_errors_default.actionRejectedByUser);
+      }
+  },
+  /**
+   * Request intent confirmation using current transport.
+   * @param {Object} params - Intent request params.
+   * @return {Promise}
+   */
+  postMessage(params) {
+    const nonce = generateRandomToken();
+    return new Promise((resolve, reject) => {
+      this.onLoaded.then(() => {
+        this.pendingRequests[nonce] = handleIntentResponsePromise.bind(this, resolve, reject);
+        params = Object.assign({ __reqid: nonce, __albedo_intent_version: this.protocolVersion }, params);
+        if (this.preprocessRequestParams) {
+          params = this.preprocessRequestParams(params);
+        }
+        this.windowHandler.postMessage(params, "*");
+      });
+    });
+  },
+  /**
+   * Check protocol version compatibility.
+   * @param {Number} albedoProtocolVersion
+   */
+  matchProtocolVersion(albedoProtocolVersion) {
+    const versionDif = albedoProtocolVersion - this.protocolVersion;
+    if (versionDif === 0) return;
+    const error = `@albedo-link/intent module protocol version (${this.protocolVersion}) is incompatible with current Albedo protocol version ${albedoProtocolVersion}.`;
+    if (versionDif > 0) {
+      console.warn(error + " Please update @albedo-link/intent module to avoid possible connection problems.");
+    } else if (versionDif < 0) {
+      this.windowHandler.close();
+      throw new Error(error);
+    }
+  }
+};
+function handleIntentResponsePromise(resolve, reject, res) {
+  if (res.error) {
+    reject(res);
+  } else {
+    resolve(res);
+  }
+}
+var transport_handler_default = TransportHandler;
+
+// node_modules/@albedo-link/intent/src/transport-builder.js
+function createDialogTransport(frontendUrl) {
+  const url = `${frontendUrl}/confirm`, w6 = 480, h5 = 600, dualScreenLeft = window.screenLeft !== void 0 ? window.screenLeft : window.screenX, dualScreenTop = window.screenTop !== void 0 ? window.screenTop : window.screenY, currentWindowWidth = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width, currentWindowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height, left = currentWindowWidth / 2 - w6 / 2 + dualScreenLeft, top = currentWindowHeight / 2 - h5 / 2 + dualScreenTop;
+  const dialogWindow = window.open(url, "auth.albedo.link", `height=${h5},width=${w6},top=${top},left=${left},menubar=0,toolbar=0,location=0,status=0,personalbar=0,scrollbars=0,dependent=1`);
+  return new transport_handler_default(dialogWindow, true).onLoaded;
+}
+var sharedIframeTransport = null;
+function createIframeTransport(frontendUrl) {
+  if (!sharedIframeTransport) {
+    const iframe = document.createElement("iframe");
+    iframe.style.border = "none";
+    Object.assign(iframe, {
+      width: "0",
+      height: "0",
+      frameBorder: "0",
+      referrerPolicy: "origin",
+      src: `${frontendUrl}`
+    });
+    document.body.appendChild(iframe);
+    sharedIframeTransport = new transport_handler_default(iframe.contentWindow);
+  }
+  return sharedIframeTransport.onLoaded;
+}
+
+// node_modules/@albedo-link/intent/src/implicit-session.js
+function ImplicitSession({ session, pubkey, grants, valid_until }) {
+  this.key = session;
+  this.pubkey = pubkey;
+  this.grants = grants.slice();
+  this.validUntil = valid_until;
+  Object.freeze(this);
+  Object.freeze(this.grants);
+}
+ImplicitSession.prototype = {
+  /**
+   * Unique session key.
+   * @type {String}
+   */
+  key: "",
+  /**
+   * Public key of the key pair used to authorize the session.
+   * @type {String}
+   */
+  pubkey: "",
+  /**
+   * Granted permissions.
+   * @type {Array<String>}
+   */
+  grants: [],
+  /**
+   * Time-to-live.
+   * @type {Number}
+   */
+  validUntil: 0,
+  /**
+   * Check whether the session is expired or not.
+   * @return {boolean}
+   */
+  get isExpired() {
+    return this.validUntil - 2e3 < (/* @__PURE__ */ new Date()).getTime();
+  },
+  toJSON() {
+    return {
+      session: this.key,
+      pubkey: this.pubkey,
+      grants: this.grants.slice(),
+      valid_until: this.validUntil
+    };
+  }
+};
+var implicit_session_default = ImplicitSession;
+
+// node_modules/@albedo-link/intent/src/implicit-session-storage.js
+var storagePrefix = "albedo_session_";
+var implicitSessions = {};
+function getStorage() {
+  return window.sessionStorage;
+}
+var saveToBrowserStorage = true;
+function saveImplicitSession(intentResult) {
+  const session = new implicit_session_default(intentResult);
+  if (!saveToBrowserStorage) {
+    implicitSessions[session.pubkey] = session;
+  } else {
+    getStorage().setItem(storagePrefix + session.pubkey, JSON.stringify(session));
+  }
+}
+function retrieveSessionFromStorage(pubkey) {
+  let session;
+  if (!saveToBrowserStorage) {
+    session = implicitSessions[pubkey];
+  } else {
+    const restored = getStorage().getItem(storagePrefix + pubkey);
+    if (restored) {
+      session = new implicit_session_default(JSON.parse(restored));
+    }
+  }
+  if (!session) return null;
+  if (session.isExpired) {
+    forgetSession(pubkey);
+    return null;
+  }
+  return session;
+}
+function getImplicitSession(intent, pubkey) {
+  const session = retrieveSessionFromStorage(pubkey);
+  if (!session || !session.grants.includes(intent)) return null;
+  return session;
+}
+function getAllImplicitSessions() {
+  const storage = getStorage();
+  return Object.keys(storage).filter((key) => key.indexOf(storagePrefix) === 0).map((key) => retrieveSessionFromStorage(key.substr(storagePrefix.length))).filter((session) => !!session);
+}
+function forgetSession(pubkey) {
+  if (!saveToBrowserStorage) {
+    delete implicitSessions[pubkey];
+  } else {
+    getStorage().removeItem(storagePrefix + pubkey);
+  }
+}
+
+// node_modules/@albedo-link/intent/src/intent-dispatcher.js
+function intentError(msg) {
+  return Object.assign(new Error(), intent_errors_default.invalidIntentRequest, { ext: msg });
+}
+function requestIntentConfirmation(params, frontendUrl) {
+  try {
+    const { intent } = params;
+    if (!intent)
+      throw intentError('Parameter "intent" is required.');
+    const intentDescriptor = intent_interface_default[intent];
+    if (!intentDescriptor)
+      throw intentError(`Unknown intent: "${intent}".`);
+    const requestParams = prepareRequestParams(intentDescriptor, params);
+    return prepareTransport(requestParams, frontendUrl).then((transport) => sendRequest(requestParams, transport));
+  } catch (e5) {
+    const { code = -1, message, ext } = e5, res = { message, code };
+    if (ext) {
+      res.ext = ext;
+    }
+    return Promise.reject(res);
+  }
+}
+function prepareTransport(params, frontendUrl) {
+  if (params.pubkey) {
+    const session = getImplicitSession(params.intent, params.pubkey);
+    if (session) {
+      params.session = session.key;
+      return createIframeTransport(frontendUrl);
+    }
+  }
+  setTimeout(() => {
+    if (params.intent === "implicit_flow") {
+      createIframeTransport(frontendUrl);
+    }
+  }, 200);
+  return createDialogTransport(frontendUrl);
+}
+function sendRequest(params, transport) {
+  return transport.postMessage(params).then((result) => {
+    if (result.intent === "implicit_flow" && result.granted) {
+      saveImplicitSession(result);
+    }
+    return result;
+  });
+}
+function prepareRequestParams(intentDescriptor, params) {
+  if (typeof params !== "object")
+    throw intentError("Intent parameters expected.");
+  const { intent, pubkey } = params, requestParams = { intent };
+  if (pubkey && !/^G[0-9A-Z]{55}$/.test(pubkey))
+    throw intentError('Invalid "pubkey" parameter. Stellar account public key expected.');
+  for (const key in intentDescriptor.params) {
+    const props = intentDescriptor.params[key], value = params[key];
+    if (value) {
+      requestParams[key] = value;
+    } else if (props.required) {
+      throw intentError(`Parameter "${key}" is required for intent "${intent}".`);
+    }
+  }
+  return requestParams;
+}
+
+// node_modules/@albedo-link/intent/src/web+stellar-handler.js
+function parseQuery(query = null) {
+  if (query === null) {
+    query = window.location.search;
+  }
+  if (query[0] === "?") query = query.substr(1);
+  const dest = {};
+  for (let kv of query.split("&")) {
+    const [key, value] = kv.split("=").map((v4) => decodeURIComponent(v4));
+    dest[key] = value;
+  }
+  return dest;
+}
+function bindWebStellarLinkHandler(albedoIntent) {
+  if (typeof document === "undefined" || !document.addEventListener) return;
+  document.addEventListener("click", function sep0007Handler(e5) {
+    if (e5.target.tagName !== "A" || (e5.target.href || "").indexOf("web+stellar:") !== 0) return;
+    e5.preventDefault();
+    e5.stopImmediatePropagation();
+    const { pathname: intentName, search } = new URL(e5.target.href);
+    if (!["tx", "pay"].includes(intentName)) {
+      alert(`Invalid operation requested: ${intentName}. It's likely an external application error. Please contact support team of ${window.location.origin}.`);
+      return;
+    }
+    const params = parseQuery(search);
+    albedoIntent.request(intentName, params);
+  }, false);
+}
+
+// node_modules/@albedo-link/intent/src/index.js
+if (typeof window === "object" && typeof window.fetch !== "function") {
+  throw new Error("Browser FetchAPI is not available. For legacy browsers support use polyfills such as whatwg-fetch.");
+}
+function AlbedoIntent() {
+}
+AlbedoIntent.prototype = {
+  frontendUrl: "https://albedo.link",
+  intentInterface: intent_interface_default,
+  intentErrors: intent_errors_default,
+  /**
+   * Initiate external intent request.
+   * @param {String} intent - Intent name.
+   * @param {Object} [params] - Request parameters.
+   * @returns {Promise<Object>}
+   */
+  request(intent, params) {
+    return requestIntentConfirmation(Object.assign(params || {}, { intent }), this.frontendUrl);
+  },
+  /**
+   * Requests temporary permissions to execute the specific intents without calling confirmation dialog.
+   * @param {Object} params - Intent parameters.
+   * @param {Array<String>} params.intents - Requested intents.
+   * @returns {Promise<ImplicitFlowIntentResult>}
+   */
+  implicitFlow(params) {
+    return this.request("implicit_flow", params);
+  },
+  /**
+   * Request secure third-party application authentication.
+   * @param {Object} params - Intent parameters.
+   * @param {String} [params.token] - Verification token generated by the application (should be unique or random).
+   * @param {String} [params.require_existing] - Allow existing Albedo accounts only.
+   * @returns {Promise<PublicKeyIntentResult>}
+   */
+  publicKey(params) {
+    params = Object.assign({}, params);
+    if (!params.token) {
+      params.token = generateRandomToken();
+    }
+    return this.request("public_key", params);
+  },
+  /**
+   * Request transaction signing, returns the signed transaction envelope.
+   * @param {Object} params - Intent parameters.
+   * @param {String} params.xdr - A Stellar transaction in XDR format encoded in base64.
+   * @param {String} [params.pubkey] - Specific public key requested by the application.
+   * @param {String} [params.network] - Stellar network identifier or private network passphrase.
+   * @param {Boolean} [params.submit] - If set, the signed transaction will be submitted to the Horizon server instead of returning it to the application.
+   * @returns {Promise<TxIntentResult>}
+   */
+  tx(params) {
+    return this.request("tx", params);
+  },
+  /**
+   * Requests execution of several tx intents bundled together. This intent is atomic – a user confirms or rejects all bundled requests at once, with the same account and the same Stellar network.
+   * @param {Object} params - Intent parameters.
+   * @param {String} params.intents - Requested tx intents.
+   * @param {String} [params.pubkey] - Specific public key requested by the application.
+   * @param {String} [params.network] - Stellar network identifier or private network passphrase.
+   * @returns {Promise<BatchIntentResult>}
+   */
+  batch(params) {
+    return this.request("batch", params);
+  },
+  /**
+   * Request an asset trustline creation.
+   * @param {Object} params - Intent parameters.
+   * @param {String} params.destination - Payment destination address.
+   * @param {String} params.amount - Amount to pay.
+   * @param {String} [params.asset_code] - [Optional] Asset code (if not set XLM is implied).
+   * @param {String} [params.asset_issuer] - [Optional] Asset issuer (if not set XLM is implied).
+   * @param {String} [params.memo] - [Optional] Memo to be included in the payment.
+   * @param {('MEMO_TEXT' | 'MEMO_ID' | 'MEMO_HASH' | 'MEMO_RETURN')} [params.memo_type] - [Optional] Memo type to be included in the payment.
+   * @param {String} [params.pubkey] - Specific public key requested by the application.
+   * @param {String} [params.network] - Stellar network identifier or private network passphrase.
+   * @param {Boolean} [params.submit] - If set, the signed transaction will be submitted to the Horizon server instead of returning it to the application.
+   * @returns {Promise<PayIntentResult>}
+   */
+  pay(params) {
+    return this.request("pay", params);
+  },
+  /**
+   * Request an asset trustline creation.
+   * @param {Object} params - Intent parameters.
+   * @param {String} params.asset_code - Asset code.
+   * @param {String} params.asset_issuer - Asset account issuer.
+   * @param {String} [params.limit] - [Optional] Trustline limit.
+   * @param {String} [params.pubkey] - Specific public key requested by the application.
+   * @param {String} [params.network] - Stellar network identifier or private network passphrase.
+   * @param {Boolean} [params.submit] - If set, the signed transaction will be submitted to the Horizon server instead of returning it to the application.
+   * @returns {Promise<TrustIntentResult>}
+   */
+  trust(params) {
+    return this.request("trust", params);
+  },
+  /**
+   * Request token exchange on Stellar DEX.
+   * @param {Object} params - Intent parameters.
+   * @param {String} params.destination - Payment destination address.
+   * @param {String} params.amount - Amount to pay.
+   * @param {String} params.max_price - Maximum price to pay.
+   * @param {String} [params.sell_asset_code] - [Optional] Selling asset code (if not set XLM is implied).
+   * @param {String} [params.sell_asset_issuer] - [Optional] Selling asset issuer (if not set XLM is implied).
+   * @param {String} [params.buy_asset_code] - [Optional] Selling asset code (if not set XLM is implied).
+   * @param {String} [params.buy_asset_issuer] - [Optional] Selling asset issuer (if not set XLM is implied).
+   * @return {Promise<ExchangeIntentResult>}
+   */
+  exchange(params) {
+    return this.request("exchange", params);
+  },
+  /**
+   * Request arbitrary data signing.
+   * @param {Object} params - Intent parameters.
+   * @param {String} params.message - Text message to sign.
+   * @param {String} [params.pubkey] - Specific public key requested by the application.
+   * @returns {Promise<SignMessageIntentResult>}
+   */
+  signMessage(params) {
+    params = Object.assign({}, params, { message: normalizeMessageToSign(params.message) });
+    return this.request("sign_message", params);
+  },
+  /**
+   * Open account settings window for a given account.
+   * @param {Object} params - Intent parameters.
+   * @param {String} params.pubkey - Specific public key requested by the application.
+   * @param {String} [params.network] - Stellar network identifier or private network passphrase.
+   * @returns {Promise<ManageAccountIntentResult>}
+   */
+  manageAccount(params) {
+    return this.request("manage_account", params);
+  },
+  /**
+   * Generate random token that can be used for authentication or encryption
+   * @return {String}
+   */
+  generateRandomToken() {
+    return generateRandomToken();
+  },
+  /**
+   * Check whether an implicit session exists for a given intent and pubkey.
+   * @param {String} intent
+   * @param {String} pubkey
+   * @return {boolean}
+   */
+  isImplicitSessionAllowed(intent, pubkey) {
+    return !!getImplicitSession(intent, pubkey);
+  },
+  /**
+   * Enumerate all currently active implicit sessions.
+   * @returns {Array<{pubkey: String, session: String, valid_until: Number, grants: Array<String>}>}
+   */
+  listImplicitSessions() {
+    return getAllImplicitSessions();
+  },
+  /**
+   * Revoke session permission granted for an account.
+   * @param {String} pubkey
+   */
+  forgetImplicitSession(pubkey) {
+    forgetSession(pubkey);
+  }
+};
+function normalizeMessageToSign(message) {
+  switch (typeof message) {
+    case "string":
+      return message;
+    case "undefined":
+      return "";
+  }
+  return JSON.stringify(message);
+}
+var albedo = new AlbedoIntent();
+albedo.default = albedo;
+bindWebStellarLinkHandler(albedo);
+var src_default = albedo;
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/sdk/modules/albedo.module.js
+var albedo2 = src_default.default;
+var ALBEDO_ID = "albedo";
+var AlbedoModule = class {
+  constructor() {
+    Object.defineProperty(this, "moduleType", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: ModuleType.HOT_WALLET
+    });
+    Object.defineProperty(this, "productId", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: ALBEDO_ID
+    });
+    Object.defineProperty(this, "productName", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "Albedo"
+    });
+    Object.defineProperty(this, "productUrl", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "https://albedo.link/"
+    });
+    Object.defineProperty(this, "productIcon", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "https://stellar.creit.tech/wallet-icons/albedo.png"
+    });
+  }
+  async isAvailable() {
+    return true;
+  }
+  async getAddress() {
+    try {
+      const result = await albedo2.publicKey({});
+      return { address: result.pubkey };
+    } catch (e5) {
+      throw parseError(e5);
+    }
+  }
+  async signTransaction(xdr, opts) {
+    try {
+      const { signed_envelope_xdr } = await albedo2.tx({
+        xdr,
+        pubkey: opts?.address,
+        network: opts?.networkPassphrase ? opts.networkPassphrase === Networks.PUBLIC ? AlbedoNetwork.PUBLIC : AlbedoNetwork.TESTNET : void 0
+      });
+      return {
+        signedTxXdr: signed_envelope_xdr,
+        signerAddress: opts?.address
+      };
+    } catch (e5) {
+      throw parseError(e5);
+    }
+  }
+  async signAuthEntry() {
+    throw {
+      code: -3,
+      message: 'Albedo does not support the "signAuthEntry" function'
+    };
+  }
+  /**
+   * We understand that Albedo has a method to sign a message, but that method is not compatible with SEP-0043
+   */
+  async signMessage() {
+    throw {
+      code: -3,
+      message: 'Albedo does not support the "signMessage" function'
+    };
+  }
+  async getNetwork() {
+    throw {
+      code: -3,
+      message: 'Albedo does not support the "getNetwork" function'
+    };
+  }
+};
+var AlbedoNetwork;
+(function(AlbedoNetwork2) {
+  AlbedoNetwork2["PUBLIC"] = "public";
+  AlbedoNetwork2["TESTNET"] = "testnet";
+})(AlbedoNetwork || (AlbedoNetwork = {}));
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/sdk/modules/freighter.module.js
+var import_freighter_api = __toESM(require_index_min(), 1);
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/_validate_binary_like.js
+var encoder = new TextEncoder();
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/_common32.js
+var padding = "=".charCodeAt(0);
+var alphabet = {
+  base32: new TextEncoder().encode("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"),
+  base32hex: new TextEncoder().encode("0123456789ABCDEFGHIJKLMNOPQRSTUV"),
+  base32crockford: new TextEncoder().encode("0123456789ABCDEFGHJKMNPQRSTVWXYZ")
+};
+var rAlphabet = {
+  base32: new Uint8Array(128).fill(32),
+  // alphabet.base32.length
+  base32hex: new Uint8Array(128).fill(32),
+  base32crockford: new Uint8Array(128).fill(32)
+};
+alphabet.base32.forEach((byte, i6) => rAlphabet.base32[byte] = i6);
+alphabet.base32hex.forEach((byte, i6) => rAlphabet.base32hex[byte] = i6);
+alphabet.base32crockford.forEach((byte, i6) => rAlphabet.base32crockford[byte] = i6);
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/_common_detach.js
+function detach(buffer, maxSize) {
+  const originalSize = buffer.length;
+  if (buffer.byteOffset) {
+    const b4 = new Uint8Array(buffer.buffer);
+    b4.set(buffer);
+    buffer = b4.subarray(0, originalSize);
+  }
+  buffer = new Uint8Array(buffer.buffer.transfer(maxSize));
+  buffer.set(buffer.subarray(0, originalSize), maxSize - originalSize);
+  return [buffer, maxSize - originalSize];
+}
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/base32.js
+var padding2 = "=".charCodeAt(0);
+var alphabet2 = new TextEncoder().encode("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567");
+var rAlphabet2 = new Uint8Array(128).fill(32);
+alphabet2.forEach((byte, i6) => rAlphabet2[byte] = i6);
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/base58.js
+var base58alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".split("");
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/_common64.js
+var padding3 = "=".charCodeAt(0);
+var alphabet3 = {
+  base64: new TextEncoder().encode("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"),
+  base64url: new TextEncoder().encode("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_")
+};
+var rAlphabet3 = {
+  base64: new Uint8Array(128).fill(64),
+  // alphabet.base64.length
+  base64url: new Uint8Array(128).fill(64)
+};
+alphabet3.base64.forEach((byte, i6) => rAlphabet3.base64[byte] = i6);
+alphabet3.base64url.forEach((byte, i6) => rAlphabet3.base64url[byte] = i6);
+function calcSizeBase64(originalSize) {
+  return ((originalSize + 2) / 3 | 0) * 4;
+}
+function encode2(buffer, i6, o4, alphabet8, padding6) {
+  i6 += 2;
+  for (; i6 < buffer.length; i6 += 3) {
+    const x4 = buffer[i6 - 2] << 16 | buffer[i6 - 1] << 8 | buffer[i6];
+    buffer[o4++] = alphabet8[x4 >> 18];
+    buffer[o4++] = alphabet8[x4 >> 12 & 63];
+    buffer[o4++] = alphabet8[x4 >> 6 & 63];
+    buffer[o4++] = alphabet8[x4 & 63];
+  }
+  switch (i6) {
+    case buffer.length + 1: {
+      const x4 = buffer[i6 - 2] << 16;
+      buffer[o4++] = alphabet8[x4 >> 18];
+      buffer[o4++] = alphabet8[x4 >> 12 & 63];
+      buffer[o4++] = padding6;
+      buffer[o4++] = padding6;
+      break;
+    }
+    case buffer.length: {
+      const x4 = buffer[i6 - 2] << 16 | buffer[i6 - 1] << 8;
+      buffer[o4++] = alphabet8[x4 >> 18];
+      buffer[o4++] = alphabet8[x4 >> 12 & 63];
+      buffer[o4++] = alphabet8[x4 >> 6 & 63];
+      buffer[o4++] = padding6;
+      break;
+    }
+  }
+  return o4;
+}
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/base64.js
+var padding4 = "=".charCodeAt(0);
+var alphabet4 = new TextEncoder().encode("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+var rAlphabet4 = new Uint8Array(128).fill(64);
+alphabet4.forEach((byte, i6) => rAlphabet4[byte] = i6);
+function encodeBase64(data) {
+  if (typeof data === "string") {
+    data = new TextEncoder().encode(data);
+  } else if (data instanceof ArrayBuffer)
+    data = new Uint8Array(data).slice();
+  else
+    data = data.slice();
+  const [output, i6] = detach(data, calcSizeBase64(data.length));
+  encode2(output, i6, 0, alphabet4, padding4);
+  return new TextDecoder().decode(output);
+}
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/base64url.js
+var padding5 = "=".charCodeAt(0);
+var alphabet5 = new TextEncoder().encode("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_");
+var rAlphabet5 = new Uint8Array(128).fill(64);
+alphabet5.forEach((byte, i6) => rAlphabet5[byte] = i6);
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/_common16.js
+var alphabet6 = new TextEncoder().encode("0123456789abcdef");
+var rAlphabet6 = new Uint8Array(128).fill(16);
+alphabet6.forEach((byte, i6) => rAlphabet6[byte] = i6);
+new TextEncoder().encode("ABCDEF").forEach((byte, i6) => rAlphabet6[byte] = i6 + 10);
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/hex.js
+var alphabet7 = new TextEncoder().encode("0123456789abcdef");
+var rAlphabet7 = new Uint8Array(128).fill(16);
+alphabet7.forEach((byte, i6) => rAlphabet7[byte] = i6);
+new TextEncoder().encode("ABCDEF").forEach((byte, i6) => rAlphabet7[byte] = i6 + 10);
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/varint.js
+var AB = new ArrayBuffer(8);
+var U32_VIEW = new Uint32Array(AB);
+var U64_VIEW = new BigUint64Array(AB);
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/sdk/modules/freighter.module.js
+var FREIGHTER_ID = "freighter";
+var FreighterModule = class {
+  constructor() {
+    Object.defineProperty(this, "moduleType", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: ModuleType.HOT_WALLET
+    });
+    Object.defineProperty(this, "productId", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: FREIGHTER_ID
+    });
+    Object.defineProperty(this, "productName", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "Freighter"
+    });
+    Object.defineProperty(this, "productUrl", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "https://freighter.app"
+    });
+    Object.defineProperty(this, "productIcon", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "https://stellar.creit.tech/wallet-icons/freighter.png"
+    });
+  }
+  async runChecks() {
+    if (!await this.isAvailable()) {
+      throw new Error("Freighter is not connected");
+    }
+  }
+  async isAvailable() {
+    if (window.stellar?.provider === "freighter" && window.stellar?.platform === "mobile")
+      return false;
+    try {
+      const response = await (0, import_freighter_api.isConnected)();
+      return !response.error && response.isConnected;
+    } catch (e5) {
+      console.error(e5);
+      return false;
+    }
+  }
+  async getAddress(params) {
+    try {
+      await this.runChecks();
+      if (params?.skipRequestAccess !== true) {
+        const requestAccessResult = await (0, import_freighter_api.requestAccess)();
+        if (requestAccessResult.error)
+          return Promise.reject(parseError(requestAccessResult.error));
+      }
+      const { address, error } = await (0, import_freighter_api.getAddress)();
+      if (error)
+        return Promise.reject(error);
+      if (!address) {
+        return Promise.reject({
+          code: -3,
+          message: "Getting the address from Freighter is not allowed, please request access first."
+        });
+      }
+      return { address };
+    } catch (e5) {
+      throw parseError(e5);
+    }
+  }
+  async signTransaction(xdr, opts) {
+    try {
+      await this.runChecks();
+      const { signedTxXdr, signerAddress, error } = await (0, import_freighter_api.signTransaction)(xdr, {
+        address: opts?.address,
+        networkPassphrase: opts?.networkPassphrase
+      });
+      if (error)
+        return Promise.reject(error);
+      return { signedTxXdr, signerAddress };
+    } catch (e5) {
+      throw parseError(e5);
+    }
+  }
+  async signAuthEntry(authEntry, opts) {
+    try {
+      await this.runChecks();
+      const { signedAuthEntry, signerAddress, error } = await (0, import_freighter_api.signAuthEntry)(authEntry, {
+        address: opts?.address,
+        networkPassphrase: opts?.networkPassphrase
+      });
+      if (error)
+        return Promise.reject(error);
+      if (!signedAuthEntry) {
+        return Promise.reject({
+          code: -3,
+          message: "signedAuthEntry returned from Freighter is undefined."
+        });
+      }
+      return {
+        signedAuthEntry: typeof signedAuthEntry === "string" ? signedAuthEntry : encodeBase64(new Uint8Array(signedAuthEntry)),
+        signerAddress
+      };
+    } catch (e5) {
+      throw parseError(e5);
+    }
+  }
+  async signMessage(message, opts) {
+    try {
+      await this.runChecks();
+      const { signedMessage, signerAddress, error } = await (0, import_freighter_api.signMessage)(message, {
+        address: opts?.address,
+        networkPassphrase: opts?.networkPassphrase
+      });
+      if (error)
+        return Promise.reject(error);
+      if (!signedMessage) {
+        return Promise.reject({
+          code: -3,
+          message: "signedMessage returned from Freighter is undefined."
+        });
+      }
+      return {
+        signedMessage: typeof signedMessage === "string" ? signedMessage : encodeBase64(new Uint8Array(signedMessage)),
+        signerAddress
+      };
+    } catch (e5) {
+      throw parseError(e5);
+    }
+  }
+  async getNetwork() {
+    try {
+      await this.runChecks();
+      const { network, networkPassphrase, error } = await (0, import_freighter_api.getNetwork)();
+      if (error)
+        return Promise.reject(error);
+      return { network, networkPassphrase };
+    } catch (e5) {
+      throw parseError(e5);
+    }
+  }
+};
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/sdk/modules/hana.module.js
+var HANA_ID = "hana";
+var HanaModule = class {
+  constructor() {
+    Object.defineProperty(this, "moduleType", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: ModuleType.HOT_WALLET
+    });
+    Object.defineProperty(this, "productId", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: HANA_ID
+    });
+    Object.defineProperty(this, "productName", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "Hana Wallet"
+    });
+    Object.defineProperty(this, "productUrl", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "https://hanawallet.io/"
+    });
+    Object.defineProperty(this, "productIcon", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "https://stellar.creit.tech/wallet-icons/hana.png"
+    });
+  }
+  async runChecks() {
+    if (!await this.isAvailable()) {
+      throw new Error("Hana Wallet is not installed");
+    }
+  }
+  async isAvailable() {
+    return typeof window !== "undefined" && !!window.hanaWallet?.stellar;
+  }
+  async getAddress() {
+    try {
+      await this.runChecks();
+      const address = await window.hanaWallet.stellar.getPublicKey();
+      return { address };
+    } catch (e5) {
+      throw parseError(e5);
+    }
+  }
+  async signTransaction(xdr, opts) {
+    try {
+      await this.runChecks();
+      const signedTxXdr = await window.hanaWallet.stellar.signTransaction({
+        xdr,
+        accountToSign: opts?.address,
+        networkPassphrase: opts?.networkPassphrase
+      });
+      return { signedTxXdr, signerAddress: opts?.address };
+    } catch (e5) {
+      throw parseError(e5);
+    }
+  }
+  async signAuthEntry(authEntry, opts) {
+    try {
+      await this.runChecks();
+      const signedAuthEntry = await window.hanaWallet.stellar.signAuthEntry({
+        xdr: authEntry,
+        accountToSign: opts?.address
+      });
+      return { signedAuthEntry, signerAddress: opts?.address };
+    } catch (e5) {
+      throw parseError(e5);
+    }
+  }
+  async signMessage(message, opts) {
+    try {
+      await this.runChecks();
+      const signedMessage = await window.hanaWallet.stellar.signMessage({
+        message,
+        accountToSign: opts?.address
+      });
+      return { signedMessage, signerAddress: opts?.address };
+    } catch (e5) {
+      throw parseError(e5);
+    }
+  }
+  async getNetwork() {
+    throw {
+      code: -3,
+      message: 'Hana does not support the "getNetwork" function'
+    };
+  }
+};
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/sdk/modules/lobstr.module.js
+var import_signer_extension_api = __toESM(require_index_min2(), 1);
+var LOBSTR_ID = "lobstr";
+var LobstrModule = class {
+  constructor() {
+    Object.defineProperty(this, "moduleType", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: ModuleType.HOT_WALLET
+    });
+    Object.defineProperty(this, "productId", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: LOBSTR_ID
+    });
+    Object.defineProperty(this, "productName", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "LOBSTR"
+    });
+    Object.defineProperty(this, "productUrl", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "https://lobstr.co"
+    });
+    Object.defineProperty(this, "productIcon", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "https://stellar.creit.tech/wallet-icons/lobstr.png"
+    });
+  }
+  async runChecks() {
+    if (!await this.isAvailable()) {
+      throw new Error(`Lobstr is not connected`);
+    }
+  }
+  async isAvailable() {
+    return (0, import_signer_extension_api.isConnected)();
+  }
+  async getAddress() {
+    try {
+      await this.runChecks();
+      const address = await (0, import_signer_extension_api.getPublicKey)();
+      return { address };
+    } catch (e5) {
+      throw parseError(e5);
+    }
+  }
+  async signTransaction(xdr, opts) {
+    if (opts?.address) {
+      console.warn(`Lobstr doesn't allow specifying what public key should sign the transaction, we skip the value`);
+    }
+    if (opts?.networkPassphrase) {
+      console.warn(`Lobstr doesn't allow specifying the network that should be used, we skip the value`);
+    }
+    try {
+      await this.runChecks();
+      const signedTxXdr = await (0, import_signer_extension_api.signTransaction)(xdr);
+      return { signedTxXdr };
+    } catch (e5) {
+      throw parseError(e5);
+    }
+  }
+  async signMessage(message, opts) {
+    if (opts?.address) {
+      console.warn(`Lobstr doesn't allow specifying what public key should sign the transaction, we skip the value`);
+    }
+    if (opts?.networkPassphrase) {
+      console.warn(`Lobstr doesn't allow specifying the network that should be used, we skip the value`);
+    }
+    try {
+      await this.runChecks();
+      const result = await (0, import_signer_extension_api.signMessage)(message);
+      if (!result) {
+        throw new Error("Signing message failed");
+      }
+      return result;
+    } catch (e5) {
+      throw parseError(e5);
+    }
+  }
+  signAuthEntry() {
+    return Promise.reject({
+      code: -3,
+      message: 'Lobstr does not support the "signAuthEntry" function'
+    });
+  }
+  getNetwork() {
+    return Promise.reject({
+      code: -3,
+      message: 'Lobstr does not support the "getNetwork" function'
+    });
+  }
+};
+
+// node_modules/@creit.tech/stellar-wallets-kit/esm/sdk/modules/rabet.module.js
+var RABET_ID = "rabet";
+var RabetModule = class {
+  constructor() {
+    Object.defineProperty(this, "moduleType", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: ModuleType.HOT_WALLET
+    });
+    Object.defineProperty(this, "productId", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: RABET_ID
+    });
+    Object.defineProperty(this, "productName", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "Rabet"
+    });
+    Object.defineProperty(this, "productUrl", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "https://rabet.io/"
+    });
+    Object.defineProperty(this, "productIcon", {
+      enumerable: true,
+      configurable: true,
+      writable: true,
+      value: "https://stellar.creit.tech/wallet-icons/rabet.png"
+    });
+  }
+  async runChecks() {
+    if (!await this.isAvailable()) {
+      throw new Error(`Rabet is not installed`);
+    }
+  }
+  isAvailable() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(typeof window !== "undefined" && !!window.rabet);
+      }, 100);
+    });
+  }
+  async getAddress() {
+    try {
+      await this.runChecks();
+      const { publicKey } = await window.rabet.connect();
+      return { address: publicKey };
+    } catch (e5) {
+      throw parseError(e5);
+    }
+  }
+  async signTransaction(xdr, opts) {
+    if (opts?.networkPassphrase && opts.networkPassphrase !== Networks.PUBLIC && opts.networkPassphrase !== Networks.TESTNET) {
+      throw new Error(`Rabet doesn't support the network: ${opts.networkPassphrase}`);
+    }
+    if (opts?.address) {
+      console.warn(`Rabet doesn't allow specifying the network that should be used, we skip the value`);
+    }
+    try {
+      await this.runChecks();
+      const result = await window.rabet.sign(xdr, opts?.networkPassphrase === Networks.PUBLIC ? RabetNetwork.PUBLIC : RabetNetwork.TESTNET);
+      return { signedTxXdr: result?.xdr };
+    } catch (e5) {
+      throw parseError(e5);
+    }
+  }
+  signAuthEntry() {
+    return Promise.reject({
+      code: -3,
+      message: 'Rabet does not support the "signAuthEntry" function'
+    });
+  }
+  signMessage() {
+    return Promise.reject({
+      code: -3,
+      message: 'Rabet does not support the "signMessage" function'
+    });
+  }
+  getNetwork() {
+    return Promise.reject({
+      code: -3,
+      message: 'Rabet does not support the "getNetwork" function'
+    });
+  }
+};
+var RabetNetwork;
+(function(RabetNetwork2) {
+  RabetNetwork2["PUBLIC"] = "mainnet";
+  RabetNetwork2["TESTNET"] = "testnet";
+})(RabetNetwork || (RabetNetwork = {}));
 
 // node_modules/@creit.tech/xbull-wallet-connect/index.js
 var import_tweetnacl = __toESM(require_nacl_fast(), 1);
@@ -10204,7 +11942,7 @@ var xBullModule = class {
       enumerable: true,
       configurable: true,
       writable: true,
-      value: "/wallet-icons/xbull.png"
+      value: "https://stellar.creit.tech/wallet-icons/xbull.png"
     });
   }
   isAvailable() {
@@ -10258,1746 +11996,6 @@ var xBullModule = class {
       code: -3,
       message: 'xBull does not support the "getNetwork" function'
     });
-  }
-};
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/sdk/modules/freighter.module.js
-var import_freighter_api = __toESM(require_index_min(), 1);
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/_validate_binary_like.js
-var encoder = new TextEncoder();
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/_common32.js
-var padding = "=".charCodeAt(0);
-var alphabet = {
-  base32: new TextEncoder().encode("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"),
-  base32hex: new TextEncoder().encode("0123456789ABCDEFGHIJKLMNOPQRSTUV"),
-  base32crockford: new TextEncoder().encode("0123456789ABCDEFGHJKMNPQRSTVWXYZ")
-};
-var rAlphabet = {
-  base32: new Uint8Array(128).fill(32),
-  // alphabet.base32.length
-  base32hex: new Uint8Array(128).fill(32),
-  base32crockford: new Uint8Array(128).fill(32)
-};
-alphabet.base32.forEach((byte, i6) => rAlphabet.base32[byte] = i6);
-alphabet.base32hex.forEach((byte, i6) => rAlphabet.base32hex[byte] = i6);
-alphabet.base32crockford.forEach((byte, i6) => rAlphabet.base32crockford[byte] = i6);
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/_common_detach.js
-function detach(buffer, maxSize) {
-  const originalSize = buffer.length;
-  if (buffer.byteOffset) {
-    const b4 = new Uint8Array(buffer.buffer);
-    b4.set(buffer);
-    buffer = b4.subarray(0, originalSize);
-  }
-  buffer = new Uint8Array(buffer.buffer.transfer(maxSize));
-  buffer.set(buffer.subarray(0, originalSize), maxSize - originalSize);
-  return [buffer, maxSize - originalSize];
-}
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/base32.js
-var padding2 = "=".charCodeAt(0);
-var alphabet2 = new TextEncoder().encode("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567");
-var rAlphabet2 = new Uint8Array(128).fill(32);
-alphabet2.forEach((byte, i6) => rAlphabet2[byte] = i6);
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/base58.js
-var base58alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".split("");
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/_common64.js
-var padding3 = "=".charCodeAt(0);
-var alphabet3 = {
-  base64: new TextEncoder().encode("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"),
-  base64url: new TextEncoder().encode("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_")
-};
-var rAlphabet3 = {
-  base64: new Uint8Array(128).fill(64),
-  // alphabet.base64.length
-  base64url: new Uint8Array(128).fill(64)
-};
-alphabet3.base64.forEach((byte, i6) => rAlphabet3.base64[byte] = i6);
-alphabet3.base64url.forEach((byte, i6) => rAlphabet3.base64url[byte] = i6);
-function calcSizeBase64(originalSize) {
-  return ((originalSize + 2) / 3 | 0) * 4;
-}
-function encode2(buffer, i6, o4, alphabet8, padding6) {
-  i6 += 2;
-  for (; i6 < buffer.length; i6 += 3) {
-    const x4 = buffer[i6 - 2] << 16 | buffer[i6 - 1] << 8 | buffer[i6];
-    buffer[o4++] = alphabet8[x4 >> 18];
-    buffer[o4++] = alphabet8[x4 >> 12 & 63];
-    buffer[o4++] = alphabet8[x4 >> 6 & 63];
-    buffer[o4++] = alphabet8[x4 & 63];
-  }
-  switch (i6) {
-    case buffer.length + 1: {
-      const x4 = buffer[i6 - 2] << 16;
-      buffer[o4++] = alphabet8[x4 >> 18];
-      buffer[o4++] = alphabet8[x4 >> 12 & 63];
-      buffer[o4++] = padding6;
-      buffer[o4++] = padding6;
-      break;
-    }
-    case buffer.length: {
-      const x4 = buffer[i6 - 2] << 16 | buffer[i6 - 1] << 8;
-      buffer[o4++] = alphabet8[x4 >> 18];
-      buffer[o4++] = alphabet8[x4 >> 12 & 63];
-      buffer[o4++] = alphabet8[x4 >> 6 & 63];
-      buffer[o4++] = padding6;
-      break;
-    }
-  }
-  return o4;
-}
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/base64.js
-var padding4 = "=".charCodeAt(0);
-var alphabet4 = new TextEncoder().encode("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
-var rAlphabet4 = new Uint8Array(128).fill(64);
-alphabet4.forEach((byte, i6) => rAlphabet4[byte] = i6);
-function encodeBase64(data) {
-  if (typeof data === "string") {
-    data = new TextEncoder().encode(data);
-  } else if (data instanceof ArrayBuffer)
-    data = new Uint8Array(data).slice();
-  else
-    data = data.slice();
-  const [output, i6] = detach(data, calcSizeBase64(data.length));
-  encode2(output, i6, 0, alphabet4, padding4);
-  return new TextDecoder().decode(output);
-}
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/base64url.js
-var padding5 = "=".charCodeAt(0);
-var alphabet5 = new TextEncoder().encode("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_");
-var rAlphabet5 = new Uint8Array(128).fill(64);
-alphabet5.forEach((byte, i6) => rAlphabet5[byte] = i6);
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/_common16.js
-var alphabet6 = new TextEncoder().encode("0123456789abcdef");
-var rAlphabet6 = new Uint8Array(128).fill(16);
-alphabet6.forEach((byte, i6) => rAlphabet6[byte] = i6);
-new TextEncoder().encode("ABCDEF").forEach((byte, i6) => rAlphabet6[byte] = i6 + 10);
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/hex.js
-var alphabet7 = new TextEncoder().encode("0123456789abcdef");
-var rAlphabet7 = new Uint8Array(128).fill(16);
-alphabet7.forEach((byte, i6) => rAlphabet7[byte] = i6);
-new TextEncoder().encode("ABCDEF").forEach((byte, i6) => rAlphabet7[byte] = i6 + 10);
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/deps/jsr.io/@std/encoding/1.0.10/varint.js
-var AB = new ArrayBuffer(8);
-var U32_VIEW = new Uint32Array(AB);
-var U64_VIEW = new BigUint64Array(AB);
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/sdk/modules/freighter.module.js
-var FREIGHTER_ID = "freighter";
-var FreighterModule = class {
-  constructor() {
-    Object.defineProperty(this, "moduleType", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: ModuleType.HOT_WALLET
-    });
-    Object.defineProperty(this, "productId", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: FREIGHTER_ID
-    });
-    Object.defineProperty(this, "productName", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: "Freighter"
-    });
-    Object.defineProperty(this, "productUrl", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: "https://freighter.app"
-    });
-    Object.defineProperty(this, "productIcon", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: "/wallet-icons/freighter.png"
-    });
-  }
-  async runChecks() {
-    if (!await this.isAvailable()) {
-      throw new Error("Freighter is not connected");
-    }
-  }
-  async isAvailable() {
-    if (window.stellar?.provider === "freighter" && window.stellar?.platform === "mobile")
-      return false;
-    try {
-      const response = await (0, import_freighter_api.isConnected)();
-      return !response.error && response.isConnected;
-    } catch (e5) {
-      console.error(e5);
-      return false;
-    }
-  }
-  async getAddress(params) {
-    try {
-      await this.runChecks();
-      if (params?.skipRequestAccess !== true) {
-        const requestAccessResult = await (0, import_freighter_api.requestAccess)();
-        if (requestAccessResult.error)
-          return Promise.reject(parseError(requestAccessResult.error));
-      }
-      const { address, error } = await (0, import_freighter_api.getAddress)();
-      if (error)
-        return Promise.reject(error);
-      if (!address) {
-        return Promise.reject({
-          code: -3,
-          message: "Getting the address from Freighter is not allowed, please request access first."
-        });
-      }
-      return { address };
-    } catch (e5) {
-      throw parseError(e5);
-    }
-  }
-  async signTransaction(xdr, opts) {
-    try {
-      await this.runChecks();
-      const { signedTxXdr, signerAddress, error } = await (0, import_freighter_api.signTransaction)(xdr, {
-        address: opts?.address,
-        networkPassphrase: opts?.networkPassphrase
-      });
-      if (error)
-        return Promise.reject(error);
-      return { signedTxXdr, signerAddress };
-    } catch (e5) {
-      throw parseError(e5);
-    }
-  }
-  async signAuthEntry(authEntry, opts) {
-    try {
-      await this.runChecks();
-      const { signedAuthEntry, signerAddress, error } = await (0, import_freighter_api.signAuthEntry)(authEntry, {
-        address: opts?.address,
-        networkPassphrase: opts?.networkPassphrase
-      });
-      if (error)
-        return Promise.reject(error);
-      if (!signedAuthEntry) {
-        return Promise.reject({
-          code: -3,
-          message: "signedAuthEntry returned from Freighter is undefined."
-        });
-      }
-      return {
-        signedAuthEntry: typeof signedAuthEntry === "string" ? signedAuthEntry : encodeBase64(new Uint8Array(signedAuthEntry)),
-        signerAddress
-      };
-    } catch (e5) {
-      throw parseError(e5);
-    }
-  }
-  async signMessage(message, opts) {
-    try {
-      await this.runChecks();
-      const { signedMessage, signerAddress, error } = await (0, import_freighter_api.signMessage)(message, {
-        address: opts?.address,
-        networkPassphrase: opts?.networkPassphrase
-      });
-      if (error)
-        return Promise.reject(error);
-      if (!signedMessage) {
-        return Promise.reject({
-          code: -3,
-          message: "signedMessage returned from Freighter is undefined."
-        });
-      }
-      return {
-        signedMessage: typeof signedMessage === "string" ? signedMessage : encodeBase64(new Uint8Array(signedMessage)),
-        signerAddress
-      };
-    } catch (e5) {
-      throw parseError(e5);
-    }
-  }
-  async getNetwork() {
-    try {
-      await this.runChecks();
-      const { network, networkPassphrase, error } = await (0, import_freighter_api.getNetwork)();
-      if (error)
-        return Promise.reject(error);
-      return { network, networkPassphrase };
-    } catch (e5) {
-      throw parseError(e5);
-    }
-  }
-};
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/sdk/modules/lobstr.module.js
-var import_signer_extension_api = __toESM(require_index_min2(), 1);
-var LOBSTR_ID = "lobstr";
-var LobstrModule = class {
-  constructor() {
-    Object.defineProperty(this, "moduleType", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: ModuleType.HOT_WALLET
-    });
-    Object.defineProperty(this, "productId", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: LOBSTR_ID
-    });
-    Object.defineProperty(this, "productName", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: "LOBSTR"
-    });
-    Object.defineProperty(this, "productUrl", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: "https://lobstr.co"
-    });
-    Object.defineProperty(this, "productIcon", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: "/wallet-icons/lobstr.png"
-    });
-  }
-  async runChecks() {
-    if (!await this.isAvailable()) {
-      throw new Error(`Lobstr is not connected`);
-    }
-  }
-  async isAvailable() {
-    return (0, import_signer_extension_api.isConnected)();
-  }
-  async getAddress() {
-    try {
-      await this.runChecks();
-      const address = await (0, import_signer_extension_api.getPublicKey)();
-      return { address };
-    } catch (e5) {
-      throw parseError(e5);
-    }
-  }
-  async signTransaction(xdr, opts) {
-    if (opts?.address) {
-      console.warn(`Lobstr doesn't allow specifying what public key should sign the transaction, we skip the value`);
-    }
-    if (opts?.networkPassphrase) {
-      console.warn(`Lobstr doesn't allow specifying the network that should be used, we skip the value`);
-    }
-    try {
-      await this.runChecks();
-      const signedTxXdr = await (0, import_signer_extension_api.signTransaction)(xdr);
-      return { signedTxXdr };
-    } catch (e5) {
-      throw parseError(e5);
-    }
-  }
-  async signMessage(message, opts) {
-    if (opts?.address) {
-      console.warn(`Lobstr doesn't allow specifying what public key should sign the transaction, we skip the value`);
-    }
-    if (opts?.networkPassphrase) {
-      console.warn(`Lobstr doesn't allow specifying the network that should be used, we skip the value`);
-    }
-    try {
-      await this.runChecks();
-      const result = await (0, import_signer_extension_api.signMessage)(message);
-      if (!result) {
-        throw new Error("Signing message failed");
-      }
-      return result;
-    } catch (e5) {
-      throw parseError(e5);
-    }
-  }
-  signAuthEntry() {
-    return Promise.reject({
-      code: -3,
-      message: 'Lobstr does not support the "signAuthEntry" function'
-    });
-  }
-  getNetwork() {
-    return Promise.reject({
-      code: -3,
-      message: 'Lobstr does not support the "getNetwork" function'
-    });
-  }
-};
-
-// node_modules/@albedo-link/intent/src/random-token-generator.js
-function generateRandomToken() {
-  const rn = new Uint32Array(4);
-  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
-    crypto.getRandomValues(rn);
-  } else {
-    for (let i6 = 0; i6 < rn.length; i6++) {
-      rn[i6] = Math.floor(Math.random() * 4294967295);
-    }
-  }
-  return Array.from(rn).map((n5) => n5.toString(36)).join("");
-}
-
-// node_modules/@albedo-link/intent/src/intent-interface.js
-var intentInterface = {
-  public_key: {
-    title: "View public key",
-    description: "Requests account public key. It's a simple way of authentication for Stellar-based applications. The response ensures that a user owns the corresponding secret key.",
-    implicitFlow: false,
-    params: {
-      token: {
-        description: "Verification token generated by the application (should be unique or random).",
-        type: "string",
-        required: false
-      },
-      callback: {
-        description: "Optional URL callback where Albedo will POST a signed token and public key.",
-        type: "string",
-        required: false
-      },
-      require_existing: {
-        description: "Allow existing Albedo accounts only.",
-        type: "boolean",
-        required: false
-      }
-    },
-    returns: {
-      pubkey: {
-        description: "User-selected public key.",
-        type: "string"
-      },
-      signed_message: {
-        description: "HEX-encoded authentication message derived from the public key and verification token.",
-        type: "string"
-      },
-      signature: {
-        description: "HEX-encoded ED25519 signature of the authentication message that can be further used to verify user's keypair ownership.",
-        type: "string"
-      }
-    }
-  },
-  sign_message: {
-    title: "Sign text message",
-    description: "Requests arbitrary message signing. Can be used to implement identity/ownership verification.",
-    implicitFlow: true,
-    params: {
-      message: {
-        description: "Text message to sign.",
-        type: "string",
-        required: true
-      },
-      pubkey: {
-        description: "Specific public key requested by the application.",
-        type: "string",
-        required: false
-      },
-      callback: {
-        description: "Optional URL callback where Albedo will POST a signed message.",
-        type: "string",
-        required: false
-      }
-    },
-    returns: {
-      pubkey: {
-        description: "User-selected public key.",
-        type: "string"
-      },
-      original_message: {
-        description: "Text message to sign from request.",
-        type: "string"
-      },
-      signed_message: {
-        description: "HEX-encoded message derived from the public key and original message.",
-        type: "string"
-      },
-      message_signature: {
-        description: "HEX-encoded ED25519 signature of the signed message.",
-        type: "string"
-      }
-    }
-  },
-  tx: {
-    title: "Sign transaction",
-    description: "Requests a signature for the transaction. Returns the signed transaction envelope that can be submitted to the network or used for multi-sig coordination.",
-    implicitFlow: true,
-    params: {
-      xdr: {
-        description: "XDR-encoded transaction envelope to sign.",
-        type: "string",
-        required: true
-      },
-      pubkey: {
-        description: "Specific public key requested by the application.",
-        type: "string",
-        required: false
-      },
-      network: {
-        description: "Stellar network identifier.",
-        type: "string",
-        required: false
-      },
-      callback: {
-        description: "Optional URL callback where Albedo will POST the signed transaction XDR instead of submitting it to Horizon.",
-        type: "string",
-        required: false
-      },
-      description: {
-        description: "Optional human-friendly short transaction description provided by developers.",
-        type: "string",
-        required: false
-      },
-      submit: {
-        description: "If set, the signed transaction will be submitted to the Horizon server instead of returning it to the application.",
-        type: "boolean",
-        required: false
-      }
-    },
-    returns: {
-      xdr: {
-        description: "XDR-encoded transaction envelope from request.",
-        type: "string"
-      },
-      tx_hash: {
-        description: "HEX-encoded transaction hash.",
-        type: "string"
-      },
-      signed_envelope_xdr: {
-        description: "XDR-encoded transaction envelope with new signatures.",
-        type: "string"
-      },
-      network: {
-        description: "Stellar network identifier.",
-        type: "string"
-      },
-      result: {
-        description: "Optional response from Horizon if the transaction has been submitted automatically.",
-        type: "object"
-      }
-    }
-  },
-  pay: {
-    title: "Make payment",
-    description: "Requests a payment from a user. Works with any Stellar asset, supports transaction memo.",
-    implicitFlow: true,
-    params: {
-      amount: {
-        description: "Requested payment amount.",
-        type: "string",
-        required: true
-      },
-      destination: {
-        description: "Payment destination address.",
-        type: "string",
-        required: true
-      },
-      asset_code: {
-        description: "Asset code (skip for XLM).",
-        type: "string",
-        required: false
-      },
-      asset_issuer: {
-        description: "Asset issuer (skip for XLM).",
-        type: "string",
-        required: false
-      },
-      memo: {
-        description: "Transaction memo (required for exchanges and some anchors).",
-        type: "string",
-        required: false
-      },
-      memo_type: {
-        description: "Transaction memo type.",
-        type: "string",
-        required: false
-      },
-      pubkey: {
-        description: "Specific public key requested by the application.",
-        type: "string",
-        required: false
-      },
-      network: {
-        description: "Stellar network identifier or private network passphrase.",
-        type: "string",
-        required: false
-      },
-      callback: {
-        description: "Optional URL callback where Albedo will POST the signed transaction XDR instead of submitting it to Horizon. ",
-        type: "string",
-        required: false
-      },
-      submit: {
-        description: "If set, the signed transaction will be submitted to the Horizon server instead of returning it to the application.",
-        type: "boolean",
-        required: false
-      }
-    },
-    returns: {
-      amount: {
-        description: "Payment amount from request.",
-        type: "string"
-      },
-      destination: {
-        description: "Payment destination address from request.",
-        type: "string"
-      },
-      asset_code: {
-        description: "Asset code from request.",
-        type: "string"
-      },
-      asset_issuer: {
-        description: "Asset issuer from request.",
-        type: "string"
-      },
-      memo: {
-        description: "Transaction memo from request.",
-        type: "string"
-      },
-      memo_type: {
-        description: "Transaction memo type from request.",
-        type: "string"
-      },
-      tx_hash: {
-        description: "HEX-encoded transaction hash.",
-        type: "string"
-      },
-      signed_envelope_xdr: {
-        description: "XDR-encoded transaction envelope with new signatures.",
-        type: "string"
-      },
-      pubkey: {
-        description: "User-selected public key.",
-        type: "string"
-      },
-      network: {
-        description: "Stellar network identifier.",
-        type: "string"
-      },
-      result: {
-        description: "Optional response from Horizon if the transaction has been submitted automatically.",
-        type: "object"
-      }
-    }
-  },
-  trust: {
-    title: "Establish trustline",
-    description: "Requests permission to create a trustline to a given Stellar asset. Gradually simplifies the process of creating trustlines for anchors, ICOs, and airdrops.",
-    implicitFlow: true,
-    params: {
-      asset_code: {
-        description: "Trustline asset code.",
-        type: "string",
-        required: true
-      },
-      asset_issuer: {
-        description: "Trustline asset issuer address.",
-        type: "string",
-        required: true
-      },
-      limit: {
-        description: "Trust limit.",
-        type: "string",
-        required: false
-      },
-      memo: {
-        description: "Transaction memo (required for exchanges and some anchors).",
-        type: "string",
-        required: false
-      },
-      memo_type: {
-        description: "Transaction memo type.",
-        type: "string",
-        required: false
-      },
-      pubkey: {
-        description: "Specific public key requested by the application.",
-        type: "string",
-        required: false
-      },
-      network: {
-        description: "Stellar network identifier or private network passphrase.",
-        type: "string",
-        required: false
-      },
-      callback: {
-        description: "Optional URL callback where Albedo will POST the signed transaction XDR instead of submitting it to Horizon. ",
-        type: "string",
-        required: false
-      },
-      submit: {
-        description: "If set, the signed transaction will be submitted to the Horizon server instead of returning it to the application.",
-        type: "boolean",
-        required: false
-      }
-    },
-    returns: {
-      asset_code: {
-        description: "Trustline asset code from request.",
-        type: "string"
-      },
-      asset_issuer: {
-        description: "Trustline asset issuer address from request.",
-        type: "string"
-      },
-      limit: {
-        description: "Trust limit from request.",
-        type: "string"
-      },
-      tx_hash: {
-        description: "HEX-encoded transaction hash.",
-        type: "string"
-      },
-      signed_envelope_xdr: {
-        description: "XDR-encoded transaction envelope with new signatures.",
-        type: "string"
-      },
-      pubkey: {
-        description: "User-selected public key.",
-        type: "string"
-      },
-      network: {
-        description: "Stellar network identifier.",
-        type: "string"
-      },
-      result: {
-        description: "Optional response from Horizon if the transaction has been submitted automatically.",
-        type: "object"
-      }
-    }
-  },
-  exchange: {
-    title: "Swap tokens",
-    description: "Requests permission to buy tokens on Stellar DEX at market price.",
-    implicitFlow: false,
-    params: {
-      amount: {
-        description: "The amount of asset to buy.",
-        type: "string",
-        required: true
-      },
-      max_price: {
-        description: "Maximum price the user willing to pay.",
-        type: "string",
-        required: true
-      },
-      sell_asset_code: {
-        description: "Asset code of the asset to sell.",
-        type: "string",
-        required: false
-      },
-      sell_asset_issuer: {
-        description: "Issuer account of the asset to sell.",
-        type: "string",
-        required: false
-      },
-      buy_asset_code: {
-        description: "Asset code of the asset to buy.",
-        type: "string",
-        required: false
-      },
-      buy_asset_issuer: {
-        description: "Issuer account of the asset to buy.",
-        type: "string",
-        required: false
-      },
-      memo: {
-        description: "Transaction memo (required for exchanges and some anchors).",
-        type: "string",
-        required: false
-      },
-      memo_type: {
-        description: "Transaction memo type.",
-        type: "string",
-        required: false
-      },
-      pubkey: {
-        description: "Specific public key requested by the application.",
-        type: "string",
-        required: false
-      },
-      network: {
-        description: "Stellar network identifier or private network passphrase.",
-        type: "string",
-        required: false
-      },
-      callback: {
-        description: "Optional URL callback where Albedo will POST the signed transaction XDR instead of submitting it to Horizon.",
-        type: "string",
-        required: false
-      },
-      submit: {
-        description: "If set, the signed transaction will be submitted to the Horizon server instead of returning it to the application.",
-        type: "boolean",
-        required: false
-      }
-    },
-    returns: {
-      amount: {
-        description: "The amount of asset to buy from request.",
-        type: "string"
-      },
-      max_price: {
-        description: "Maximum price the user willing to pay from request.",
-        type: "string"
-      },
-      sell_asset_code: {
-        description: "Asset code of the asset to sell from request.",
-        type: "string"
-      },
-      sell_asset_issuer: {
-        description: "Issuer account of the asset to sell from request.",
-        type: "string"
-      },
-      buy_asset_code: {
-        description: "Asset code of the asset to buy from request.",
-        type: "string"
-      },
-      buy_asset_issuer: {
-        description: "Issuer account of the asset to buy from request.",
-        type: "string"
-      },
-      tx_hash: {
-        description: "HEX-encoded transaction hash.",
-        type: "string"
-      },
-      signed_envelope_xdr: {
-        description: "XDR-encoded transaction envelope with new signatures.",
-        type: "string"
-      },
-      pubkey: {
-        description: "User-selected public key.",
-        type: "string"
-      },
-      network: {
-        description: "Stellar network identifier.",
-        type: "string"
-      },
-      result: {
-        description: "Optional response from Horizon if the transaction has been submitted automatically.",
-        type: "object"
-      }
-    }
-  },
-  implicit_flow: {
-    title: "Implicit permissions",
-    description: 'Requests temporary access token for one or more intents that can be used to execute actions without explicit confirmation from the user. In order to be executed implicitly, an implicit flow permissions for a given intent should be granted and "pubkey" parameter set.',
-    implicitFlow: false,
-    params: {
-      intents: {
-        description: "Requested implicit flow intents.",
-        type: "string|string[]",
-        required: true
-      },
-      network: {
-        description: "Stellar network identifier or private network passphrase.",
-        type: "string",
-        required: false
-      }
-    },
-    returns: {
-      granted: {
-        description: "Whether a user granted permissions or not.",
-        type: "boolean"
-      },
-      intents: {
-        description: "Requested implicit flow intents.",
-        type: "string[]"
-      },
-      grants: {
-        description: "Implicit flow intents that have been granted.",
-        type: "string[]"
-      },
-      session: {
-        description: "Unique implicit session id.",
-        type: "string"
-      },
-      valid_until: {
-        description: "Session expiration timestamp.",
-        type: "number"
-      },
-      pubkey: {
-        description: "User-selected public key.",
-        type: "string"
-      },
-      network: {
-        description: "Stellar network identifier.",
-        type: "string"
-      }
-    }
-  },
-  manage_account: {
-    title: "Open account settings",
-    description: "Opens account settings window for a given account.",
-    implicitFlow: false,
-    params: {
-      pubkey: {
-        description: "Specific public key requested by the application.",
-        type: "string",
-        required: true
-      },
-      network: {
-        description: "Stellar network identifier or private network passphrase.",
-        type: "string",
-        required: false
-      }
-    },
-    returns: {
-      pubkey: {
-        description: "Public key from intent request.",
-        type: "string"
-      }
-    }
-  },
-  batch: {
-    title: "Intents batch",
-    description: "Requests execution of several tx intents bundled together. This intent is atomic \u2013 a user confirms or rejects all bundled requests at once, with the same account and the same Stellar network.",
-    implicitFlow: true,
-    params: {
-      intents: {
-        description: "Requested tx intents that should be executed together.",
-        type: "object[]",
-        required: true
-      },
-      pubkey: {
-        description: "Specific public key requested by the application.",
-        type: "string",
-        required: false
-      },
-      network: {
-        description: "Stellar network identifier or private network passphrase.",
-        type: "string",
-        required: false
-      }
-    },
-    returns: {
-      intents: {
-        description: "Requested tx intents.",
-        type: "object[]"
-      },
-      results: {
-        description: "Array of results for each requested intent.",
-        type: "object[]"
-      },
-      pubkey: {
-        description: "User-selected public key.",
-        type: "string"
-      },
-      network: {
-        description: "Stellar network identifier.",
-        type: "string"
-      }
-    }
-  }
-};
-var intent_interface_default = intentInterface;
-
-// node_modules/@albedo-link/intent/src/intent-errors.js
-var intentErrors = {
-  unhandledError: {
-    message: "Unhandled error occurred. If this error persists, please contact Albedo support.",
-    code: -1
-  },
-  externalError: {
-    message: "External error occurred.",
-    code: -2
-  },
-  invalidIntentRequest: {
-    message: "Intent request is invalid.",
-    code: -3
-  },
-  actionRejectedByUser: {
-    message: "Action request was rejected by the user.",
-    code: -4
-  },
-  horizonError: {
-    message: "Transaction failed when submitted to Stellar network.",
-    code: -5
-  },
-  callbackError: {
-    message: "Callback redirect failed.",
-    code: -6
-  }
-};
-var intent_errors_default = intentErrors;
-
-// node_modules/@albedo-link/intent/src/transport-handler.js
-function TransportHandler(targetWindow, ephemeral = false) {
-  this.windowHandler = targetWindow;
-  this.ephemeral = !!ephemeral;
-  this.isLoaded = false;
-  this.pendingRequests = {};
-  this.preprocessRequestParams = null;
-  this.onLoaded = new Promise((resolve, reject) => this.onLoadedCallback = resolve).then(() => this);
-  this.messageHandler = this.messageHandler.bind(this);
-  window.addEventListener("message", this.messageHandler, false);
-}
-TransportHandler.prototype = {
-  isLoaded: false,
-  protocolVersion: 3,
-  markLoaded() {
-    const { onLoadedCallback } = this;
-    if (onLoadedCallback) {
-      this.onLoadedCallback = null;
-      this.isLoaded = true;
-      onLoadedCallback();
-    }
-  },
-  /**
-   * Handler for incoming communication messages processing.
-   * @param {Object} data - Received data.
-   */
-  messageHandler({ data }) {
-    if (data.albedo) {
-      this.matchProtocolVersion(data.albedo.protocol);
-      return this.markLoaded();
-    }
-    if (data.albedoIntentResult) {
-      const { __reqid, ...result } = data.albedoIntentResult, pending = this.pendingRequests[__reqid];
-      if (pending) {
-        delete this.pendingRequests[__reqid];
-        pending(result);
-        if (this.ephemeral) {
-          window.removeEventListener("message", this.messageHandler, false);
-          this.windowHandler.close();
-        }
-      }
-    }
-  },
-  /**
-   * Handler for the transport window close event.
-   */
-  transportCloseHandler() {
-    for (let key in this.pendingRequests)
-      if (this.pendingRequests.hasOwnProperty(key)) {
-        const pending = this.pendingRequests[key];
-        delete this.pendingRequests[key];
-        pending(intent_errors_default.actionRejectedByUser);
-      }
-  },
-  /**
-   * Request intent confirmation using current transport.
-   * @param {Object} params - Intent request params.
-   * @return {Promise}
-   */
-  postMessage(params) {
-    const nonce = generateRandomToken();
-    return new Promise((resolve, reject) => {
-      this.onLoaded.then(() => {
-        this.pendingRequests[nonce] = handleIntentResponsePromise.bind(this, resolve, reject);
-        params = Object.assign({ __reqid: nonce, __albedo_intent_version: this.protocolVersion }, params);
-        if (this.preprocessRequestParams) {
-          params = this.preprocessRequestParams(params);
-        }
-        this.windowHandler.postMessage(params, "*");
-      });
-    });
-  },
-  /**
-   * Check protocol version compatibility.
-   * @param {Number} albedoProtocolVersion
-   */
-  matchProtocolVersion(albedoProtocolVersion) {
-    const versionDif = albedoProtocolVersion - this.protocolVersion;
-    if (versionDif === 0) return;
-    const error = `@albedo-link/intent module protocol version (${this.protocolVersion}) is incompatible with current Albedo protocol version ${albedoProtocolVersion}.`;
-    if (versionDif > 0) {
-      console.warn(error + " Please update @albedo-link/intent module to avoid possible connection problems.");
-    } else if (versionDif < 0) {
-      this.windowHandler.close();
-      throw new Error(error);
-    }
-  }
-};
-function handleIntentResponsePromise(resolve, reject, res) {
-  if (res.error) {
-    reject(res);
-  } else {
-    resolve(res);
-  }
-}
-var transport_handler_default = TransportHandler;
-
-// node_modules/@albedo-link/intent/src/transport-builder.js
-function createDialogTransport(frontendUrl) {
-  const url = `${frontendUrl}/confirm`, w6 = 480, h5 = 600, dualScreenLeft = window.screenLeft !== void 0 ? window.screenLeft : window.screenX, dualScreenTop = window.screenTop !== void 0 ? window.screenTop : window.screenY, currentWindowWidth = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width, currentWindowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height, left = currentWindowWidth / 2 - w6 / 2 + dualScreenLeft, top = currentWindowHeight / 2 - h5 / 2 + dualScreenTop;
-  const dialogWindow = window.open(url, "auth.albedo.link", `height=${h5},width=${w6},top=${top},left=${left},menubar=0,toolbar=0,location=0,status=0,personalbar=0,scrollbars=0,dependent=1`);
-  return new transport_handler_default(dialogWindow, true).onLoaded;
-}
-var sharedIframeTransport = null;
-function createIframeTransport(frontendUrl) {
-  if (!sharedIframeTransport) {
-    const iframe = document.createElement("iframe");
-    iframe.style.border = "none";
-    Object.assign(iframe, {
-      width: "0",
-      height: "0",
-      frameBorder: "0",
-      referrerPolicy: "origin",
-      src: `${frontendUrl}`
-    });
-    document.body.appendChild(iframe);
-    sharedIframeTransport = new transport_handler_default(iframe.contentWindow);
-  }
-  return sharedIframeTransport.onLoaded;
-}
-
-// node_modules/@albedo-link/intent/src/implicit-session.js
-function ImplicitSession({ session, pubkey, grants, valid_until }) {
-  this.key = session;
-  this.pubkey = pubkey;
-  this.grants = grants.slice();
-  this.validUntil = valid_until;
-  Object.freeze(this);
-  Object.freeze(this.grants);
-}
-ImplicitSession.prototype = {
-  /**
-   * Unique session key.
-   * @type {String}
-   */
-  key: "",
-  /**
-   * Public key of the key pair used to authorize the session.
-   * @type {String}
-   */
-  pubkey: "",
-  /**
-   * Granted permissions.
-   * @type {Array<String>}
-   */
-  grants: [],
-  /**
-   * Time-to-live.
-   * @type {Number}
-   */
-  validUntil: 0,
-  /**
-   * Check whether the session is expired or not.
-   * @return {boolean}
-   */
-  get isExpired() {
-    return this.validUntil - 2e3 < (/* @__PURE__ */ new Date()).getTime();
-  },
-  toJSON() {
-    return {
-      session: this.key,
-      pubkey: this.pubkey,
-      grants: this.grants.slice(),
-      valid_until: this.validUntil
-    };
-  }
-};
-var implicit_session_default = ImplicitSession;
-
-// node_modules/@albedo-link/intent/src/implicit-session-storage.js
-var storagePrefix = "albedo_session_";
-var implicitSessions = {};
-function getStorage() {
-  return window.sessionStorage;
-}
-var saveToBrowserStorage = true;
-function saveImplicitSession(intentResult) {
-  const session = new implicit_session_default(intentResult);
-  if (!saveToBrowserStorage) {
-    implicitSessions[session.pubkey] = session;
-  } else {
-    getStorage().setItem(storagePrefix + session.pubkey, JSON.stringify(session));
-  }
-}
-function retrieveSessionFromStorage(pubkey) {
-  let session;
-  if (!saveToBrowserStorage) {
-    session = implicitSessions[pubkey];
-  } else {
-    const restored = getStorage().getItem(storagePrefix + pubkey);
-    if (restored) {
-      session = new implicit_session_default(JSON.parse(restored));
-    }
-  }
-  if (!session) return null;
-  if (session.isExpired) {
-    forgetSession(pubkey);
-    return null;
-  }
-  return session;
-}
-function getImplicitSession(intent, pubkey) {
-  const session = retrieveSessionFromStorage(pubkey);
-  if (!session || !session.grants.includes(intent)) return null;
-  return session;
-}
-function getAllImplicitSessions() {
-  const storage = getStorage();
-  return Object.keys(storage).filter((key) => key.indexOf(storagePrefix) === 0).map((key) => retrieveSessionFromStorage(key.substr(storagePrefix.length))).filter((session) => !!session);
-}
-function forgetSession(pubkey) {
-  if (!saveToBrowserStorage) {
-    delete implicitSessions[pubkey];
-  } else {
-    getStorage().removeItem(storagePrefix + pubkey);
-  }
-}
-
-// node_modules/@albedo-link/intent/src/intent-dispatcher.js
-function intentError(msg) {
-  return Object.assign(new Error(), intent_errors_default.invalidIntentRequest, { ext: msg });
-}
-function requestIntentConfirmation(params, frontendUrl) {
-  try {
-    const { intent } = params;
-    if (!intent)
-      throw intentError('Parameter "intent" is required.');
-    const intentDescriptor = intent_interface_default[intent];
-    if (!intentDescriptor)
-      throw intentError(`Unknown intent: "${intent}".`);
-    const requestParams = prepareRequestParams(intentDescriptor, params);
-    return prepareTransport(requestParams, frontendUrl).then((transport) => sendRequest(requestParams, transport));
-  } catch (e5) {
-    const { code = -1, message, ext } = e5, res = { message, code };
-    if (ext) {
-      res.ext = ext;
-    }
-    return Promise.reject(res);
-  }
-}
-function prepareTransport(params, frontendUrl) {
-  if (params.pubkey) {
-    const session = getImplicitSession(params.intent, params.pubkey);
-    if (session) {
-      params.session = session.key;
-      return createIframeTransport(frontendUrl);
-    }
-  }
-  setTimeout(() => {
-    if (params.intent === "implicit_flow") {
-      createIframeTransport(frontendUrl);
-    }
-  }, 200);
-  return createDialogTransport(frontendUrl);
-}
-function sendRequest(params, transport) {
-  return transport.postMessage(params).then((result) => {
-    if (result.intent === "implicit_flow" && result.granted) {
-      saveImplicitSession(result);
-    }
-    return result;
-  });
-}
-function prepareRequestParams(intentDescriptor, params) {
-  if (typeof params !== "object")
-    throw intentError("Intent parameters expected.");
-  const { intent, pubkey } = params, requestParams = { intent };
-  if (pubkey && !/^G[0-9A-Z]{55}$/.test(pubkey))
-    throw intentError('Invalid "pubkey" parameter. Stellar account public key expected.');
-  for (const key in intentDescriptor.params) {
-    const props = intentDescriptor.params[key], value = params[key];
-    if (value) {
-      requestParams[key] = value;
-    } else if (props.required) {
-      throw intentError(`Parameter "${key}" is required for intent "${intent}".`);
-    }
-  }
-  return requestParams;
-}
-
-// node_modules/@albedo-link/intent/src/web+stellar-handler.js
-function parseQuery(query = null) {
-  if (query === null) {
-    query = window.location.search;
-  }
-  if (query[0] === "?") query = query.substr(1);
-  const dest = {};
-  for (let kv of query.split("&")) {
-    const [key, value] = kv.split("=").map((v4) => decodeURIComponent(v4));
-    dest[key] = value;
-  }
-  return dest;
-}
-function bindWebStellarLinkHandler(albedoIntent) {
-  if (typeof document === "undefined" || !document.addEventListener) return;
-  document.addEventListener("click", function sep0007Handler(e5) {
-    if (e5.target.tagName !== "A" || (e5.target.href || "").indexOf("web+stellar:") !== 0) return;
-    e5.preventDefault();
-    e5.stopImmediatePropagation();
-    const { pathname: intentName, search } = new URL(e5.target.href);
-    if (!["tx", "pay"].includes(intentName)) {
-      alert(`Invalid operation requested: ${intentName}. It's likely an external application error. Please contact support team of ${window.location.origin}.`);
-      return;
-    }
-    const params = parseQuery(search);
-    albedoIntent.request(intentName, params);
-  }, false);
-}
-
-// node_modules/@albedo-link/intent/src/index.js
-if (typeof window === "object" && typeof window.fetch !== "function") {
-  throw new Error("Browser FetchAPI is not available. For legacy browsers support use polyfills such as whatwg-fetch.");
-}
-function AlbedoIntent() {
-}
-AlbedoIntent.prototype = {
-  frontendUrl: "https://albedo.link",
-  intentInterface: intent_interface_default,
-  intentErrors: intent_errors_default,
-  /**
-   * Initiate external intent request.
-   * @param {String} intent - Intent name.
-   * @param {Object} [params] - Request parameters.
-   * @returns {Promise<Object>}
-   */
-  request(intent, params) {
-    return requestIntentConfirmation(Object.assign(params || {}, { intent }), this.frontendUrl);
-  },
-  /**
-   * Requests temporary permissions to execute the specific intents without calling confirmation dialog.
-   * @param {Object} params - Intent parameters.
-   * @param {Array<String>} params.intents - Requested intents.
-   * @returns {Promise<ImplicitFlowIntentResult>}
-   */
-  implicitFlow(params) {
-    return this.request("implicit_flow", params);
-  },
-  /**
-   * Request secure third-party application authentication.
-   * @param {Object} params - Intent parameters.
-   * @param {String} [params.token] - Verification token generated by the application (should be unique or random).
-   * @param {String} [params.require_existing] - Allow existing Albedo accounts only.
-   * @returns {Promise<PublicKeyIntentResult>}
-   */
-  publicKey(params) {
-    params = Object.assign({}, params);
-    if (!params.token) {
-      params.token = generateRandomToken();
-    }
-    return this.request("public_key", params);
-  },
-  /**
-   * Request transaction signing, returns the signed transaction envelope.
-   * @param {Object} params - Intent parameters.
-   * @param {String} params.xdr - A Stellar transaction in XDR format encoded in base64.
-   * @param {String} [params.pubkey] - Specific public key requested by the application.
-   * @param {String} [params.network] - Stellar network identifier or private network passphrase.
-   * @param {Boolean} [params.submit] - If set, the signed transaction will be submitted to the Horizon server instead of returning it to the application.
-   * @returns {Promise<TxIntentResult>}
-   */
-  tx(params) {
-    return this.request("tx", params);
-  },
-  /**
-   * Requests execution of several tx intents bundled together. This intent is atomic – a user confirms or rejects all bundled requests at once, with the same account and the same Stellar network.
-   * @param {Object} params - Intent parameters.
-   * @param {String} params.intents - Requested tx intents.
-   * @param {String} [params.pubkey] - Specific public key requested by the application.
-   * @param {String} [params.network] - Stellar network identifier or private network passphrase.
-   * @returns {Promise<BatchIntentResult>}
-   */
-  batch(params) {
-    return this.request("batch", params);
-  },
-  /**
-   * Request an asset trustline creation.
-   * @param {Object} params - Intent parameters.
-   * @param {String} params.destination - Payment destination address.
-   * @param {String} params.amount - Amount to pay.
-   * @param {String} [params.asset_code] - [Optional] Asset code (if not set XLM is implied).
-   * @param {String} [params.asset_issuer] - [Optional] Asset issuer (if not set XLM is implied).
-   * @param {String} [params.memo] - [Optional] Memo to be included in the payment.
-   * @param {('MEMO_TEXT' | 'MEMO_ID' | 'MEMO_HASH' | 'MEMO_RETURN')} [params.memo_type] - [Optional] Memo type to be included in the payment.
-   * @param {String} [params.pubkey] - Specific public key requested by the application.
-   * @param {String} [params.network] - Stellar network identifier or private network passphrase.
-   * @param {Boolean} [params.submit] - If set, the signed transaction will be submitted to the Horizon server instead of returning it to the application.
-   * @returns {Promise<PayIntentResult>}
-   */
-  pay(params) {
-    return this.request("pay", params);
-  },
-  /**
-   * Request an asset trustline creation.
-   * @param {Object} params - Intent parameters.
-   * @param {String} params.asset_code - Asset code.
-   * @param {String} params.asset_issuer - Asset account issuer.
-   * @param {String} [params.limit] - [Optional] Trustline limit.
-   * @param {String} [params.pubkey] - Specific public key requested by the application.
-   * @param {String} [params.network] - Stellar network identifier or private network passphrase.
-   * @param {Boolean} [params.submit] - If set, the signed transaction will be submitted to the Horizon server instead of returning it to the application.
-   * @returns {Promise<TrustIntentResult>}
-   */
-  trust(params) {
-    return this.request("trust", params);
-  },
-  /**
-   * Request token exchange on Stellar DEX.
-   * @param {Object} params - Intent parameters.
-   * @param {String} params.destination - Payment destination address.
-   * @param {String} params.amount - Amount to pay.
-   * @param {String} params.max_price - Maximum price to pay.
-   * @param {String} [params.sell_asset_code] - [Optional] Selling asset code (if not set XLM is implied).
-   * @param {String} [params.sell_asset_issuer] - [Optional] Selling asset issuer (if not set XLM is implied).
-   * @param {String} [params.buy_asset_code] - [Optional] Selling asset code (if not set XLM is implied).
-   * @param {String} [params.buy_asset_issuer] - [Optional] Selling asset issuer (if not set XLM is implied).
-   * @return {Promise<ExchangeIntentResult>}
-   */
-  exchange(params) {
-    return this.request("exchange", params);
-  },
-  /**
-   * Request arbitrary data signing.
-   * @param {Object} params - Intent parameters.
-   * @param {String} params.message - Text message to sign.
-   * @param {String} [params.pubkey] - Specific public key requested by the application.
-   * @returns {Promise<SignMessageIntentResult>}
-   */
-  signMessage(params) {
-    params = Object.assign({}, params, { message: normalizeMessageToSign(params.message) });
-    return this.request("sign_message", params);
-  },
-  /**
-   * Open account settings window for a given account.
-   * @param {Object} params - Intent parameters.
-   * @param {String} params.pubkey - Specific public key requested by the application.
-   * @param {String} [params.network] - Stellar network identifier or private network passphrase.
-   * @returns {Promise<ManageAccountIntentResult>}
-   */
-  manageAccount(params) {
-    return this.request("manage_account", params);
-  },
-  /**
-   * Generate random token that can be used for authentication or encryption
-   * @return {String}
-   */
-  generateRandomToken() {
-    return generateRandomToken();
-  },
-  /**
-   * Check whether an implicit session exists for a given intent and pubkey.
-   * @param {String} intent
-   * @param {String} pubkey
-   * @return {boolean}
-   */
-  isImplicitSessionAllowed(intent, pubkey) {
-    return !!getImplicitSession(intent, pubkey);
-  },
-  /**
-   * Enumerate all currently active implicit sessions.
-   * @returns {Array<{pubkey: String, session: String, valid_until: Number, grants: Array<String>}>}
-   */
-  listImplicitSessions() {
-    return getAllImplicitSessions();
-  },
-  /**
-   * Revoke session permission granted for an account.
-   * @param {String} pubkey
-   */
-  forgetImplicitSession(pubkey) {
-    forgetSession(pubkey);
-  }
-};
-function normalizeMessageToSign(message) {
-  switch (typeof message) {
-    case "string":
-      return message;
-    case "undefined":
-      return "";
-  }
-  return JSON.stringify(message);
-}
-var albedo = new AlbedoIntent();
-albedo.default = albedo;
-bindWebStellarLinkHandler(albedo);
-var src_default = albedo;
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/sdk/modules/albedo.module.js
-var albedo2 = src_default.default;
-var ALBEDO_ID = "albedo";
-var AlbedoModule = class {
-  constructor() {
-    Object.defineProperty(this, "moduleType", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: ModuleType.HOT_WALLET
-    });
-    Object.defineProperty(this, "productId", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: ALBEDO_ID
-    });
-    Object.defineProperty(this, "productName", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: "Albedo"
-    });
-    Object.defineProperty(this, "productUrl", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: "https://albedo.link/"
-    });
-    Object.defineProperty(this, "productIcon", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: "/wallet-icons/albedo.png"
-    });
-  }
-  async isAvailable() {
-    return true;
-  }
-  async getAddress() {
-    try {
-      const result = await albedo2.publicKey({});
-      return { address: result.pubkey };
-    } catch (e5) {
-      throw parseError(e5);
-    }
-  }
-  async signTransaction(xdr, opts) {
-    try {
-      const { signed_envelope_xdr } = await albedo2.tx({
-        xdr,
-        pubkey: opts?.address,
-        network: opts?.networkPassphrase ? opts.networkPassphrase === Networks.PUBLIC ? AlbedoNetwork.PUBLIC : AlbedoNetwork.TESTNET : void 0
-      });
-      return {
-        signedTxXdr: signed_envelope_xdr,
-        signerAddress: opts?.address
-      };
-    } catch (e5) {
-      throw parseError(e5);
-    }
-  }
-  async signAuthEntry() {
-    throw {
-      code: -3,
-      message: 'Albedo does not support the "signAuthEntry" function'
-    };
-  }
-  /**
-   * We understand that Albedo has a method to sign a message, but that method is not compatible with SEP-0043
-   */
-  async signMessage() {
-    throw {
-      code: -3,
-      message: 'Albedo does not support the "signMessage" function'
-    };
-  }
-  async getNetwork() {
-    throw {
-      code: -3,
-      message: 'Albedo does not support the "getNetwork" function'
-    };
-  }
-};
-var AlbedoNetwork;
-(function(AlbedoNetwork2) {
-  AlbedoNetwork2["PUBLIC"] = "public";
-  AlbedoNetwork2["TESTNET"] = "testnet";
-})(AlbedoNetwork || (AlbedoNetwork = {}));
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/sdk/modules/rabet.module.js
-var RABET_ID = "rabet";
-var RabetModule = class {
-  constructor() {
-    Object.defineProperty(this, "moduleType", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: ModuleType.HOT_WALLET
-    });
-    Object.defineProperty(this, "productId", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: RABET_ID
-    });
-    Object.defineProperty(this, "productName", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: "Rabet"
-    });
-    Object.defineProperty(this, "productUrl", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: "https://rabet.io/"
-    });
-    Object.defineProperty(this, "productIcon", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: "/wallet-icons/rabet.png"
-    });
-  }
-  async runChecks() {
-    if (!await this.isAvailable()) {
-      throw new Error(`Rabet is not installed`);
-    }
-  }
-  isAvailable() {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(typeof window !== "undefined" && !!window.rabet);
-      }, 100);
-    });
-  }
-  async getAddress() {
-    try {
-      await this.runChecks();
-      const { publicKey } = await window.rabet.connect();
-      return { address: publicKey };
-    } catch (e5) {
-      throw parseError(e5);
-    }
-  }
-  async signTransaction(xdr, opts) {
-    if (opts?.networkPassphrase && opts.networkPassphrase !== Networks.PUBLIC && opts.networkPassphrase !== Networks.TESTNET) {
-      throw new Error(`Rabet doesn't support the network: ${opts.networkPassphrase}`);
-    }
-    if (opts?.address) {
-      console.warn(`Rabet doesn't allow specifying the network that should be used, we skip the value`);
-    }
-    try {
-      await this.runChecks();
-      const result = await window.rabet.sign(xdr, opts?.networkPassphrase === Networks.PUBLIC ? RabetNetwork.PUBLIC : RabetNetwork.TESTNET);
-      return { signedTxXdr: result?.xdr };
-    } catch (e5) {
-      throw parseError(e5);
-    }
-  }
-  signAuthEntry() {
-    return Promise.reject({
-      code: -3,
-      message: 'Rabet does not support the "signAuthEntry" function'
-    });
-  }
-  signMessage() {
-    return Promise.reject({
-      code: -3,
-      message: 'Rabet does not support the "signMessage" function'
-    });
-  }
-  getNetwork() {
-    return Promise.reject({
-      code: -3,
-      message: 'Rabet does not support the "getNetwork" function'
-    });
-  }
-};
-var RabetNetwork;
-(function(RabetNetwork2) {
-  RabetNetwork2["PUBLIC"] = "mainnet";
-  RabetNetwork2["TESTNET"] = "testnet";
-})(RabetNetwork || (RabetNetwork = {}));
-
-// node_modules/@creit.tech/stellar-wallets-kit/esm/sdk/modules/hana.module.js
-var HANA_ID = "hana";
-var HanaModule = class {
-  constructor() {
-    Object.defineProperty(this, "moduleType", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: ModuleType.HOT_WALLET
-    });
-    Object.defineProperty(this, "productId", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: HANA_ID
-    });
-    Object.defineProperty(this, "productName", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: "Hana Wallet"
-    });
-    Object.defineProperty(this, "productUrl", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: "https://hanawallet.io/"
-    });
-    Object.defineProperty(this, "productIcon", {
-      enumerable: true,
-      configurable: true,
-      writable: true,
-      value: "/wallet-icons/hana.png"
-    });
-  }
-  async runChecks() {
-    if (!await this.isAvailable()) {
-      throw new Error("Hana Wallet is not installed");
-    }
-  }
-  async isAvailable() {
-    return typeof window !== "undefined" && !!window.hanaWallet?.stellar;
-  }
-  async getAddress() {
-    try {
-      await this.runChecks();
-      const address = await window.hanaWallet.stellar.getPublicKey();
-      return { address };
-    } catch (e5) {
-      throw parseError(e5);
-    }
-  }
-  async signTransaction(xdr, opts) {
-    try {
-      await this.runChecks();
-      const signedTxXdr = await window.hanaWallet.stellar.signTransaction({
-        xdr,
-        accountToSign: opts?.address,
-        networkPassphrase: opts?.networkPassphrase
-      });
-      return { signedTxXdr, signerAddress: opts?.address };
-    } catch (e5) {
-      throw parseError(e5);
-    }
-  }
-  async signAuthEntry(authEntry, opts) {
-    try {
-      await this.runChecks();
-      const signedAuthEntry = await window.hanaWallet.stellar.signAuthEntry({
-        xdr: authEntry,
-        accountToSign: opts?.address
-      });
-      return { signedAuthEntry, signerAddress: opts?.address };
-    } catch (e5) {
-      throw parseError(e5);
-    }
-  }
-  async signMessage(message, opts) {
-    try {
-      await this.runChecks();
-      const signedMessage = await window.hanaWallet.stellar.signMessage({
-        message,
-        accountToSign: opts?.address
-      });
-      return { signedMessage, signerAddress: opts?.address };
-    } catch (e5) {
-      throw parseError(e5);
-    }
-  }
-  async getNetwork() {
-    throw {
-      code: -3,
-      message: 'Hana does not support the "getNetwork" function'
-    };
   }
 };
 export {
