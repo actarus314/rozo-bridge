@@ -27,3 +27,6 @@ data/
 *.log
 *.bak
 *.bak-*
+
+# test tooling (Playwright MCP session artifacts)
+.playwright-mcp/
