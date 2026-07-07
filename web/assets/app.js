@@ -98,6 +98,7 @@ const ckey=(mode,T)=>mode+":"+T;
 // populates the cache: dryrun {T/n} for n=1..maxN (≤6 concurrent), reuses the ongoing quote for n=1.
 // onFee() called on EVERY fee that arrives → progressive filling of the table (no waiting for the full batch).
 async function ensureChunkFees(dk,T,mode,L,maxN,onFee){
+  if(!dryCache[dk]) dryCache[dk]={};   // defensive: never index an undefined direction (a cleared cache used to throw here → offline fallback)
   const k=ckey(mode,T); let e=dryCache[dk][k];
   if(e && L!=null && e.L!=null && Math.abs(e.L-L)>SWEEP_EPS){ delete dryCache[dk][k]; e=null; }   // L moved → stale cache
   if(!e){ e={fees:{},L}; dryCache[dk][k]=e; } else if(L!=null) e.L=L;
@@ -359,7 +360,7 @@ async function refreshLiqDir(dk){
   const vid=dk==="B2S"?"liqB":"liqS", chid=dk==="B2S"?"chB":"chS", el=document.getElementById(vid), ce=document.getElementById(chid);
   if(el) el.textContent="…";                       // immediate feedback: reading in progress
   const [nl,ch]=await Promise.all([liq(dk).catch(()=>null),(dk==="B2S"?stellarBal():baseBal()).catch(()=>null)]);   // Available (API) + the direction's on-chain hub balance
-  if(nl!=null){ LIVE[dk].L=nl; if(el) el.textContent=eur(nl)+" EURC"; delete dryCache[dk]; }
+  if(nl!=null){ LIVE[dk].L=nl; if(el) el.textContent=eur(nl)+" EURC"; dryCache[dk]={}; }   // reset (not delete) → invalidates stale fees but keeps dryCache[dk] an object (ensureChunkFees indexes it)
   else if(el) el.textContent=(LIVE[dk].L!=null?eur(LIVE[dk].L)+" EURC":"n/a");   // network failure → restores the last known value
   if(ch!=null && ce) ce.textContent=eur(ch)+" EURC";   // on-chain balance (often unchanged: settlement pending)
   markLiq(vid, nl!=null?nl:LIVE[dk].L, ch);   // Available dropped but on-chain not yet settled → gap detected → orange (honors the API/on-chain check)
@@ -392,7 +393,7 @@ async function genBatch(){
     if(dk==="S2B" && okJs.some(j=>!(j.source&&typeof j.source.receiverMemo==="string"&&j.source.receiverMemo.trim()))){ msg(D.genBatchBadMemo); return; }
     const b=buildBatch(dk,mode,okJs); window._batches[b.id]=b; saveBatches();   // #15: the store accumulates the batches
     renderBatches(b.id);   // fresh batch = expanded, stacked with the previous ones
-    refreshLiqDir(dk);     // intents created → the reservation moved THIS direction's Available → targeted refresh of its liquidity + stale quote cache
+    await refreshLiqDir(dk);   // intents created → the reservation moved THIS direction's Available → refresh its liquidity + wipe the now-stale quote cache
     // PASSIVE S2B LOG (task C): accumulate θ of REAL S2B batches to recalibrate the dot (KRAP) empirically. Guards = don't skew θ:
     //  S2B only · COMPLETE batch (okJs.length===n, else fees/realise don't cover the whole split) · priced row (ok, not loading, feeFlat not null).
     if(dk==="S2B" && okJs.length===n && row && row.ok && !row.loading && row.feeFlat!=null){
@@ -405,6 +406,7 @@ async function genBatch(){
     }
     const totalFailed=failed.length+netFailed, firstMsg=escapeHtml((failed[0]&&failed[0].error&&failed[0].error.message)||"");
     msg(totalFailed ? `<span class="warn" style="font-weight:600">⚠ ${D.genBatchIncomplete(okJs.length,n,totalFailed,firstMsg)}</span>` : "");   // strong signal of under-delivery (gate /code-review)
+    if(+document.getElementById("amt").value>0) quote();   // RC: re-price the split at the new Available — refreshLiqDir just wiped the stale cache, so without this a later selRow() renders loading rows that nothing refetches (infinite spinner). Mirrors refresh()/↻.
   } finally { window._genInFlight=false; const g=document.getElementById("genbtn"); if(g) g.disabled=false; }   // RC-2: release on EVERY path (including early returns)
 }
 // Regenerate ONLY the expired + unsigned chunks of a batch — delivers the "the rest can be retried" the INCOMPLETE
@@ -428,7 +430,8 @@ async function regenBatch(bid){
       b.rows[i]=intentRow(b.dk,j); ok++; });   // replace in place — srcTx reset to null (fresh, unsigned)
     const expMs=b.rows.map(r=>r.exp?new Date(r.exp).getTime():0).filter(Boolean);
     b.expiresAt=expMs.length?Math.max(...expMs):b.expiresAt;
-    saveBatches(); renderBatches(bid); refreshLiqDir(b.dk);   // S2B: reservation moved → refresh that direction's Available + stale cache
+    saveBatches(); renderBatches(bid); await refreshLiqDir(b.dk);   // S2B: reservation moved → refresh that direction's Available + wipe stale cache
+    if(+document.getElementById("amt").value>0) quote();   // RC: re-price the split at the new Available (same reason as genBatch — a wiped cache leaves loading rows nothing refetches)
     msg(ok===idxs.length?"":`<span class="warn">${D.regenPartial(ok,idxs.length)}</span>`);
   } finally { window._genInFlight=false; const g=document.getElementById("genbtn"); if(g) g.disabled=false; }
 }
