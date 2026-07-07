@@ -57,6 +57,13 @@ button{font-family:inherit;cursor:pointer}
 .brand:hover{opacity:.8}
 .brand .dot{width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,var(--stellar),var(--base))}
 .brand .brandlogo{width:22px;height:22px;border-radius:6px;object-fit:cover}
+.badge-unoff{align-self:center;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);border:1px solid var(--bd2);border-radius:999px;padding:1px 6px;white-space:nowrap;cursor:default}
+@media(max-width:640px){   /* mobile: free up rows so the tool isn't pushed far below the fold */
+  .topbar{gap:8px;padding:8px 12px}
+  .topbar #ts{display:none}
+  .nav{margin-left:0}.nav button{padding:6px 10px;font-size:12px}
+  .wallets{gap:6px}
+}
 .blk{margin-top:16px}
 .morebtn{text-align:center;margin-top:10px}
 .morebtn button{background:none;border:1px solid var(--bd2);color:var(--mut);border-radius:8px;padding:6px 16px;font-size:12.5px;font-weight:600}
@@ -172,7 +179,7 @@ button.plain:hover{border-color:var(--mut)}
   padding:9px 12px;font-size:12px;font-weight:400;line-height:1.5;letter-spacing:0;text-transform:none;
   box-shadow:0 10px 30px rgba(0,0,0,.35);pointer-events:none}
 #tipPortal b{color:inherit;font-weight:640}   /* inherited from the inverted text */
-.maxbtn{flex:none;background:var(--panel2);border:1px solid var(--bd2);color:var(--mut);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;letter-spacing:.02em;cursor:pointer;text-transform:uppercase}
+.maxbtn{flex:none;background:var(--panel2);border:1px solid var(--bd2);color:var(--mut);border-radius:6px;padding:5px 9px;min-height:24px;font-size:11px;font-weight:700;letter-spacing:.02em;cursor:pointer;text-transform:uppercase}
 .maxbtn:hover{color:var(--cta);border-color:var(--cta)}
 .gen{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px}
 .gen #genbtn{margin-left:auto}   /* button pushed right, the note takes up the space on the left */
