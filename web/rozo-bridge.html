@@ -111,7 +111,7 @@
   </div>
 
   <h3 class="docsub" id="h2WhyRange">Pourquoi une fourchette min/max</h3>
-  <p id="pWhyRange">Une fourchette n'apparaît que sur le sens <b>Stellar→Base</b>, où créer un intent réserve l'Available du hub → empiler des tranches le draine → chaque tranche suivante est plus chère. Le découpage s'y lit en trois valeurs : <b>min</b> (n devis dryrun réels — un par taille de tranche T/n, sommés : le frais exact, aucune interpolation), <b>max</b> (tranches en série, chaque intent draine le hub → la suivante plus chère, cap 0,50 %, estimé depuis la surface mesurée), et le <b>coût probable</b> entre les deux. En pratique les N requêtes de création partent en parallèle → le serveur partage souvent le snapshot par <b>vagues</b> → le coût réel est une <b>variable aléatoire</b> entre min et max. À petit nombre de tranches, le réel colle au min. Sur <b>Base→Stellar</b>, créer un intent fige le frais mais ne réserve plus l'Available → aucun drainage → <b>chaque tranche affiche une valeur unique</b> (min = max, ni fourchette ni coût probable). La <b>génération donne le chiffre exact</b>.</p>
+  <p id="pWhyRange">Une fourchette n'apparaît que sur le sens <b>Stellar→Base</b>, où créer un intent <b>réserve l'Available</b> du hub → empiler des tranches le draine → chaque tranche suivante est plus chère. Le découpage s'y lit en <b>trois valeurs</b> : <b>min</b> (N devis <b>dryrun réels</b> — un par taille de tranche T/n, sommés : le frais exact si chaque tranche part à hub plein, aucun drainage — meilleur cas, <b>exact</b>), <b>max</b> (tranches en série, chaque intent draine le hub → la suivante plus chère, cap 0,50 % — pire cas <b>estimé</b> depuis la surface mesurée, <b>collé au réel ≤0,03 €</b>), et le <b>coût probable</b> affiché entre les deux (même surface, ancrée sur le min exact). En pratique les N créations partent en <b>parallèle</b> → le serveur partage le snapshot par <b>vagues</b> → le réalisé est une <b>variable aléatoire</b> entre min et max (proche du min à peu de tranches). Sur <b>Base→Stellar</b>, créer un intent <b>fige le frais mais ne réserve plus l'Available</b> → aucun drainage → <b>chaque tranche affiche une valeur unique</b> (min = max, ni fourchette ni coût probable). La <b>génération donne le chiffre engageant</b>.</p>
 
   <h3 class="docsub" id="h2Curve">Courbe des frais (frais % vs montant)</h3>
   <div class="card pad">
@@ -175,7 +175,7 @@
 </div>
 
 <!-- app version: filled live from the latest GitHub release (see loadAppVersion() in app.js); static text below is only the offline/rate-limited fallback -->
-<footer id="appVersion" class="mut" style="max-width:960px;margin:0 auto;padding:0 22px 24px;font-size:11.5px;text-align:center">Rozo Bridge v1.0.0</footer>
+<footer id="appVersion" class="mut" style="max-width:960px;margin:0 auto;padding:0 22px 24px;font-size:11.5px;text-align:center">Rozo Bridge v1.1.0</footer>
 
 <!-- hover tooltip portal (position:fixed, above everything) — cf. #tipPortal in app.js -->
 <div id="tipPortal"></div>

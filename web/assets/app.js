@@ -146,7 +146,6 @@ const I18N={
     s2bVerifyExplorer:"soumission incertaine — vérification de l'explorer recommandée avant nouvelle signature (double dépôt évité)",
     stellarNoSdk:"SDK Stellar non chargé — page à servir en http (pas file://)",
     stellarKitUnavailable:m=>`kit indisponible: ${m} — recours à « copier »/manuel`,
-    stellarWalletMismatch:(w,e)=>`wallet ${w} ≠ compte ${e}`,
   },
   en:{
     pageTitle:"Rozo Bridge EURC Base ⇄ Stellar — cost, liquidity, model",
@@ -263,7 +262,6 @@ const I18N={
     s2bVerifyExplorer:"submission uncertain — checking the explorer before signing again is recommended (double deposit avoided)",
     stellarNoSdk:"Stellar SDK not loaded — the page needs to run over http (not file://)",
     stellarKitUnavailable:m=>`kit unavailable: ${m} — "copy"/manual recommended instead`,
-    stellarWalletMismatch:(w,e)=>`wallet ${w} ≠ account ${e}`,
   }
 };
 window.I18N=I18N; window.LANG=LANG;   // exposed to the wallet module (same pattern as window.ACCT) — no shorthand "T": collides with the local var T (amount) in simul()/genBatch()
