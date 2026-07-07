@@ -1082,7 +1082,7 @@ loadBatches();   // #10: restores the persisted batches (purges expired ones + o
 (async function loadAppVersion(){   // footer: live GitHub release tag; static HTML text stays as fallback (offline, rate-limited, file://)
   const el=document.getElementById("appVersion"); if(!el) return;
   try{
-    const r=await fetch("https://api.github.com/repos/actarus314/rozo-bridge/releases/latest");
+    const r=await fetch("https://api.github.com/repos/actarus314/rozo-bridge/releases/latest",{signal:AbortSignal.timeout(3000)});
     const j=await r.json();
     if(j&&j.tag_name) el.textContent="Rozo Bridge "+j.tag_name;
   }catch(e){}
