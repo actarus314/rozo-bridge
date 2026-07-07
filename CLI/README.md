@@ -14,6 +14,11 @@ moves (an intent is created, but no funds move until the deposit is made).
 ./rozo-quote.sh curve B2S     # fee% vs amount curve
 ./rozo-quote.sh hub           # EURC balances of the relayer's 2 hubs, on-chain
 
+# --json (anywhere on the line) -> machine-readable output for jq / spreadsheets:
+./rozo-quote.sh --json B2S 5000        # {"direction":"B2S","amount_received":5000,"you_send":...,"fee":...,"fee_pct":...}
+./rozo-quote.sh --json liq S2B         # {"direction":"S2B","available_eurc":...}
+./rozo-quote.sh curve B2S --json | jq  # NDJSON, one {amount,fee,fee_pct} per tier
+
 # Standalone web page (quote + live liquidity + curve chart, light/dark modes):
 open ../web/rozo-bridge.html   # or serve it: cd ../web && python3 serve.py
 
