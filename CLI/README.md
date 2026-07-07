@@ -2,7 +2,7 @@
 
 `rozo-quote.sh` queries the public Rozo API (`intentapiv4.rozo.ai`, no key) to
 know **the cost and available liquidity BEFORE bridging**, in both directions. Nothing
-moves (an intent is created, but no funds move until you deposit).
+moves (an intent is created, but no funds move until the deposit is made).
 
 ## Usage
 
