@@ -99,6 +99,10 @@ const I18N={
     pMath:`Notations : <b>c = T/n</b> (montant d'une tranche), <b>dryrun(c)</b> = devis réel de l'API pour une tranche de taille c (exact, déjà arrondi au cent), <b>p₁ = dryrun(c)/c</b> (taux exact mesuré sur la 1ʳᵉ tranche), <b>Lᵢ = L0 − i·c</b> (Available restant avant la tranche i), <b>fee%(c, L)</b> = surface mesurée (interp bilinéaire, cap 0,50 %), escalade <b>R(c,i) = fee%(c, Lᵢ) / fee%(c, L0)</b>, <b>⌈·⌉¢</b> = arrondi au centime supérieur (plancher 0,01 €).<div class="formula">min = n · dryrun(c) — exact, aucune interpolation<br>max = Σᵢ ⌈ min( 0,5%·c , c · p₁ · R(c,i) ) ⌉¢<br>coût probable = Σᵢ ⌈ max( c·p₁ , 0,70 · c·p₁·R(c,i) ) ⌉¢</div>Les formules <b>max</b> et <b>coût probable</b> décrivent le sens <b>Stellar→Base</b> (créer un intent réserve l'Available → l'escalade R(c,i) monte). Sur <b>Base→Stellar</b>, aucune réservation → <b>R(c,i)=1</b> pour tout i → max et coût probable retombent sur le min : la <b>valeur affichée = n·dryrun(c)</b>, unique. <b>Précision mesurée</b> : le <b>min</b> est <b>exact</b> — c'est la somme de n devis dryrun réels, pas une borne. Le <b>max</b> colle au réel à <b>≤0,03 €</b> (16 séries réelles en série stricte). Surface <b>stable</b> (pas de dérive), re-mesurable par dryrun si Rozo change son algo.`,
     pSources:'Données : API <code>intentapiv4.rozo.ai</code> (sans clé), Horizon, RPC Base. Généré le <span id="ts2"></span>.',
     errFallback:"erreur",
+    offlineEstimate:"≈ estimation hors-ligne (API injoignable) — le devis exact et le découpage nécessitent le réseau.",
+    emptyHint:"Cet outil chiffre les frais Rozo et le meilleur découpage pour bridger de l'EURC entre Base et Stellar. Saisir un montant pour un devis live — ou cliquer une carte de liquidité pour choisir le sens.",
+    unofficialTag:"non officiel",
+    unofficialTitle:"Outil non officiel, non affilié à Rozo — utilisé à vos risques.",
     quoteWarnOverLiq:(recv,avail)=>`<div class="alert"><span class="ico">ⓘ</span><span><b>${eur(recv)} EURC</b> en un seul envoi &gt; liquidité dispo <b>${eur(avail)}</b> : un bridge 1-shot échouerait. <b>Fractionner</b> ci-dessous ou attendre la recharge du hub.</span></div>`,
     infeasibleRow:`✗ tranche &gt; liquidité dispo`,
     sendLabel:n=>n===1?"1 envoi":n+" × ",
@@ -216,6 +220,10 @@ const I18N={
     pMath:`Notation: <b>c = T/n</b> (one chunk), <b>dryrun(c)</b> = the API's real quote for a chunk of size c (exact, already rounded to the cent), <b>p₁ = dryrun(c)/c</b> (exact rate measured on the 1st chunk), <b>Lᵢ = L0 − i·c</b> (Available remaining before chunk i), <b>fee%(c, L)</b> = measured surface (bilinear interp, 0.50% cap), escalation <b>R(c,i) = fee%(c, Lᵢ) / fee%(c, L0)</b>, <b>⌈·⌉¢</b> = round up to the cent (€0.01 floor).<div class="formula">min = n · dryrun(c) — exact, no interpolation<br>max = Σᵢ ⌈ min( 0.5%·c , c · p₁ · R(c,i) ) ⌉¢<br>likely cost = Σᵢ ⌈ max( c·p₁ , 0.70 · c·p₁·R(c,i) ) ⌉¢</div>The <b>max</b> and <b>likely cost</b> formulas describe the <b>Stellar→Base</b> direction (creating an intent reserves the Available → the escalation R(c,i) climbs). On <b>Base→Stellar</b>, no reservation → <b>R(c,i)=1</b> for every i → max and likely cost collapse onto the min: the <b>displayed value = n·dryrun(c)</b>, single. <b>Measured accuracy</b>: the <b>min</b> is <b>exact</b> — it's the sum of n real dryrun quotes, not a bound. The <b>max</b> tracks reality within <b>≤0.03€</b> (16 real strict-serial series). The surface is <b>stable</b> (no drift), re-measurable by dryrun if Rozo changes its algorithm.`,
     pSources:'Data: API <code>intentapiv4.rozo.ai</code> (no key), Horizon, Base RPC. Generated on <span id="ts2"></span>.',
     errFallback:"error",
+    offlineEstimate:"≈ offline estimate (API unreachable) — the exact quote and split need a connection.",
+    emptyHint:"This tool computes Rozo fees and the best split for bridging EURC between Base and Stellar. Enter an amount for a live quote — or click a liquidity card to set the direction.",
+    unofficialTag:"unofficial",
+    unofficialTitle:"Unofficial tool, not affiliated with Rozo — used at your own risk.",
     quoteWarnOverLiq:(recv,avail)=>`<div class="alert"><span class="ico">ⓘ</span><span><b>${eur(recv)} EURC</b> in a single send &gt; available liquidity <b>${eur(avail)}</b>: a one-shot bridge would fail. <b>Splitting it</b> below or waiting for the hub to refill is recommended.</span></div>`,
     infeasibleRow:`✗ chunk &gt; available liquidity`,
     sendLabel:n=>n===1?"1 send":n+" × ",
@@ -504,7 +512,7 @@ async function quote(){
   const mode=document.getElementById("mode").value;
   const o=document.getElementById("out");
   const D=I18N[LANG];
-  if(!(x>0)){ o.innerHTML=""; fillOpp(mode,null,null); const rc=document.getElementById("reco"); if(rc)rc.innerHTML=""; const sp=document.getElementById("splitout"); if(sp)sp.innerHTML=""; hideSplitcard(); return; }   // nothing below the amounts when empty (AUDIT wave1 #4)
+  if(!(x>0)){ o.innerHTML=D.emptyHint; fillOpp(mode,null,null); const rc=document.getElementById("reco"); if(rc)rc.innerHTML=""; const sp=document.getElementById("splitout"); if(sp)sp.innerHTML=""; hideSplitcard(); return; }   // empty state: onboarding hint, nothing below the amounts (AUDIT wave1 #4)
   try{
     const j=await postQuote(dk,x,true,mode);
     if(seq!==quoteSeq) return;   // a more recent keystroke has taken over → discard this stale result
@@ -521,7 +529,9 @@ async function quote(){
     if(seq!==quoteSeq) return;
     const pct=livePct(dk,x)||0, fee=x*pct/100, send=mode==="exactIn"?x:x+fee, recv=mode==="exactIn"?x-fee:x;   // offline fallback: measured curve (MEAS)
     fillOpp(mode,send,recv);
-    o.innerHTML="";
+    o.innerHTML="<span class='warn'>"+escapeHtml(D.offlineEstimate)+"</span>";   // mark it as an offline estimate, not a live dryrun quote
+    const rc=document.getElementById("reco"); if(rc)rc.innerHTML=""; const sp=document.getElementById("splitout"); if(sp)sp.innerHTML=""; hideSplitcard();   // clear the split area: no infinite "pricing chunks…" spinner (dryruns are unavailable offline)
+    return;   // skip the trailing simul() (it would re-render loading rows that never resolve)
   }
   simul();
 }
@@ -1027,6 +1037,8 @@ function applyI18N(){
   if(document.getElementById("disp")&&document.getElementById("disp").classList.contains("on")) renderDisp();   // re-render the Dispersion tab on a language change (canvas/stats labels)
   const rb=document.getElementById("btnRefresh"); if(rb) rb.title=D.refreshTitle;
   const bb=document.getElementById("brandBtn"); if(bb) bb.title=D.brandTitle;
+  const utg=document.getElementById("unofficialTag"); if(utg){ utg.textContent=D.unofficialTag; utg.title=D.unofficialTitle; }
+  const _amt=document.getElementById("amt"), _out=document.getElementById("out"); if(_amt&&_out&&!(+_amt.value>0)) _out.innerHTML=D.emptyHint;   // keep the empty-state onboarding hint localized on a language toggle
   const hba=document.getElementById("hubBaseA"); if(hba) hba.title=D.hubBaseTitle;
   const hsa=document.getElementById("hubStellarA"); if(hsa) hsa.title=D.hubStellarTitle;
   const mxb=document.getElementById("maxbtn"); if(mxb) mxb.title=D.maxbtnTitle;
@@ -1076,6 +1088,11 @@ if(location.protocol==="file:"){
     const mx=(e.clientX-r.left)*(cv.width/r.width); const {x0,x1,XMAX}=chartGeo;
     hoverAmt=(mx>=x0-4&&mx<=x1+4)?Math.max(0,(mx-x0)/(x1-x0)*XMAX):null; drawChart(); });
   cv.addEventListener("mouseleave",()=>{ hoverAmt=null; drawChart(); });
+  const touchAt=e=>{ if(!chartGeo||!e.touches[0]) return; const r=cv.getBoundingClientRect();   // touch: same read-off as hover, so mobile can inspect the curve
+    const mx=(e.touches[0].clientX-r.left)*(cv.width/r.width); const {x0,x1,XMAX}=chartGeo;
+    hoverAmt=(mx>=x0-4&&mx<=x1+4)?Math.max(0,(mx-x0)/(x1-x0)*XMAX):null; drawChart(); e.preventDefault(); };   // preventDefault → no page scroll while scrubbing the chart
+  cv.addEventListener("touchstart",touchAt,{passive:false}); cv.addEventListener("touchmove",touchAt,{passive:false});
+  cv.addEventListener("touchend",()=>{ hoverAmt=null; drawChart(); });
   cv.style.cursor="crosshair";
 })();
 loadCurve(); updLbl(); updateDirUI(); drawChart(); quote(); simul(); refresh();   // loadCurve first: instant render from the cache, refresh only re-sweeps if the Available has moved
