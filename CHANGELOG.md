@@ -7,10 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- CLI `--json` flag (`rozo-quote.sh`): machine-readable output on any subcommand for piping into jq/spreadsheets (`curve` emits NDJSON).
+- Unofficial / not-affiliated-with-Rozo badge on the Bridge top bar, and a first-run onboarding hint on the empty Bridge tab.
+- Touch support for the fee-curve tooltip (previously mouse-hover only).
+- Dev/CI self-checks: a fee-model invariant test and an i18n fr/en parity check, run by a new CI workflow (syntax + parity + model).
+
 ### Changed
 - Reworded the release-cutting checklist in CONTRIBUTING.md so the version bump + CHANGELOG entries land in the same commit that gets tagged (both past releases had tagged a commit one step ahead of the bump).
+- Extracted the pure fee-model math into `computeSplit()` so it can be tested in isolation — no behaviour change.
+- Larger `max` button tap target and a narrow-screen top-bar reflow for mobile.
 
 ### Fixed
+- Offline quote state: a mid-session network failure now shows a clearly labelled offline estimate and clears the split table, instead of leaving an endless "pricing chunks…" spinner.
 - Footer fallback version bumped to v1.1.0; corrected the `#pWhyRange` static HTML fallback so it matches the live i18n text.
 - Added a 3s timeout to the GitHub release fetch that fills the footer version, so a stalled response fails fast.
 - Fixed a shell→python argument-injection risk on the CLI hub-balance line by passing the untrusted RPC value through the environment, consistent with the rest of the script.
