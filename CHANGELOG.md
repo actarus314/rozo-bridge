@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-07-07
+
+### Added
+- Footer showing the deployed app version, read live from GitHub's releases API (falls back to a static tag if the API is unreachable).
+
+### Fixed
+- Pinned `protobufjs` and `uuid` (dev-only, transitive via the vendored wallet-connect bundle's dependency tree) to patched versions, resolving the corresponding Dependabot alerts. `elliptic` remains open — no patched version exists upstream yet (see [SECURITY.md](SECURITY.md)).
+
 ## [1.0.0] - 2026-07-07
 
 Initial public release.

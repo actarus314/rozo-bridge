@@ -34,22 +34,20 @@ their contact info in the app's Documentation tab).
 
 ## Known accepted findings
 
-Dependabot flags a couple of transitive vulnerabilities (`uuid`, `elliptic` —
-via `@solana/wallet-adapter-base` and `@trezor/*`, pulled in by
-`@creit.tech/stellar-wallets-kit`'s own dependency tree). These are **dev-time
-only**: they live in `node_modules/` (gitignored, never shipped) and are only
-used by Solana/Ledger/Trezor code paths that `scripts/build-walletkit.mjs`
+Dependabot flags one remaining transitive vulnerability: `elliptic` (via
+`@trezor/*` and `@near-js/*` → `secp256k1`, pulled in by
+`@creit.tech/stellar-wallets-kit`'s own dependency tree). It's **dev-time
+only**: it lives in `node_modules/` (gitignored, never shipped) and is only
+used by Ledger/Trezor/NEAR code paths that `scripts/build-walletkit.mjs`
 doesn't import into the vendored bundle at all (see the entry list in that
-file). `elliptic` has no patched version available at all yet; `uuid`'s fix
-is a major bump (8→11) on a dependency several layers removed from this
-project's own `package.json`, so it isn't pinnable with a simple override
-without risking unrelated breakage. Revisit when upstream bumps its own
-dependencies.
+file). No patched version exists upstream yet — nothing to pin to. Revisit
+once one ships.
 
-The `protobufjs` alerts (also transitive, via `@trezor/protobuf`) were
-resolved with an `overrides` pin in `package.json` (the underlying dependency
-tree only ever needed a patch-level bump, so this carries no breaking-change
-risk).
+The `protobufjs` and `uuid` alerts (also transitive, via `@trezor/protobuf`
+and `@solana/web3.js`) were resolved with `overrides` pins in `package.json`
+— both only ever needed a version bump on that leaf dependency itself, with
+no reachable code path in the vendored bundle, so neither carries any
+breaking-change risk for this project.
 
 ## Response
 
