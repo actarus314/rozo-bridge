@@ -74,7 +74,7 @@ Rozo doesn't publish a fee formula. This project reverse-engineered one from rea
 `dryrun` sweeps: fee% is a function of the amount **and** of `L`, the liquidity remaining
 in the destination hub, rising toward a hard 0.50% cap as the hub drains. The app's
 **Documentation** tab derives the full model — measurement method, formulas, and accuracy
-(min is exact, max holds to ≤0.03€ across 16 real batches) — and the **Dispersion** tab
+(min is exact, max holds to ≤0.04€ across 16 real batches) — and the **Dispersion** tab
 tracks how the real, generated bridges compare to the projected range over time.
 
 ## Structure
@@ -162,7 +162,7 @@ Rozo ne publie pas de formule de frais. Ce projet en a re-dérivé une depuis de
 `dryrun` réels : le frais % est fonction du montant **et** de `L`, la liquidité restante
 dans le hub de destination, montant vers un cap dur de 0,50 % à mesure que le hub se
 draine. L'onglet **Documentation** de l'app dérive le modèle complet — méthode de mesure,
-formules, précision (le min est exact, le max colle à ≤0,03 € sur 16 lots réels) — et
+formules, précision (le min est exact, le max colle à ≤0,04 € sur 16 lots réels) — et
 l'onglet **Dispersion** suit comment les bridges réellement générés se comparent à la
 fourchette projetée dans le temps.
 
