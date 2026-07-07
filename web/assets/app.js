@@ -350,9 +350,16 @@ async function ensureChunkFees(dk,T,mode,L,maxN,onFee){
       if(j&&j.source&&!j.error){ e.fees[n]=+j.source.fee; onFee&&onFee(); } } }));
   return e;
 }
+// ============ MODEL PARAMETERS — the fee-model tuning knobs, gathered (see workspace MODELE-FRAIS.md) ============
+// The measured fee surface SURF={cap,amounts,B2S,S2B} lives just above (search "const SURF="); the curve-sweep
+// knobs SWEEP_CONC / SWEEP_EPS live with the sweep code below. These four scalars are the ones a re-tune touches.
 // Reservation per direction: creating an S→B intent reserves the Available (drain → escalation); B→S freezes the fee but NO LONGER reserves it (verified 2026-07-06) → no drain → single value per chunk.
 // REVERT (original logic where B→S escalated like S→B): set RESERVES.B2S = true (one line) — AND restore the pMath/pWhyRange range wording (B2S regains a range). Do NOT remove the B2S surface from SURF (reference for this revert).
 const RESERVES = {S2B:true, B2S:false};
+// Fast headline = KRAP × serial worst-case, ROUTE-SPECIFIC. S2B=0.70 (Romain's call: the realized cost hugs the min, 0.85 read too high). B2S=0.85 kept for the RESERVES.B2S=true revert, but INERT while B2S doesn't reserve (ratio=1 → feeWorst≤feeFlat → fee=feeFlat, no likely cost). Realized = RANDOM variable (0 to ~0.9 per draw, proven on 2 routes): 0.70 covers fewer draws than 0.85 — assumed. Recalibrate empirically via the Dispersion tab. Only k=1 would be never-optimistic in all cases.
+// NB: a weighting by N ("small N is cheaper") was tried 2× then PERMANENTLY removed — the S2B sweep (03/07) showed the "threshold" N seen on B2S was a lucky sample; realized(N) is non-monotonic/random (N=3→0.90 but N=5→0). No deterministic threshold. DO NOT retry.
+const KRAP = {S2B:0.70, B2S:0.85};
+const HIGH_FEE_PCT = 0.25;   // ≥ this DISPLAYED fee% triggers the "high fees — wait for a refill / split" advice (renderReco)
 // PURE model math (no DOM, no module-state writes → unit-testable in isolation, cf. scripts/test-model.mjs):
 // given the live liquidity L0 and the exact per-chunk fees fees[n]=dryrun(T/n) (euros), build the split rows
 // (min/max/likely per n) + the recommended split (smallest capturing ≥90% of the saving). Model → MODELE-FRAIS.md.
@@ -364,8 +371,7 @@ function computeSplit(dk,T,mode,L0,fees,splitMax,lastDevis){
   // Spaced out: we create+sign one chunk at a time, L heals (~10 min) between → each chunk at a full L0, R=1 (real saving).
   // Fast (batch = what genBatch does): reservations stack → L drops → next chunks are dearer (serial worst case).
   // Campaign E surface (dryrun sweep, 2 routes, full drain): aggregated gap ≤0.04€/series over 16 measured series. Cf. fee-study/METHODOLOGIE §6.
-  const KRAP = dk==="S2B" ? 0.70 : 0.85;   // fast headline = KRAP × serial worst-case, ROUTE-SPECIFIC. S2B=0.70 (Romain's call: the realized cost hugs the min, 0.85 read too high). B2S=0.85 kept for the RESERVES.B2S=true revert, but INERT while B2S doesn't reserve (ratio=1 → feeWorst≤feeFlat → fee=feeFlat, no likely cost). Realized = RANDOM variable (0 to ~0.9 per draw, proven on 2 routes): 0.70 covers fewer draws than 0.85 — assumed. Only k=1 would be never-optimistic in all cases.
-  // NB: a weighting by N ("small N is cheaper") was tried 2× then PERMANENTLY removed — the S2B sweep (03/07) showed that the "threshold" N seen on B2S was a lucky sample; realized(N) is non-monotonic/random (N=3→0.90 but N=5→0). No deterministic threshold. DO NOT retry.
+  // KRAP (route-specific) + the surface/reserves knobs are module consts — see the MODEL PARAMETERS block above.
   for(let n=1;n<=splitMax;n++){
     const c=T/n;
     if(c>L0+1e-6){ rows.push({n,c,ok:false}); continue; }        // chunk > liquidity = infeasible (independent of the fee)
@@ -377,7 +383,7 @@ function computeSplit(dk,T,mode,L0,fees,splitMax,lastDevis){
       const raw=ef;                                                  // EXACT base (euros), identical for each chunk at a full L0
       const ratio=RESERVES[dk]?((s0>0)?surfPct(dk,c,L0-reserved)/s0:1):1;   // escalation shape (measured surface), dimensionless — forced to 1 on a direction that does NOT reserve (B→S): no drain → feeWorst≤feeFlat → single value shown
       const rawW=Math.min(c*SURF.cap/100, raw*ratio);                // serial worst case (euros); 0.5% cap = c·0.005
-      const ff=eurCeil(raw), fw=eurCeil(rawW), f=eurCeil(Math.max(raw,KRAP*rawW));   // min = exact fee (Rozo already rounds it); max/likely rounded UP to the cent
+      const ff=eurCeil(raw), fw=eurCeil(rawW), f=eurCeil(Math.max(raw,KRAP[dk]*rawW));   // min = exact fee (Rozo already rounds it); max/likely rounded UP to the cent
       const recv=mode==="exactIn"?c-f:c, sent=mode==="exactIn"?c:c+f;
       const cap=L0;                                                  // feasibility PER CHUNK: each delivery must fit within the hub
       if(recv>cap+1e-6){ok=false;break;}
@@ -466,7 +472,7 @@ function renderReco(best,dk,T,sel){
   }
   const isReco=best.n===bestN;   // #3: active = the recommended band (the knee)? → "why" sentence + "recommended" eyebrow ONLY in that case (on a manually chosen band, the "smallest split capturing ≥90%" sentence would lie)
   // refill advice: fee of the selected band > 0.25% = low hub → waiting for the refill lowers it. Guard recv≥100: below this amount the high % comes from the €0.01 floor, not from draining (waiting wouldn't help). // ponytail: 0.25% threshold chosen by the user
-  const advice=(T<=L0 && +pct(head).toFixed(2)>=0.25 && best.recv>=100)?`<div class="alert"><span class="ico">⚠</span><span>${I18N[LANG].feeHighAdvice(pct(head).toFixed(2))}</span></div>`:"";   // threshold on the DISPLAYED (rounded) value ≥0.25%; removed in over-liq (T>L0) where the liquidity alert already shows (no double alert)
+  const advice=(T<=L0 && +pct(head).toFixed(2)>=HIGH_FEE_PCT && best.recv>=100)?`<div class="alert"><span class="ico">⚠</span><span>${I18N[LANG].feeHighAdvice(pct(head).toFixed(2))}</span></div>`:"";   // threshold on the DISPLAYED (rounded) value ≥HIGH_FEE_PCT; removed in over-liq (T>L0) where the liquidity alert already shows (no double alert)
   el.innerHTML=`<div class="eyebrow">${isReco?(fr?"Plan recommandé":"Recommended plan"):(fr?"Plan choisi":"Chosen plan")}</div><div class="plan">${plan}</div>${isReco?`<div class="sub">${why}</div>`:""}<div class="grid${uncertain?"":" two"}">${costTile}${rangeTile}${recvTile}</div>${bar}${advice}`;
 }
 // clicking a row = this split becomes active → re-renders block 2 (reco) + highlights the row
@@ -549,21 +555,10 @@ async function liq(dirKey){ // plafond via endpoint create (huge amount)
   const m=String(j?.error?.message||"").match(/Available:\s*([0-9.]+)/);
   return m?+m[1]:null;
 }
-async function stellarBal(){
-  const r=await fetch("https://horizon.stellar.org/accounts/"+STELLAR_HUB); const j=await r.json();
-  const b=(j.balances||[]).find(x=>x.asset_code==="EURC"); return b?+b.balance:null;
-}
-async function baseBal(){
-  const data="0x70a08231"+"000000000000000000000000"+BASE_HUB.slice(2).toLowerCase();
-  // mainnet.base.org & publicnode are CORS-OK in the browser; llamarpc blocks CORS (removed) → no more console error
-  for(const rpc of ["https://mainnet.base.org","https://base-rpc.publicnode.com"]){
-    try{const r=await fetch(rpc,{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_call",params:[{to:EURC_B,data},"latest"]})});
-      const j=await r.json(); if(j.result) return parseInt(j.result,16)/1e6;
-    }catch(e){}
-  }
-  return null;
-}
+// Hub balances = the same on-chain readers as the wallet ones, just aimed at the relayer hub addresses
+// (single source of truth: RPC list / EURC contract / decimals live once, in evmEurcBal & stellarEurcBal).
+const stellarBal=()=>stellarEurcBal(STELLAR_HUB);   // callers wrap with .catch → null on failure either way
+const baseBal=()=>evmEurcBal(BASE_HUB);
 // Liquidity = the hub's EURC balance on the receiving chain (= Available API, proven to the cent)
 let LIVE={B2S:{L:null,pts:null,sweptAt:null},S2B:{L:null,pts:null,sweptAt:null}};   // sweptAt = Available at the last curve sweep (for the cache)
 let lastDevis=null;   // last live quote (to align the "1 send" row of the table)
