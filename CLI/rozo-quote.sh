@@ -6,7 +6,7 @@
 # FEE MODEL (reverse-engineered, deterministic — same input => same fee):
 #   fee% = fee%(amount, L)   where L = Available remaining in the hub (drops
 #   with each stacked tranche) — surface measured by dryrun sweep (full drain),
-#   NOT a closed-form formula in b+k*u^p (old model refuted, cf. AUDIT-2-REPORT.md).
+#   NOT a closed-form formula in b+k*u^p (old model refuted).
 #   -> fixed base spread per direction (B->S ~0.09% ; S->B ~0.12% at a full hub)
 #      + escalation that rises as the hub drains, HARD cap at 0.50% (all
 #      amounts, all directions) near depletion; ~0.30% at a full hub on
@@ -114,7 +114,7 @@ print(b[0] if b else "?")')
     hx=$(curl -s -X POST "$BASE_RPC" -H "Content-Type: application/json" \
       -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"$EURC_BASE\",\"data\":\"0x70a08231$pad\"},\"latest\"]}" \
       | python3 -c 'import sys,json;print(json.load(sys.stdin).get("result","0x0"))')
-    bb=$(python3 -c "print(f'{int(\"$hx\",16)/1e6:,.2f}')")
+    bb=$(HX="$hx" python3 -c 'import os;h=os.environ["HX"];print(f"{int(h,16)/1e6:,.2f}")')
     echo "  S->B  hub Base    $BASE_HUB"
     echo "        EURC on-chain = $bb"
     ;;

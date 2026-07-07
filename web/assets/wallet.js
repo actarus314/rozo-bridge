@@ -3,7 +3,7 @@ const setTxt=(id,t,warn)=>{const e=document.getElementById(id); if(e) e.innerHTM
 const D=()=>window.I18N[window.LANG];   // re-reads window.LANG on every call (not frozen at module load) → wallet labels follow setLang()
 
 /* ---------- Connected wallet status (no more hardcoded accounts) ---------- */
-function syncFromWallet(addr){ window.checkWalletMatch(); }   // wallet connected/changed → refreshes the status
+function syncFromWallet(){ window.checkWalletMatch(); }   // wallet connected/changed → refreshes the status
 window.checkWalletMatch=function(){   // displays the connected address; source/destination derived from direction in app.js
   const dot=(id,on)=>{const e=document.getElementById(id);if(e){const b=e.closest(".wbtn");if(b)b.classList.toggle("on",on);}};
   if(window.evmAddr) setTxt("evmStatus","✓ "+short(window.evmAddr),false);
@@ -22,8 +22,8 @@ window.evmConnect=async()=>{
     try{localStorage.setItem("rozoEvm","1");}catch(_){}   // C2: marker for silent reconnection on reload
     try{ await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:CHAIN_HEX}]}); }catch(_){}
     if(!window._evmHooked && window.ethereum.on){ window._evmHooked=true;   // wallet account changed → resyncs
-      window.ethereum.on("accountsChanged",a=>{ window.evmAddr=a&&a[0]; if(window.evmAddr){syncFromWallet(window.evmAddr);}else{setTxt("evmStatus",D().moduleDisconnected,true);window.checkWalletMatch();} }); }
-    syncFromWallet(window.evmAddr);
+      window.ethereum.on("accountsChanged",a=>{ window.evmAddr=a&&a[0]; if(window.evmAddr){syncFromWallet();}else{setTxt("evmStatus",D().moduleDisconnected,true);window.checkWalletMatch();} }); }
+    syncFromWallet();
   }catch(e){ setTxt("evmStatus",D().moduleRejected(e.message||e),true); }
 };
 // click on the wallet area = toggles connect/disconnect
@@ -95,7 +95,7 @@ window.stellarConnect=async()=>{
   try{ const {address}=await SWK.authModal(); window.stellarAddr=address;
     let id=null; try{ id=SWK.selectedModule&&SWK.selectedModule.productId; }catch(_){}   // id of the selected wallet (kit) → restorable via setWallet()
     try{ localStorage.setItem("rozoStellar",JSON.stringify({id:id||null,address})); }catch(_){}   // C2: remembers wallet+address for restoration on reload
-    syncFromWallet(address); }
+    syncFromWallet(); }
   catch(e){ /* modal closed by the user */ }
 };
 window.stellarDisconnect=async()=>{
@@ -141,7 +141,7 @@ window.stellarSignRow=async(bid,i,btn)=>{
 window.walletRestore=async()=>{
   try{ if(window.ethereum&&localStorage.getItem("rozoEvm")){ const acc=await window.ethereum.request({method:"eth_accounts"});
     if(acc&&acc[0]){ window.evmAddr=acc[0];
-      if(!window._evmHooked&&window.ethereum.on){ window._evmHooked=true; window.ethereum.on("accountsChanged",a=>{ window.evmAddr=a&&a[0]; if(window.evmAddr){syncFromWallet(window.evmAddr);}else{setTxt("evmStatus",D().moduleDisconnected,true);window.checkWalletMatch();} }); }
+      if(!window._evmHooked&&window.ethereum.on){ window._evmHooked=true; window.ethereum.on("accountsChanged",a=>{ window.evmAddr=a&&a[0]; if(window.evmAddr){syncFromWallet();}else{setTxt("evmStatus",D().moduleDisconnected,true);window.checkWalletMatch();} }); }
       window.checkWalletMatch(); } } }catch(_){}
   try{ const raw=localStorage.getItem("rozoStellar"); if(raw){ const s=JSON.parse(raw);
     if(s&&s.id&&s.address){ await ensureKit(); try{ await SWK.setWallet(s.id); }catch(_){}

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- Reworded the release-cutting checklist in CONTRIBUTING.md so the version bump + CHANGELOG entries land in the same commit that gets tagged (both past releases had tagged a commit one step ahead of the bump).
+
+### Fixed
+- Footer fallback version bumped to v1.1.0; corrected the `#pWhyRange` static HTML fallback so it matches the live i18n text.
+- Added a 3s timeout to the GitHub release fetch that fills the footer version, so a stalled response fails fast.
+- Fixed a shell→python argument-injection risk on the CLI hub-balance line by passing the untrusted RPC value through the environment, consistent with the rest of the script.
+- Corrected stale paths and dangling doc references in `CLI/README.md` and `CLI/rozo-quote.sh` (pointing at files not in the public repo).
+
+### Removed
+- Dropped the orphan `stellarWalletMismatch` i18n key (fr/en, unused) and the unused `addr` parameter of `syncFromWallet`.
+
+### Security
+- `web/serve.py` now sends `X-Content-Type-Options: nosniff` / `X-Frame-Options: DENY` on every response and denies dotfile/`.bak` requests on the static file path (defense-in-depth; the server is loopback-only).
+
 ## [1.1.0] - 2026-07-07
 
 ### Added

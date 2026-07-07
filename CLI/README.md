@@ -15,7 +15,7 @@ moves (an intent is created, but no funds move until the deposit is made).
 ./rozo-quote.sh hub           # EURC balances of the relayer's 2 hubs, on-chain
 
 # Standalone web page (quote + live liquidity + curve chart, light/dark modes):
-open rozo-bridge.html         # or serve it: python3 -m http.server
+open ../web/rozo-bridge.html   # or serve it: cd ../web && python3 serve.py
 
 # overridable destination wallets:
 ROZO_STELLAR=G... ROZO_EVM=0x... ./rozo-quote.sh B2S 1000
@@ -28,7 +28,7 @@ ROZO_STELLAR=G... ROZO_EVM=0x... ./rozo-quote.sh B2S 1000
   remaining in the hub (drops with each stacked tranche). **Hard cap at 0.50%** (all amounts,
   near depletion); ~0.30% at a full hub on large amounts (protocol share
   bounded on-chain, `MAX_PROTOCOL_FEE_BPS=30`). B→S ~0.09% at a full hub; **S→B ~0.12%**
-  (pricier, same dynamic). Details: `AUDIT-2-REPORT.md` / `fee-study/`.
+  (pricier, same dynamic). Details: the app's in-app Documentation tab, or "How the fee model works" in the root README.
 - **Liquidity is a thin float per direction**, not one big pool:
   - **Base → Stellar**: cap = EURC balance of `GB4CLV3U…BY5AA` on Stellar
     (API `Available` = this balance to the cent, ~12.8k). Verifiable on-chain.
