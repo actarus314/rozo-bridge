@@ -1097,6 +1097,15 @@ if(location.protocol==="file:"){
 loadCurve(); updLbl(); updateDirUI(); drawChart(); quote(); simul(); refresh();   // loadCurve first: instant render from the cache, refresh only re-sweeps if the Available has moved
 loadBatches();   // #10: restores the persisted batches (purges expired ones + one-shot lock of chunks already deposited)
 
+(async function loadAppVersion(){   // footer: live GitHub release tag; static HTML text stays as fallback (offline, rate-limited, file://)
+  const el=document.getElementById("appVersion"); if(!el) return;
+  try{
+    const r=await fetch("https://api.github.com/repos/actarus314/rozo-bridge/releases/latest");
+    const j=await r.json();
+    if(j&&j.tag_name) el.textContent="Rozo Bridge "+j.tag_name;
+  }catch(e){}
+})();
+
 // auto-refresh removed (on request): liquidity only refreshes on load and via the ↻ button
 
 /* Tooltip portal: renders the content of .tip-box into a position:fixed node above everything (modeled on stellar-swap "Trust").
