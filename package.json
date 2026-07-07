@@ -4,7 +4,9 @@
   "version": "1.1.0",
   "description": "Dev-only tooling for this repo. The app itself (web/) has no build step and no runtime dependencies — this only regenerates the vendored web/assets/walletkit.js bundle.",
   "scripts": {
-    "build:walletkit": "node scripts/build-walletkit.mjs"
+    "build:walletkit": "node scripts/build-walletkit.mjs",
+    "test": "node scripts/test-model.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs"
   },
   "devDependencies": {
     "@creit.tech/stellar-wallets-kit": "2.5.0",
