@@ -1,34 +1,34 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Devis + check de liquidité AVANT de bridger de l'EURC via Rozo (intents.rozo.ai),
-# dans les deux sens Base <-> Stellar. Coût connu à l'avance, rien ne bouge.
+# Quote + liquidity check BEFORE bridging EURC via Rozo (intents.rozo.ai),
+# in both directions Base <-> Stellar. Cost known in advance, nothing moves.
 #
-# MODÈLE DE FRAIS (reverse-engineeré, déterministe — même entrée => même frais) :
-#   frais% = fee%(montant, L)   où L = Available restant du hub (baisse à
-#   chaque tranche empilée) — surface mesurée par sweep dryrun (drain complet),
-#   PAS une formule fermée en b+k*u^p (ancien modèle réfuté, cf. AUDIT-2-REPORT.md).
-#   -> spread de base fixe par sens (B->S ~0,09 % ; S->B ~0,12 % à hub plein)
-#      + escalade qui monte quand le hub se draine, cap DUR à 0,50 % (tous
-#      montants, tous sens) près de la déplétion ; ~0,30 % à hub plein sur les
-#      gros montants (MAX_PROTOCOL_FEE_BPS du contrat). Au-delà de la
-#      liquidité dispo : demande REFUSÉE.
-#   L'appId ne change NI la liquidité NI le frais (rozoEURC, seul appId utilisé
-#   ici et dans l'app web — l'ancien nom "rozoAgent" ne s'applique plus).
-#   La liquidité est un float qui varie dans le temps -> toujours la re-checker.
-#   Ce script ne calcule rien lui-même : le devis (dryrun) vient tel quel de
-#   l'API Rozo, donc toujours exact — seul ce commentaire décrit le modèle.
+# FEE MODEL (reverse-engineered, deterministic — same input => same fee):
+#   fee% = fee%(amount, L)   where L = Available remaining in the hub (drops
+#   with each stacked tranche) — surface measured by dryrun sweep (full drain),
+#   NOT a closed-form formula in b+k*u^p (old model refuted, cf. AUDIT-2-REPORT.md).
+#   -> fixed base spread per direction (B->S ~0.09% ; S->B ~0.12% at a full hub)
+#      + escalation that rises as the hub drains, HARD cap at 0.50% (all
+#      amounts, all directions) near depletion; ~0.30% at a full hub on
+#      large amounts (contract's MAX_PROTOCOL_FEE_BPS). Beyond available
+#      liquidity: request REJECTED.
+#   The appId changes NEITHER the liquidity NOR the fee (rozoEURC, the only
+#   appId used here and in the web app — the old name "rozoAgent" no longer applies).
+#   Liquidity is a float that varies over time -> always re-check it.
+#   This script computes nothing itself: the quote (dryrun) comes as-is from
+#   the Rozo API, so it's always exact — only this comment describes the model.
 #
-# Usage :
-#   ./rozo-quote.sh B2S 5000      # coût pour RECEVOIR 5000 EURC sur Stellar
-#   ./rozo-quote.sh S2B 5000      # coût pour RECEVOIR 5000 EURC sur Base
-#   ./rozo-quote.sh liq B2S       # liquidité max bridgeable maintenant (Base->Stellar)
-#   ./rozo-quote.sh liq S2B       # liquidité max bridgeable maintenant (Stellar->Base)
-#   ./rozo-quote.sh curve B2S     # courbe frais% vs montant (plusieurs paliers)
+# Usage:
+#   ./rozo-quote.sh B2S 5000      # cost to RECEIVE 5000 EURC on Stellar
+#   ./rozo-quote.sh S2B 5000      # cost to RECEIVE 5000 EURC on Base
+#   ./rozo-quote.sh liq B2S       # max bridgeable liquidity right now (Base->Stellar)
+#   ./rozo-quote.sh liq S2B       # max bridgeable liquidity right now (Stellar->Base)
+#   ./rozo-quote.sh curve B2S     # fee% vs amount curve (several tiers)
 #
-# Wallets destinataires (surchargeables) : ROZO_STELLAR=G...  ROZO_EVM=0x...
-# Dépendances : curl, python3 (stdlib). API publique, sans clé.
-#   - devis frais : endpoint ?dryrun=true  -> AUCUN intent créé, calcul pur.
-#   - liquidité   : endpoint create        -> renvoie le float réel dispo.
+# Destination wallets (overridable): ROZO_STELLAR=G...  ROZO_EVM=0x...
+# Dependencies: curl, python3 (stdlib). Public API, no key.
+#   - fee quote: endpoint ?dryrun=true  -> NO intent created, pure calculation.
+#   - liquidity : endpoint create        -> returns the real available float.
 # =============================================================================
 set -euo pipefail
 
@@ -39,9 +39,9 @@ EURC_BASE="0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42"                          
 EURC_STELLAR="EURC:GDHU6WRG4IEQXM5NZ4BMPKOXHW76MZM4Y2IEMFDVXBSDP6SJY4ITNPP2"     # EURC Stellar (chainId 1500)
 DEST_STELLAR="${ROZO_STELLAR:-GC43VW7DGJREUMJWMHJZOAWWWQ374ZKCFS2GKGRMNAIXSNV53WIBY5AA}"
 DEST_EVM="${ROZO_EVM:-0xA2d1034afa31a27A46fb40DF3bB4193aC7458115}"
-# Hubs du relayer (plafond d'un sens = solde EURC du hub sur la chaîne de réception)
-STELLAR_HUB="GB4CLV3UMXDPFP5OQJQKUCWPRJXPXPJSHTUKZEJLAIZFZR7UHYAQ6EB4"          # reçoit B->S
-BASE_HUB="0x05c84533299625df3aCe2215742124c1644e2705"                          # reçoit S->B
+# Relayer hubs (cap for one direction = hub's EURC balance on the receiving chain)
+STELLAR_HUB="GB4CLV3UMXDPFP5OQJQKUCWPRJXPXPJSHTUKZEJLAIZFZR7UHYAQ6EB4"          # receives B->S
+BASE_HUB="0x05c84533299625df3aCe2215742124c1644e2705"                          # receives S->B
 BASE_RPC="https://mainnet.base.org"
 
 route () {  # DIR -> "sc sa dc da ra"

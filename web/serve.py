@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Lanceur local de la version web du Rozo Bridge.
+"""Local launcher for the Rozo Bridge web version.
 
-Sert ce dossier en http (obligatoire : les wallets et l'import du bundle
-walletkit.js ne marchent pas en file://), ouvre le navigateur, et **s'arrête
-tout seul quand tu fermes la page**.
+Serves this folder over http (required: wallets and the walletkit.js
+bundle import don't work over file://), opens the browser, and **stops
+by itself when you close the page**.
 
-Usage :  ./serve.py        (ou  python3 serve.py  [port])
+Usage:  ./serve.py        (or  python3 serve.py  [port])
 
-Arrêt auto : la page envoie un battement toutes les 5 s + un beacon à la
-fermeture (pagehide). Le serveur coupe ~5 s après la fermeture réelle, mais
-survit à un refresh et aux onglets mis en arrière-plan. Ctrl+C pour couper à la main.
+Auto-stop: the page sends a heartbeat every 5 s + a beacon on close
+(pagehide). The server shuts down ~5 s after the page actually closes, but
+survives a refresh and tabs put in the background. Ctrl+C to stop manually.
 """
 import http.server, socketserver, threading, time, os, sys, webbrowser, json
 
@@ -17,11 +17,11 @@ DIR   = os.path.dirname(os.path.abspath(__file__))
 PAGE  = "rozo-bridge.html"
 LOG   = os.path.join(DIR, "..", "data", "intent-log.jsonl")   # passive log of real S2B intents → repo/data/ (gitignored, persists on disk/NAS)
 PORT  = int(sys.argv[1]) if len(sys.argv) > 1 else 8787
-IDLE  = 120   # backstop : coupe si aucun battement depuis 120 s (crash/veille)
-BYE   = 5     # coupe 5 s après un pagehide si aucun battement ne revient (= refresh annule)
-BOOT  = 60    # coupe si aucune page ne s'est connectée dans les 60 s
+IDLE  = 120   # backstop: stops if no heartbeat for 120 s (crash/sleep)
+BYE   = 5     # stops 5 s after a pagehide if no heartbeat comes back (= refresh cancels it)
+BOOT  = 60    # stops if no page has connected within 60 s
 
-# injecté avant </body> uniquement quand servi par CE lanceur → le HTML reste propre
+# injected before </body> only when served by THIS launcher → the HTML stays clean
 BEAT = (b"<script>(function(){var h=function(){fetch('/__hb',{cache:'no-store'})"
         b".catch(function(){})};h();setInterval(h,5000);addEventListener('pagehide',"
         b"function(){try{navigator.sendBeacon('/__bye','1')}catch(e){}});})();</script>")
@@ -52,7 +52,7 @@ class H(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
             self.send_header("Content-Length", str(len(data)))
             self.end_headers(); self.wfile.write(data); return
-        # injecter le heartbeat dans les pages .html, servir le reste normalement
+        # inject the heartbeat into .html pages, serve the rest normally
         path = self.translate_path(self.path)
         if path.endswith(".html") and os.path.isfile(path):
             data = open(path, "rb").read()
@@ -81,7 +81,7 @@ class H(http.server.SimpleHTTPRequestHandler):
             self.send_response(204); self.end_headers(); return
         self.send_response(404); self.end_headers()
 
-    def log_message(self, fmt, *args):  # silence les battements, garde les vraies requêtes
+    def log_message(self, fmt, *args):  # silences heartbeats, keeps real requests
         try: line = fmt % args
         except Exception: line = " ".join(str(a) for a in args)
         if "/__hb" in line or "/__bye" in line: return
@@ -103,7 +103,7 @@ def watchdog():
 
 def main():
     global PORT
-    for _ in range(20):  # port occupé → essaie le suivant
+    for _ in range(20):  # port taken → try the next one
         try:
             httpd = socketserver.ThreadingTCPServer(("127.0.0.1", PORT), H)
             break

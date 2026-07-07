@@ -1,32 +1,32 @@
 const API="https://intentapiv4.rozo.ai/functions/v1/payment-api";
 const EURC_B="0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42";
 const EURC_S="EURC:GDHU6WRG4IEQXM5NZ4BMPKOXHW76MZM4Y2IEMFDVXBSDP6SJY4ITNPP2";
-// comptes appairés (Base Safe ⇄ Stellar). Le destinataire d'un bridge = le wallet du même compte sur l'autre chaîne.
-// Adressage = wallets CONNECTÉS (plus de comptes codés en dur).
-// destination = wallet sur la chaîne de RÉCEPTION · source = wallet sur la chaîne de départ (= signataire).
+// paired accounts (Base Safe ⇄ Stellar). The recipient of a bridge = the wallet of the same account on the other chain.
+// Addressing = CONNECTED wallets (no more hardcoded accounts).
+// destination = wallet on the RECEIVING chain · source = wallet on the sending chain (= signer).
 const destWallet=dk=>dk==="B2S"?window.stellarAddr:window.evmAddr;
 const srcWallet=dk=>dk==="B2S"?window.evmAddr:window.stellarAddr;
-// DEVIS (dryrun, ne bouge rien) : si le wallet destination n'est pas connecté, placeholder VALIDE — le fee ne dépend pas du destinataire. La CRÉATION exige le vrai wallet (garde-fou genBatch).
+// QUOTE (dryrun, moves nothing): if the destination wallet isn't connected, a VALID placeholder — the fee doesn't depend on the recipient. CREATION requires the real wallet (genBatch guard).
 const PH={stellar:"GC43VW7DGJREUMJWMHJZOAWWWQ374ZKCFS2GKGRMNAIXSNV53WIBY5AA",base:"0xA2d1034afa31a27A46fb40DF3bB4193aC7458115"};
 const receiver=dk=>destWallet(dk)||(dk==="B2S"?PH.stellar:PH.base);
 const shortAddr=a=>a?a.slice(0,a.startsWith("0x")?6:4)+"…"+a.slice(-4):"—";
-// RC-9 : défense en profondeur — toute chaîne d'origine API (error.message, status, memo, id…) passe par ici avant innerHTML
+// RC-9: defense in depth — every string originating from the API (error.message, status, memo, id…) goes through here before innerHTML
 const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-window.escapeHtml=escapeHtml;   // exposé : wallet.js insère aussi des messages d'erreur bruts (Horizon) en innerHTML
+window.escapeHtml=escapeHtml;   // exposed: wallet.js also inserts raw error messages (Horizon) via innerHTML
 const STELLAR_HUB="GB4CLV3UMXDPFP5OQJQKUCWPRJXPXPJSHTUKZEJLAIZFZR7UHYAQ6EB4";
 const BASE_HUB="0x05c84533299625df3aCe2215742124c1644e2705";
-// paramètres du sens : src/dst pour la requête + modèle (fallback)
+// direction parameters: src/dst for the request + model (fallback)
 const DIR={
-  B2S:{sc:8453,sa:EURC_B,dc:1500,da:EURC_S,L:12781.48,col:"#4cc9f0"},   // L = repli du plafond si l'API échoue (sinon LIVE.L)
+  B2S:{sc:8453,sa:EURC_B,dc:1500,da:EURC_S,L:12781.48,col:"#4cc9f0"},   // L = cap fallback if the API fails (otherwise LIVE.L)
   S2B:{sc:1500,sa:EURC_S,dc:8453,da:EURC_B,L:7318.84,col:"#f0a04c"}
 };
-// données mesurées (live dryrun) — courbe toujours affichable hors-ligne
+// measured data (live dryrun) — curve always displayable offline
 const MEAS={
   B2S:[[100,.060],[400,.0575],[1000,.062],[2500,.0748],[4000,.0887],[6000,.111],[8000,.1369],[10000,.1754],[11500,.2150],[12000,.2269]],
   S2B:[[100,.170],[400,.1725],[1000,.180],[2500,.2056],[4000,.2425],[5500,.2969],[7000,.3404],[7300,.3470]]
 };
-// langue = auto (OS/navigateur), fallback anglais si pas de fr détecté
-let _langPref=null; try{_langPref=localStorage.getItem("rozoLang")}catch(e){}   // choix manuel mémorisé prime sur l'auto-détection
+// language = auto (OS/browser), fallback to English if no fr detected
+let _langPref=null; try{_langPref=localStorage.getItem("rozoLang")}catch(e){}   // a remembered manual choice takes priority over auto-detection
 let LANG=(_langPref||navigator.language||"en").toLowerCase().startsWith("fr")?"fr":"en";
 let LOCALE=LANG==="fr"?"fr-FR":"en-US";
 document.documentElement.lang=LANG;
@@ -276,9 +276,9 @@ const I18N={
     stellarWalletMismatch:(w,e)=>`wallet ${w} ≠ account ${e}`,
   }
 };
-window.I18N=I18N; window.LANG=LANG;   // exposé au module wallet (même pattern que window.ACCT) — pas de raccourci "T" : collision avec la var locale T (montant) de simul()/genBatch()
+window.I18N=I18N; window.LANG=LANG;   // exposed to the wallet module (same pattern as window.ACCT) — no shorthand "T": collides with the local var T (amount) in simul()/genBatch()
 const eur=n=>Number(n).toLocaleString(LOCALE,{maximumFractionDigits:2});
-const eur3=n=>Number(n).toLocaleString(LOCALE,{minimumFractionDigits:2,maximumFractionDigits:3});   // montants découpage/inputs : 3e décimale (T/n non rond, ex. 115,385)
+const eur3=n=>Number(n).toLocaleString(LOCALE,{minimumFractionDigits:2,maximumFractionDigits:3});   // split/input amounts: 3rd decimal (T/n isn't round, e.g. 115.385)
 
 async function postQuote(dirKey,amt,dryrun,type="exactOut"){
   const d=DIR[dirKey];
@@ -290,7 +290,7 @@ async function postQuote(dirKey,amt,dryrun,type="exactOut"){
   const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
   return r.json();
 }
-// frais% d'un montant c, interpolé depuis la courbe mesurée (LIVE balayée à la liquidité courante ; repli sur MEAS hors-ligne)
+// fee% for an amount c, interpolated from the measured curve (LIVE swept at the current liquidity; falls back to MEAS offline)
 function livePct(dk,c){
   const pts=(LIVE[dk]&&LIVE[dk].pts)||MEAS[dk]; if(!pts||pts.length<2) return null;
   if(c<=pts[0][0]) return pts[0][1];
@@ -298,7 +298,7 @@ function livePct(dk,c){
   return pts[pts.length-1][1];
 }
 function hideSplitcard(){const sc=document.getElementById("splitcard");if(sc)sc.style.display="none";}
-// #7 — solde EURC d'un wallet (chaîne d'envoi) pour le bouton « max »
+// #7 — a wallet's EURC balance (sending chain) for the "max" button
 async function evmEurcBal(addr){
   const data="0x70a08231"+"000000000000000000000000"+addr.slice(2).toLowerCase();
   for(const rpc of ["https://mainnet.base.org","https://base-rpc.publicnode.com"]){
@@ -309,7 +309,7 @@ async function evmEurcBal(addr){
 async function stellarEurcBal(addr){
   try{const r=await fetch("https://horizon.stellar.org/accounts/"+addr);const j=await r.json();const b=(j.balances||[]).find(x=>x.asset_code==="EURC");return b?+b.balance:null;}catch(e){return null;}
 }
-// remplit le bloc ENVOI avec le solde du wallet d'envoi (Base si B2S, Stellar si S2B) ; connecte le wallet au besoin
+// fills the SEND block with the sending wallet's balance (Base if B2S, Stellar if S2B); connects the wallet if needed
 async function fillMax(){
   const dk=document.getElementById("dir").value, fr=LANG==="fr", btn=document.getElementById("maxbtn"); if(!btn) return; const old=btn.textContent;
   let w=srcWallet(dk);
@@ -320,34 +320,34 @@ async function fillMax(){
   const v=bal==null?null:Math.floor(bal*100)/100;
   if(!(v>0)){ btn.textContent=bal==null?"n/a":(fr?"solde 0":"bal 0"); setTimeout(()=>btn.textContent=old,1600); return; }
   btn.textContent=old;
-  const sb=document.getElementById("amtSend"); sb.value=String(v); onAmt("exactIn",String(v));   // envoi = exactIn
+  const sb=document.getElementById("amtSend"); sb.value=String(v); onAmt("exactIn",String(v));   // send = exactIn
 }
-// Surface fee%(montant, L) mesurée par sweep dryrun (Campaign E, 05/07 ; le dryrun lit l'Available LIVE, prouvé).
-// Le frais dépend du montant ET du L RESTANT (= available0 − réservé), cap dur à 0,5 %. Interp bilinéaire (montant, L).
-// Sert à l'ESCALADE (forme), ancrée au niveau LIVE : R(c,réservé)=surf(c,L0−réservé)/surf(c,L0). Cf. fee-study/surface.json.
+// Surface fee%(amount, L) measured by dryrun sweep (Campaign E, 05/07; the dryrun reads the LIVE Available, proven).
+// The fee depends on the amount AND the REMAINING L (= available0 − reserved), hard cap at 0.5%. Bilinear interp (amount, L).
+// Used for the ESCALATION (shape), anchored to the LIVE level: R(c,reserved)=surf(c,L0−reserved)/surf(c,L0). Cf. fee-study/surface.json.
 const SURF={cap:0.5,amounts:[100,250,500,600,750,1000,1250,1500,2000,3000],
   B2S:[[1107.92,0.5,1.25,2.5,3,3.75,5,null,null,null,null],[1357.92,0.5,1.25,1.5,3,3.75,5,6.25,null,null,null],[1607.92,0.5,1.25,2.5,3,3.75,5,6.25,7.5,null,null],[1857.92,0.5,1.25,2.5,3,3.75,5,6.25,7.5,null,null],[2107.92,0.5,1.25,2.5,3,3.75,5,6.25,7.5,10,null],[2357.92,0.47,1.2,2.44,2.94,3.69,4.94,6.19,7.44,9.94,null],[2607.92,0.45,1.13,2.33,2.82,3.57,4.82,6.07,7.32,9.82,null],[2857.92,0.42,1.07,2.2,2.67,3.39,4.64,5.89,7.14,9.64,null],[3107.92,0.4,1.01,2.08,2.52,3.21,4.4,5.64,6.89,9.39,14.39],[3357.92,0.37,0.95,1.95,2.37,3.02,4.15,5.34,6.58,9.08,14.08],[3607.92,0.35,0.88,1.83,2.22,2.83,3.9,5.03,6.22,8.71,13.71],[3857.92,0.32,0.82,1.7,2.07,2.64,3.65,4.71,5.84,8.28,13.28],[4107.92,0.3,0.76,1.58,1.92,2.46,3.4,4.4,5.47,7.79,12.79],[4357.92,0.29,0.73,1.48,1.8,2.3,3.18,4.12,5.13,7.32,12.26],[4607.92,0.28,0.69,1.42,1.71,2.17,2.99,3.87,4.81,6.88,11.7],[4857.92,0.26,0.66,1.35,1.64,2.07,2.83,3.65,4.53,6.47,11.11],[5107.92,0.25,0.63,1.29,1.56,1.98,2.7,3.46,4.27,6.1,10.49],[5357.92,0.24,0.6,1.23,1.49,1.89,2.58,3.3,4.05,5.75,9.89],[5607.92,0.23,0.57,1.17,1.41,1.79,2.45,3.14,3.86,5.44,9.33],[5857.92,0.21,0.54,1.1,1.34,1.7,2.33,2.98,3.67,5.15,8.79],[6107.92,0.2,0.51,1.04,1.26,1.61,2.2,2.83,3.49,4.9,8.29],[6357.92,0.2,0.49,0.99,1.2,1.53,2.09,2.69,3.32,4.66,7.84],[6607.92,0.19,0.47,0.96,1.16,1.46,2,2.56,3.16,4.44,7.43],[6857.92,0.18,0.46,0.93,1.12,1.41,1.92,2.45,3.02,4.24,7.07],[7107.92,0.18,0.44,0.9,1.08,1.37,1.85,2.36,2.89,4.05,6.75],[7357.92,0.17,0.43,0.87,1.05,1.32,1.79,2.28,2.78,3.88,6.45],[7607.92,0.17,0.41,0.84,1.01,1.27,1.73,2.2,2.68,3.72,6.17],[7857.92,0.16,0.4,0.8,0.97,1.23,1.67,2.12,2.59,3.58,5.9],[8107.92,0.15,0.38,0.77,0.93,1.18,1.6,2.04,2.5,3.45,5.65],[8357.92,0.15,0.37,0.74,0.9,1.13,1.54,1.96,2.4,3.33,5.41],[8607.92,0.14,0.35,0.71,0.86,1.09,1.48,1.89,2.31,3.2,5.19],[8857.92,0.13,0.33,0.68,0.82,1.04,1.42,1.81,2.21,3.08,4.99],[9107.92,0.13,0.32,0.65,0.78,0.99,1.35,1.73,2.12,2.95,4.8],[9357.92,0.12,0.3,0.62,0.75,0.95,1.29,1.65,2.03,2.83,4.61],[9607.92,0.12,0.29,0.59,0.71,0.9,1.23,1.57,1.93,2.7,4.42],[9857.92,0.11,0.27,0.55,0.67,0.85,1.17,1.49,1.84,2.58,4.24],[10107.92,0.1,0.26,0.52,0.63,0.81,1.1,1.42,1.75,2.45,4.05],[10357.92,0.1,0.25,0.5,0.6,0.76,1.05,1.34,1.66,2.33,3.87],[10607.92,0.1,0.23,0.48,0.57,0.73,0.99,1.28,1.57,2.22,3.69]],
   S2B:[[991.37,0.5,1.25,2.5,3,3.75,null,null,null,null,null],[1241.37,0.5,1.25,2.5,3,3.75,5,null,null,null,null],[1491.37,0.5,1.25,2.5,3,3.75,5,6.25,null,null,null],[1741.37,0.5,1.25,2.5,3,3.75,5,6.25,7.5,null,null],[1991.37,0.5,1.25,2.5,3,3.75,5,6.25,7.5,null,null],[2241.37,0.49,1.23,2.48,2.98,3.73,4.98,6.23,7.48,9.98,null],[2491.37,0.46,1.16,2.38,2.88,3.63,4.88,6.13,7.38,9.88,null],[2741.37,0.44,1.1,2.26,2.74,3.48,4.73,5.98,7.23,9.73,null],[2991.37,0.41,1.04,2.13,2.59,3.29,4.51,5.76,7.01,9.51,null],[3241.37,0.39,0.98,2.01,2.44,3.11,4.26,5.48,6.73,9.23,14.23],[3491.37,0.36,0.91,1.88,2.29,2.92,4.01,5.17,6.39,8.89,13.89],[3741.37,0.34,0.85,1.76,2.14,2.73,3.76,4.86,6.02,8.49,13.49],[3991.37,0.31,0.79,1.63,1.99,2.54,3.51,4.55,5.64,8.02,13.02],[4241.37,0.3,0.74,1.52,1.85,2.37,3.28,4.25,5.28,7.54,12.51],[4491.37,0.28,0.71,1.44,1.75,2.23,3.07,3.98,4.95,7.08,11.96],[4741.37,0.27,0.68,1.38,1.67,2.12,2.9,3.75,4.66,6.66,11.38],[4991.37,0.26,0.65,1.32,1.6,2.02,2.76,3.54,4.39,6.27,10.78],[5241.37,0.25,0.62,1.26,1.52,1.93,2.63,3.37,4.15,5.91,10.17],[5491.37,0.23,0.58,1.19,1.45,1.84,2.51,3.21,3.95,5.58,9.59],[5741.37,0.22,0.55,1.13,1.37,1.74,2.38,3.06,3.76,5.28,9.04],[5991.37,0.21,0.52,1.07,1.3,1.65,2.26,2.9,3.57,5.01,8.52],[6241.37,0.2,0.5,1.01,1.23,1.56,2.14,2.75,3.39,4.77,8.04],[6491.37,0.19,0.48,0.97,1.18,1.49,2.04,2.62,3.23,4.54,7.61],[6741.37,0.19,0.47,0.94,1.14,1.44,1.95,2.5,3.08,4.33,7.23],[6991.37,0.18,0.45,0.91,1.1,1.39,1.88,2.4,2.95,4.14,6.89],[7241.37,0.18,0.44,0.88,1.06,1.34,1.82,2.31,2.83,3.96,6.59],[7491.37,0.17,0.42,0.85,1.03,1.3,1.76,2.23,2.73,3.79,6.3],[7741.37,0.16,0.4,0.82,0.99,1.25,1.69,2.16,2.63,3.64,6.02],[7991.37,0.16,0.39,0.79,0.95,1.2,1.63,2.08,2.54,3.51,5.76],[8241.37,0.15,0.37,0.76,0.91,1.16,1.57,2,2.45,3.38,5.52],[8491.37,0.14,0.36,0.72,0.88,1.11,1.51,1.92,2.35,3.26,5.29],[8741.37,0.14,0.34,0.69,0.84,1.06,1.44,1.84,2.26,3.13,5.08],[8991.37,0.13,0.33,0.66,0.8,1.01,1.38,1.77,2.16,3.01,4.89],[9241.37,0.13,0.31,0.63,0.76,0.97,1.32,1.69,2.07,2.88,4.7],[9491.37,0.12,0.29,0.6,0.73,0.92,1.26,1.61,1.98,2.76,4.51]]};
 const _si=(xs,ys,x)=>{ const n=xs.length; if(x<=xs[0])return ys[0]; if(x>=xs[n-1])return ys[n-1];
   for(let i=1;i<n;i++){ if(x<=xs[i]) return ys[i-1]+(ys[i]-ys[i-1])*(x-xs[i-1])/(xs[i]-xs[i-1]); } return ys[n-1]; };
-function surfPct(dk,c,L){ const rows=SURF[dk],AM=SURF.amounts,av=[],pv=[];   // fee%(montant,L) : frais brut stocké → %=frais/montant·100, interp en L puis en montant, cap 0,5
+function surfPct(dk,c,L){ const rows=SURF[dk],AM=SURF.amounts,av=[],pv=[];   // fee%(amount,L): raw fee stored → %=fee/amount·100, interp on L then on amount, 0.5 cap
   for(let j=0;j<AM.length;j++){ const xs=[],ys=[];
     for(const row of rows){ const v=row[j+1]; if(v!=null){ xs.push(row[0]); ys.push(v/AM[j]*100); } }
     if(xs.length){ av.push(AM[j]); pv.push(Math.min(SURF.cap,_si(xs,ys,L))); } }
   return pv.length?Math.min(SURF.cap,_si(av,pv,c)):SURF.cap; }
-// ============ FRAIS EXACTS PAR TRANCHE (remplace l'interpolation courbe pour le MIN) ============
-// min(n)=Σ dryrun(T/n) : le vrai frais par intent que Rozo facture (arrondi au cent inclus) → zéro dérive d'interpolation.
-// Cache par (mode, montant) ; invalidé si l'Available L a bougé de >SWEEP_EPS → un re-devis à L inchangé coûte 0 dryrun.
+// ============ EXACT FEES PER CHUNK (replaces the curve interpolation for the MIN) ============
+// min(n)=Σ dryrun(T/n): the real fee per intent that Rozo charges (cent rounding included) → zero interpolation drift.
+// Cached by (mode, amount); invalidated if the Available L moved by >SWEEP_EPS → a re-quote at unchanged L costs 0 dryrun.
 const dryCache={B2S:{},S2B:{}};
-const eurCeil=v=>Math.max(0.01,Math.ceil(v*100-1e-6)/100);   // arrondi cent SUP en euros (plancher 0,01) — Rozo facture au cent
+const eurCeil=v=>Math.max(0.01,Math.ceil(v*100-1e-6)/100);   // round UP to the cent in euros (€0.01 floor) — Rozo charges to the cent
 const ckey=(mode,T)=>mode+":"+T;
-// peuple le cache : dryrun {T/n} pour n=1..maxN (≤6 concurrents), réutilise le devis en cours pour n=1.
-// onFee() appelé à CHAQUE frais qui arrive → remplissage progressif du tableau (pas d'attente du lot complet).
+// populates the cache: dryrun {T/n} for n=1..maxN (≤6 concurrent), reuses the ongoing quote for n=1.
+// onFee() called on EVERY fee that arrives → progressive filling of the table (no waiting for the full batch).
 async function ensureChunkFees(dk,T,mode,L,maxN,onFee){
   const k=ckey(mode,T); let e=dryCache[dk][k];
-  if(e && L!=null && e.L!=null && Math.abs(e.L-L)>SWEEP_EPS){ delete dryCache[dk][k]; e=null; }   // L a bougé → cache périmé
+  if(e && L!=null && e.L!=null && Math.abs(e.L-L)>SWEEP_EPS){ delete dryCache[dk][k]; e=null; }   // L moved → stale cache
   if(!e){ e={fees:{},L}; dryCache[dk][k]=e; } else if(L!=null) e.L=L;
-  if(e.fees[1]==null && lastDevis && lastDevis.dk===dk && lastDevis.mode===mode && Math.abs(lastDevis.T-T)<0.5){ e.fees[1]=lastDevis.fee; onFee&&onFee(); }   // n=1 = le devis déjà fait (0 appel), rendu tout de suite
+  if(e.fees[1]==null && lastDevis && lastDevis.dk===dk && lastDevis.mode===mode && Math.abs(lastDevis.T-T)<0.5){ e.fees[1]=lastDevis.fee; onFee&&onFee(); }   // n=1 = the quote already made (0 calls), rendered right away
   const todo=[]; for(let n=1;n<=maxN;n++) if(e.fees[n]==null) todo.push(n);
   let i=0; await Promise.all(Array.from({length:Math.min(6,todo.length)},async()=>{
     while(i<todo.length){ const n=todo[i++]; const j=await postQuote(dk,T/n,true,mode).catch(()=>null);
@@ -358,60 +358,60 @@ async function ensureChunkFees(dk,T,mode,L,maxN,onFee){
 // REVERT (original logic where B→S escalated like S→B): set RESERVES.B2S = true (one line) — AND restore the pMath/pWhyRange range wording (B2S regains a range). Do NOT remove the B2S surface from SURF (reference for this revert).
 const RESERVES = {S2B:true, B2S:false};
 function simul(){
-  const dk=document.getElementById("dir").value, T=+document.getElementById("amt").value;   // repris du devis
+  const dk=document.getElementById("dir").value, T=+document.getElementById("amt").value;   // taken from the quote
   const L0=(LIVE[dk]&&LIVE[dk].L)||DIR[dk].L;
   const out=document.getElementById("splitout"); if(!out) return; if(!(T>0)){out.innerHTML="";hideSplitcard();return;} const _sc=document.getElementById("splitcard"); if(_sc)_sc.style.display="";
-  const mode=document.getElementById("mode").value;   // exactOut : T=reçu fixe · exactIn : T=envoyé fixe
+  const mode=document.getElementById("mode").value;   // exactOut: T=fixed received · exactIn: T=fixed sent
   const rows=[];
-  // Modèle empirique (courbe + escalade mesurées sur 2 routes, Campaign C 05/07) : frais figés à la CRÉATION ; créer un intent RÉSERVE l'Available →
-  // fee(tranche) = c·livePct(c)·R(c,réservé). Niveau = livePct (courbe live au devis, ancrage) ; forme = surface mesurée :
-  //   R(c,réservé) = surfPct(c, L0−réservé) / surfPct(c, L0).  Le frais dépend du L RESTANT (prouvé) et du montant (c-aware), cap 0,5 %.
-  // Espacé : on crée+signe une tranche à la fois, L se soigne (~10 min) entre → chaque tranche à L0 plein, R=1 (économie réelle).
-  // Rapide (batch = ce que genBatch fait) : réservations empilées → L baisse → tranches suivantes plus chères (pire cas série).
-  // Surface Campaign E (sweep dryrun, 2 routes, drain complet) : écart agrégé ≤0,04 €/série sur 16 séries mesurées. Cf. fee-study/METHODOLOGIE §6.
+  // Empirical model (curve + escalation measured on 2 routes, Campaign C 05/07): fees frozen at CREATION; creating an intent RESERVES the Available →
+  // fee(chunk) = c·livePct(c)·R(c,reserved). Level = livePct (live curve at quote time, anchor); shape = measured surface:
+  //   R(c,reserved) = surfPct(c, L0−reserved) / surfPct(c, L0).  The fee depends on the REMAINING L (proven) and on the amount (c-aware), 0.5% cap.
+  // Spaced out: we create+sign one chunk at a time, L heals (~10 min) between → each chunk at a full L0, R=1 (real saving).
+  // Fast (batch = what genBatch does): reservations stack → L drops → next chunks are dearer (serial worst case).
+  // Campaign E surface (dryrun sweep, 2 routes, full drain): aggregated gap ≤0.04€/series over 16 measured series. Cf. fee-study/METHODOLOGIE §6.
   const KRAP = dk==="S2B" ? 0.70 : 0.85;   // fast headline = KRAP × serial worst-case, ROUTE-SPECIFIC. S2B=0.70 (Romain's call: the realized cost hugs the min, 0.85 read too high). B2S=0.85 kept for the RESERVES.B2S=true revert, but INERT while B2S doesn't reserve (ratio=1 → feeWorst≤feeFlat → fee=feeFlat, no likely cost). Realized = RANDOM variable (0 to ~0.9 per draw, proven on 2 routes): 0.70 covers fewer draws than 0.85 — assumed. Only k=1 would be never-optimistic in all cases.
-  // NB : une pondération par N (« petit N moins cher ») a été tentée 2× puis DÉFINITIVEMENT retirée — le sweep S2B (03/07) a montré que le « seuil » N vu sur B2S était un échantillon chanceux ; réalisé(N) est non-monotone/aléatoire (N=3→0,90 mais N=5→0). Aucun seuil déterministe. NE PAS re-tenter.
-  const cache=(dryCache[dk]||{})[ckey(mode,T)]||{fees:{}};   // frais exacts déjà arrivés (remplissage progressif)
+  // NB: a weighting by N ("small N is cheaper") was tried 2× then PERMANENTLY removed — the S2B sweep (03/07) showed that the "threshold" N seen on B2S was a lucky sample; realized(N) is non-monotonic/random (N=3→0.90 but N=5→0). No deterministic threshold. DO NOT retry.
+  const cache=(dryCache[dk]||{})[ckey(mode,T)]||{fees:{}};   // exact fees already received (progressive filling)
   for(let n=1;n<=splitMax;n++){
     const c=T/n;
-    if(c>L0+1e-6){ rows.push({n,c,ok:false}); continue; }        // tranche > liquidité = infaisable (indépendant du frais)
-    const ef=cache.fees[n];                                       // frais EXACT en cache, ou undefined (dryrun {T/n} pas encore arrivé)
-    if(ef==null){ rows.push({n,c,ok:true,loading:true}); continue; }   // en attente → ligne « … » (pas d'approximation)
-    const s0=surfPct(dk,c,L0);                           // niveau surface à L0 (dénominateur de l'escalade)
+    if(c>L0+1e-6){ rows.push({n,c,ok:false}); continue; }        // chunk > liquidity = infeasible (independent of the fee)
+    const ef=cache.fees[n];                                       // EXACT fee in cache, or undefined (dryrun {T/n} not yet received)
+    if(ef==null){ rows.push({n,c,ok:true,loading:true}); continue; }   // waiting → "…" row (no approximation)
+    const s0=surfPct(dk,c,L0);                           // surface level at L0 (denominator of the escalation)
     let fee=0,feeWorst=0,feeFlat=0,recvT=0,sentT=0,ok=true,reserved=0; const chunks=[];
     for(let i=0;i<n;i++){
-      const raw=ef;                                                  // base EXACTE (euros), identique pour chaque tranche à L0 plein
+      const raw=ef;                                                  // EXACT base (euros), identical for each chunk at a full L0
       const ratio=RESERVES[dk]?((s0>0)?surfPct(dk,c,L0-reserved)/s0:1):1;   // escalation shape (measured surface), dimensionless — forced to 1 on a direction that does NOT reserve (B→S): no drain → feeWorst≤feeFlat → single value shown
-      const rawW=Math.min(c*SURF.cap/100, raw*ratio);                // pire cas série (euros) ; cap 0,5 % = c·0,005
-      const ff=eurCeil(raw), fw=eurCeil(rawW), f=eurCeil(Math.max(raw,KRAP*rawW));   // min = frais exact (Rozo l'arrondit déjà) ; max/probable arrondis cent SUP
+      const rawW=Math.min(c*SURF.cap/100, raw*ratio);                // serial worst case (euros); 0.5% cap = c·0.005
+      const ff=eurCeil(raw), fw=eurCeil(rawW), f=eurCeil(Math.max(raw,KRAP*rawW));   // min = exact fee (Rozo already rounds it); max/likely rounded UP to the cent
       const recv=mode==="exactIn"?c-f:c, sent=mode==="exactIn"?c:c+f;
-      const cap=L0;                                                  // faisabilité PAR TRANCHE : chaque livraison doit tenir dans le hub
+      const cap=L0;                                                  // feasibility PER CHUNK: each delivery must fit within the hub
       if(recv>cap+1e-6){ok=false;break;}
       chunks.push({i:i+1,recv,sent,fee:f,L:cap});
       fee+=f; feeWorst+=fw; feeFlat+=ff; recvT+=recv; sentT+=sent; reserved+=recv;
     }
-    rows.push({n,c,ok,fee,feeWorst,feeFlat,recv:recvT,sent:sentT,pct:ok?fee/sentT*100:null,chunks});   // % = frais/ENVOYÉ (AUDIT R2)
+    rows.push({n,c,ok,fee,feeWorst,feeFlat,recv:recvT,sent:sentT,pct:ok?fee/sentT*100:null,chunks});   // % = fee/SENT (AUDIT R2)
   }
-  if(lastDevis&&lastDevis.dk===dk&&lastDevis.mode===mode&&Math.abs(lastDevis.T-T)<0.5){const r1=rows.find(r=>r.n===1);if(r1&&r1.ok&&!r1.loading){r1.fee=r1.feeFlat=r1.feeWorst=lastDevis.fee;r1.recv=lastDevis.recv;r1.sent=lastDevis.send;r1.pct=r1.fee/lastDevis.send*100;if(r1.chunks[0]){r1.chunks[0].recv=lastDevis.recv;r1.chunks[0].sent=lastDevis.send;r1.chunks[0].fee=lastDevis.fee;}}}   // caler AUSSI feeFlat/feeWorst sinon renderReco (min=feeFlat) diverge du tableau à n=1 (AUDIT R1)
-  const feas=rows.filter(r=>r.ok&&!r.loading);   // les lignes en chargement n'ont pas de frais → hors calcul reco
+  if(lastDevis&&lastDevis.dk===dk&&lastDevis.mode===mode&&Math.abs(lastDevis.T-T)<0.5){const r1=rows.find(r=>r.n===1);if(r1&&r1.ok&&!r1.loading){r1.fee=r1.feeFlat=r1.feeWorst=lastDevis.fee;r1.recv=lastDevis.recv;r1.sent=lastDevis.send;r1.pct=r1.fee/lastDevis.send*100;if(r1.chunks[0]){r1.chunks[0].recv=lastDevis.recv;r1.chunks[0].sent=lastDevis.send;r1.chunks[0].fee=lastDevis.fee;}}}   // ALSO align feeFlat/feeWorst otherwise renderReco (min=feeFlat) diverges from the table at n=1 (AUDIT R1)
+  const feas=rows.filter(r=>r.ok&&!r.loading);   // loading rows have no fee → excluded from the reco calculation
   let best=null;
-  if(feas.length){ const c1=feas[0].fee, minFee=Math.min(...feas.map(r=>r.fee)), maxSav=c1-minFee; best=feas[0];   // référence = min réel (fee(n) non-monotone : plancher+pénalité, cf. AUDIT R10) ; la boucle ci-dessous réassigne toujours best
-    for(const r of feas){ if(maxSav<=0||(c1-r.fee)>=0.9*maxSav){best=r;break;} } }   // knee : ≥90 % de l'économie
+  if(feas.length){ const c1=feas[0].fee, minFee=Math.min(...feas.map(r=>r.fee)), maxSav=c1-minFee; best=feas[0];   // reference = real min (fee(n) non-monotonic: floor+penalty, cf. AUDIT R10); the loop below always reassigns best
+    for(const r of feas){ if(maxSav<=0||(c1-r.fee)>=0.9*maxSav){best=r;break;} } }   // knee: ≥90% of the saving
   splitRows=rows; splitMeta={dk,mode}; bestN=best?best.n:1;
-  if(selN!=null){const sr=rows.find(r=>r.n===selN); if(!sr||!sr.ok) selN=null;}   // revalide la sélection si elle est devenue infaisable (AUDIT R3)
+  if(selN!=null){const sr=rows.find(r=>r.n===selN); if(!sr||!sr.ok) selN=null;}   // revalidates the selection if it became infeasible (AUDIT R3)
   const D=I18N[LANG], fr=LANG==="fr";
-  const active=(selN&&rows.find(r=>r.n===selN&&r.ok))||best;   // ligne cliquée = active (renvoyée au bloc 2), sinon reco
-  const feePct=(f,r)=>r&&r.sent>0?f/r.sent*100:0;   // % = frais/ENVOYÉ par ligne (AUDIT R2)
-  const rng=r=>r.n>1&&r.feeWorst!=null&&r.feeFlat!=null&&r.feeWorst>r.feeFlat+0.005;   // fourchette visible seulement si min≠max
+  const active=(selN&&rows.find(r=>r.n===selN&&r.ok))||best;   // clicked row = active (fed to block 2), otherwise reco
+  const feePct=(f,r)=>r&&r.sent>0?f/r.sent*100:0;   // % = fee/SENT per row (AUDIT R2)
+  const rng=r=>r.n>1&&r.feeWorst!=null&&r.feeFlat!=null&&r.feeWorst>r.feeFlat+0.005;   // range visible only if min≠max
   const feeCell=r=>rng(r)?`<b>${eur(r.feeFlat)}</b> – ${eur(r.feeWorst)}`:`<b>${eur(r.fee)}</b>`;
   const pctCell=r=>rng(r)?`${feePct(r.feeFlat,r).toFixed(2)} – ${feePct(r.feeWorst,r).toFixed(2)} %`:`${feePct(r.fee,r).toFixed(3)} %`;
-  const exIn=mode==="exactIn";   // B1 : la valeur FIXE par tranche est l'envoi (exactIn) ou le reçu (exactOut) ; le total va sur l'autre côté
+  const exIn=mode==="exactIn";   // B1: the FIXED value per chunk is the send (exactIn) or the receive (exactOut); the total goes on the other side
   const HEAD=fr?["Découpage",exIn?"envoi/tranche":"reçu/tranche",exIn?"reçu total":"envoi total","frais (min–max)","frais %"]:["Split",exIn?"send/chunk":"received/chunk",exIn?"total received":"total sent","fee (min–max)","fee %"];
   let h=`<table><tr><th>${HEAD[0]}</th><th>${HEAD[1]}</th><th>${HEAD[2]}</th><th>${HEAD[3]}</th><th>${HEAD[4]}</th></tr>`;
   for(const r of rows){
-    if(r.loading){h+=`<tr class="loadrow"><td>${D.sendLabel(r.n)}</td><td>${eur3(r.c)}</td><td colspan="3" class="mut"><span class="minispin"></span></td></tr>`;continue;}   // frais {T/n} pas encore arrivé
+    if(r.loading){h+=`<tr class="loadrow"><td>${D.sendLabel(r.n)}</td><td>${eur3(r.c)}</td><td colspan="3" class="mut"><span class="minispin"></span></td></tr>`;continue;}   // fee {T/n} not yet received
     if(!r.ok){h+=`<tr class="mut"><td>${r.n}×</td><td>${eur3(r.c)}</td><td colspan="3">${D.infeasibleRow}</td></tr>`;continue;}
-    // recommandé = vert (persiste toujours) · sélectionné au clic (si ≠ reco) = teal — via CLASSE (le survol garde la teinte, cf. CSS)
+    // recommended = green (always persists) · selected by click (if ≠ reco) = teal — via CLASS (hover keeps the tint, cf. CSS)
     let cls='';
     if(best&&r.n===best.n) cls='recorow';
     if(selN&&r.n===selN&&(!best||r.n!==best.n)) cls='selrow';
@@ -419,28 +419,28 @@ function simul(){
   }
   h+=`</table>`;
   h+=`<div class="morebtn"><button onclick="moreSplits()">${fr?"▾ plus de découpages (+5)":"▾ more splits (+5)"}</button></div>`;
-  out.innerHTML='<div class="tblwrap">'+h+'</div>'; updBatchLabel();   // RC-6 : le tableau de découpage débordait horizontalement sur mobile (seul tableau généré non enveloppé)
-  if(rows.some(r=>r.loading)){ const _d=feas.length, _t=rows.filter(r=>r.ok).length; const el=document.getElementById("reco"); if(el) el.innerHTML=`<div class="mut" style="padding:6px 0;display:flex;align-items:center;gap:8px"><span class="minispin"></span> ${fr?`chiffrage des tranches (un devis dryrun par découpage)… <b>${_d} / ${_t}</b>`:`pricing chunks (one dryrun quote per split)… <b>${_d} / ${_t}</b>`}</div>`; }   // reco en attente tant que des tranches chargent (explication + progression, évite le jitter)
+  out.innerHTML='<div class="tblwrap">'+h+'</div>'; updBatchLabel();   // RC-6: the split table overflowed horizontally on mobile (the only generated table not wrapped)
+  if(rows.some(r=>r.loading)){ const _d=feas.length, _t=rows.filter(r=>r.ok).length; const el=document.getElementById("reco"); if(el) el.innerHTML=`<div class="mut" style="padding:6px 0;display:flex;align-items:center;gap:8px"><span class="minispin"></span> ${fr?`chiffrage des tranches (un devis dryrun par découpage)… <b>${_d} / ${_t}</b>`:`pricing chunks (one dryrun quote per split)… <b>${_d} / ${_t}</b>`}</div>`; }   // reco pending as long as chunks are loading (explanation + progress, avoids jitter)
   else renderReco(active,dk,T,!!(selN&&active&&active.n===selN));
 }
-// ---- bloc recommandation (fusion montant+reco) : plan + tuiles + fourchette ----
+// ---- recommendation block (amount+reco merged): plan + tiles + range ----
 function renderReco(best,dk,T,sel){
   const el=document.getElementById("reco"); if(!el) return;
   const fr=LANG==="fr", L0=(LIVE[dk]&&LIVE[dk].L)||DIR[dk].L;
-  if(!best){ el.innerHTML=""; return; }   // aucun découpage faisable → on ne bloque pas : seule l'alerte liquidité non bloquante (#out) subsiste, + le tableau (tranches à choisir)
-  const pct=f=>best.sent>0?f/best.sent*100:0;   // % = frais/ENVOYÉ (AUDIT R2)
+  if(!best){ el.innerHTML=""; return; }   // no feasible split → we don't block: only the non-blocking liquidity alert (#out) remains, + the table (chunks to pick)
+  const pct=f=>best.sent>0?f/best.sent*100:0;   // % = fee/SENT (AUDIT R2)
   const min=best.feeFlat!=null?best.feeFlat:best.fee, max=best.feeWorst!=null?best.feeWorst:best.fee;
   const head=best.fee!=null?best.fee:min;   // cautious estimate (headline ≈ KRAP×worst case: 0.70 on S2B — the only direction that shows a likely cost), AUDIT R8
-  const uncertain=best.n>1&&max>min+0.005;  // frais INCERTAIN (rapide, fourchette réelle) → barre + « ≈/probable » ; sinon frais CERTAIN → on éteint tout ça (#2/#8)
+  const uncertain=best.n>1&&max>min+0.005;  // UNCERTAIN fee (fast, real range) → bar + "≈/likely"; otherwise CERTAIN fee → all of that gets switched off (#2/#8)
   const recvChain=dk==="B2S"?"Stellar":"Base";
   const plan=best.n===1?(fr?"1 envoi":"1 send"):`${best.n} ${fr?"envois de":"sends of"} ${eur(best.c)} €`;
-  // #3 — pourquoi CETTE ligne : plus petit découpage captant ≥90 % de l'économie (le « knee »)
+  // #3 — why THIS row: smallest split capturing ≥90% of the saving (the "knee")
   const why=best.n===1
     ?(fr?"un seul envoi suffit à ce montant":"a single send is enough here")
     :(fr?"plus petit découpage captant ≥90 % de l'économie · moins de signatures":"smallest split capturing ≥90% of the saving · fewer signatures");
   const tipProb=fr?"Estimation prudente = 0,70 × le pire cas (réservations empilées en série). En parallèle le réel tombe en général plus bas ; « Générer » donne le chiffre exact.":"Cautious estimate = 0.70 × the worst case (reservations stacked serially). In parallel the real value usually lands lower; generating gives the exact figure.";
   const tipCertain=fr?"Frais figé, connu au centime : aucun empilement de réservations ici, le coût ne varie pas.":"Fixed fee, known to the cent: no stacked reservations here, so the cost doesn't vary.";
-  const help=t=>`<span class="tip-wrap" tabindex="0"><span class="tip-icon">ⓘ</span><span class="tip-box">${t}</span></span>`;   // tooltip au survol + focus clavier (portal thémé/localisé), remplace title=
+  const help=t=>`<span class="tip-wrap" tabindex="0"><span class="tip-icon">ⓘ</span><span class="tip-box">${t}</span></span>`;   // tooltip on hover + keyboard focus (themed/localized portal), replaces title=
   const costTile=uncertain
     ?`<div><span class="k">${fr?"COÛT PROBABLE":"LIKELY COST"} ${help(tipProb)}</span><span class="big num">≈ ${eur(head)} €</span><span class="sub2 num">${pct(head).toFixed(2)} %</span></div>`
     :`<div><span class="k">${fr?"COÛT":"COST"} ${help(tipCertain)}</span><span class="big num">${eur(head)} €</span><span class="sub2 num">${pct(head).toFixed(2)} % · ${fr?"figé":"fixed"}</span></div>`;
@@ -448,32 +448,32 @@ function renderReco(best,dk,T,sel){
     ?`<div><span class="k">${fr?"FOURCHETTE FRAIS":"FEE RANGE"}</span><span class="big num">${eur(min)} – ${eur(max)} €</span><span class="sub2 num">${pct(min).toFixed(2)} – ${pct(max).toFixed(2)} % · ${fr?"parallèle → série":"parallel → serial"}</span></div>`
     :"";
   const recvTile=`<div><span class="k">${fr?"TU REÇOIS":"YOU RECEIVE"} (${recvChain})</span><span class="big num">${uncertain?"≈ ":""}${eur(best.recv)} €</span><span class="sub2">${fr?"livraison quasi immédiate":"near-instant delivery"}</span></div>`;
-  // tooltips au survol (portal) — texte de légende retiré au profit d'explications au survol de chaque repère
+  // tooltips on hover (portal) — legend text removed in favor of hover explanations on each marker
   const tipMin=fr?"Coût si toutes les tranches étaient cotées en parallèle, contre la même liquidité initiale — le cas le plus bas.":"Cost if all chunks were quoted in parallel, against the same initial liquidity — the lowest case.";
   const tipMax=fr?"Coût si les tranches étaient cotées en série, réservations empilées — le cas le plus haut.":"Cost if chunks were quoted serially, reservations stacked — the highest case.";
   const tipZone=fr?"Fourchette la plus probable du coût réel, entre le tout-parallèle (min) et le tout-série (max). « Générer » réserve la liquidité et donne l'exact.":"Most likely range of the real cost, between all-parallel (min) and all-serial (max). Generating reserves liquidity and gives the exact value.";
   let bar="";
   if(uncertain){
-    const pmax=Math.min(100,Math.max(0,(head-min)/(max-min)*100));   // position du « coût probable » (headline) sur la barre
-    const tb=t=>`<span class="tip-box">${t}</span>`;   // tooltip au survol de l'élément lui-même (portal), sans icône ⓘ
-    bar=`<div class="range" style="--lo:0%;--hi:100%;--pmax:${pmax.toFixed(1)}%"><div class="track"></div><div class="band"></div><div class="prob tip-wrap" tabindex="0">${tb(tipZone)}</div><div class="cap lo"></div><div class="cap hi"></div><div class="dot tip-wrap" tabindex="0">${tb(tipProb)}</div><span class="lbl mid tip-wrap" tabindex="0">≈ <b class="num">${eur(head)} €</b>${tb(tipProb)}</span><span class="lbl lo tip-wrap" tabindex="0">min <b class="num">${eur(min)} €</b> · ${pct(min).toFixed(2)} %${tb(tipMin)}</span><span class="lbl hi tip-wrap" tabindex="0">max <b class="num">${eur(max)} €</b> · ${pct(max).toFixed(2)} %${tb(tipMax)}</span></div>`;   // A1 : point marqué sur la barre · tooltips bornes(min/max)/zone/point (texte zoneval retiré) ; tabindex=0 = focus clavier (portal show/hide sur focusin/focusout, cf. IIFE)
+    const pmax=Math.min(100,Math.max(0,(head-min)/(max-min)*100));   // position of the "likely cost" (headline) on the bar
+    const tb=t=>`<span class="tip-box">${t}</span>`;   // tooltip on hovering the element itself (portal), without the ⓘ icon
+    bar=`<div class="range" style="--lo:0%;--hi:100%;--pmax:${pmax.toFixed(1)}%"><div class="track"></div><div class="band"></div><div class="prob tip-wrap" tabindex="0">${tb(tipZone)}</div><div class="cap lo"></div><div class="cap hi"></div><div class="dot tip-wrap" tabindex="0">${tb(tipProb)}</div><span class="lbl mid tip-wrap" tabindex="0">≈ <b class="num">${eur(head)} €</b>${tb(tipProb)}</span><span class="lbl lo tip-wrap" tabindex="0">min <b class="num">${eur(min)} €</b> · ${pct(min).toFixed(2)} %${tb(tipMin)}</span><span class="lbl hi tip-wrap" tabindex="0">max <b class="num">${eur(max)} €</b> · ${pct(max).toFixed(2)} %${tb(tipMax)}</span></div>`;   // A1: dot marked on the bar · tooltips on bounds(min/max)/zone/dot (zoneval text removed); tabindex=0 = keyboard focus (portal show/hide on focusin/focusout, cf. IIFE)
   }
-  const isReco=best.n===bestN;   // #3 : active = la bande recommandée (le knee) ? → phrase "why" + eyebrow "recommandé" SEULEMENT dans ce cas (sur une bande choisie à la main, la phrase "plus petit découpage captant ≥90 %" mentirait)
-  // conseil recharge : frais de la bande sélectionnée > 0,25 % = hub bas → attendre la recharge fait baisser. Garde recv≥100 : sous ce montant le % élevé vient du plancher 0,01 €, pas du drainage (attendre n'aiderait pas). // ponytail: seuil 0,25 % choisi par l'utilisateur
-  const advice=(T<=L0 && +pct(head).toFixed(2)>=0.25 && best.recv>=100)?`<div class="alert"><span class="ico">⚠</span><span>${I18N[LANG].feeHighAdvice(pct(head).toFixed(2))}</span></div>`:"";   // seuil sur la valeur AFFICHÉE (arrondie) ≥0,25 % ; supprimé en over-liq (T>L0) où l'alerte liquidité s'affiche déjà (pas de double alerte)
+  const isReco=best.n===bestN;   // #3: active = the recommended band (the knee)? → "why" sentence + "recommended" eyebrow ONLY in that case (on a manually chosen band, the "smallest split capturing ≥90%" sentence would lie)
+  // refill advice: fee of the selected band > 0.25% = low hub → waiting for the refill lowers it. Guard recv≥100: below this amount the high % comes from the €0.01 floor, not from draining (waiting wouldn't help). // ponytail: 0.25% threshold chosen by the user
+  const advice=(T<=L0 && +pct(head).toFixed(2)>=0.25 && best.recv>=100)?`<div class="alert"><span class="ico">⚠</span><span>${I18N[LANG].feeHighAdvice(pct(head).toFixed(2))}</span></div>`:"";   // threshold on the DISPLAYED (rounded) value ≥0.25%; removed in over-liq (T>L0) where the liquidity alert already shows (no double alert)
   el.innerHTML=`<div class="eyebrow">${isReco?(fr?"Plan recommandé":"Recommended plan"):(fr?"Plan choisi":"Chosen plan")}</div><div class="plan">${plan}</div>${isReco?`<div class="sub">${why}</div>`:""}<div class="grid${uncertain?"":" two"}">${costTile}${rangeTile}${recvTile}</div>${bar}${advice}`;
 }
-// clic sur une ligne = ce découpage devient actif → re-rend le bloc 2 (reco) + surligne la ligne
+// clicking a row = this split becomes active → re-renders block 2 (reco) + highlights the row
 function selRow(n){ selN=n; simul(); }
-// a11y : <tr onclick> activable au clavier (Enter/Espace = même action que le clic ; Espace ne scrolle pas la page)
+// a11y: <tr onclick> keyboard-activatable (Enter/Space = same action as the click; Space doesn't scroll the page)
 function rowKey(e,n){ if(e.key==="Enter"||e.key===" "||e.key==="Spacebar"){ e.preventDefault(); selRow(n); } }
 async function moreSplits(){ splitMax+=5;
   const dk=document.getElementById("dir").value, mode=document.getElementById("mode").value, T=+document.getElementById("amt").value;
-  simul();   // affiche les nouvelles lignes en chargement tout de suite
+  simul();   // shows the new loading rows right away
   if(T>0) await ensureChunkFees(dk,T,mode,LIVE[dk]&&LIVE[dk].L,splitMax,()=>simul());
   simul(); }
-// sélection du sens : clic sur une cellule de liquidité ou sur le cartouche
-// a11y : <div class="cell" onclick> activable au clavier (Enter/Espace = même action que le clic ; Espace ne scrolle pas la page)
+// direction selection: click on a liquidity cell or on the badge
+// a11y: <div class="cell" onclick> keyboard-activatable (Enter/Space = same action as the click; Space doesn't scroll the page)
 function cellKey(e,dir){ if(e.key==="Enter"||e.key===" "||e.key==="Spacebar"){ e.preventDefault(); setDir(dir); } }
 function setDir(v){ const d=document.getElementById("dir"); if(!d) return; if(d.value===v){updateDirUI();return;} d.value=v; updateDirUI(); quote(); }
 function toggleDir(){ const d=document.getElementById("dir"); if(d) setDir(d.value==="B2S"?"S2B":"B2S"); }
@@ -481,55 +481,55 @@ function updateDirUI(){
   const d=document.getElementById("dir"); if(!d) return; const v=d.value, fr=LANG==="fr";
   document.querySelectorAll(".liq .cell").forEach(c=>{const on=c.getAttribute("data-dir")===v;c.classList.toggle("active",on);const p=c.querySelector(".pick");if(p)p.textContent=on?(fr?"● sélectionné":"● selected"):(fr?"choisir":"select");});
   const S=`<span class="chip s"><svg class="logo"><use href="#stellar-mark"/></svg>Stellar</span>`,B=`<span class="chip b"><span class="sq"></span>Base</span>`;
-  const src=v==="B2S"?B:S, dst=v==="B2S"?S:B;   // gauche = source (envoyé) · droite = destination (reçu)
+  const src=v==="B2S"?B:S, dst=v==="B2S"?S:B;   // left = source (sent) · right = destination (received)
   const btn=document.getElementById("dirbtn");
-  if(btn) btn.innerHTML=src+`<span class="arw">→</span>`+dst;   // cartouches côte à côte + flèche à sens unique (flip au clic)
+  if(btn) btn.innerHTML=src+`<span class="arw">→</span>`+dst;   // badges side by side + one-way arrow (flips on click)
 }
-// onglets Bridge / Documentation
+// Bridge / Documentation tabs
 function showPage(p,btn){ document.querySelectorAll(".page").forEach(x=>x.classList.toggle("on",x.id===p)); document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("on",b===btn)); if(p==="doc"){ drawChart(); ensureChartCurve().then(drawChart); } if(p==="disp"){ renderDisp(); } window.scrollTo({top:0,behavior:"instant"}); }
-// clic sur le titre = retour accueil (onglet Bridge) + rechargement des données live
+// clicking the title = back to home (Bridge tab) + reload live data
 function goHome(){ showPage("tool",document.querySelector(".nav button")); refresh(); }
-// (showTx() + drawer supprimés — feature morte : aucun #drawer dans le HTML, aucun appelant ; les lignes du tableau appellent selRow(). AUDIT R9)
+// (showTx() + drawer removed — dead feature: no #drawer in the HTML, no caller; the table rows call selRow(). AUDIT R9)
 
 function updLbl(){document.getElementById("amtlbl").textContent=document.getElementById("mode").value==="exactIn"?I18N[LANG].amtSent:I18N[LANG].amtRecv;}
-// saisie dans un des deux blocs : exactIn (bloc envoyé/gauche) ou exactOut (bloc reçu/droite).
-// #amt/#mode restent la source canonique ; quote() calcule et remplit le bloc OPPOSÉ.
+// input in one of the two blocks: exactIn (sent/left block) or exactOut (received/right block).
+// #amt/#mode remain the canonical source; quote() computes and fills the OPPOSITE block.
 let _amtTimer=null;
 function onAmt(mode,val){
   document.getElementById("mode").value=mode; document.getElementById("amt").value=val;
-  ++quoteSeq;   // invalide TOUTE requête en vol dès la frappe (sinon une réponse périmée peut fillOpp() le champ en cours de saisie, AUDIT R5)
-  clearTimeout(_amtTimer); _amtTimer=setTimeout(quote,450);   // anti-rebond : attend la fin de saisie (sinon "2000" calcule à "200")
+  ++quoteSeq;   // invalidates EVERY in-flight request on each keystroke (otherwise a stale response could fillOpp() the field being typed into, AUDIT R5)
+  clearTimeout(_amtTimer); _amtTimer=setTimeout(quote,450);   // debounce: waits for the end of typing (otherwise "2000" computes at "200")
 }
-// remplit le bloc NON saisi (jamais celui que l'utilisateur tape) — appelé dans les 4 branches de quote()
+// fills the block NOT typed into (never the one the user is typing) — called in the 4 branches of quote()
 function fillOpp(mode,send,recv){
   const s=document.getElementById("amtSend"), r=document.getElementById("amtRecv");
-  if(mode==="exactIn"){ if(r) r.value=(recv==null?"":(+recv).toFixed(3)); }   // 3e décimale : le bloc opposé n'est jamais rond (frais)
+  if(mode==="exactIn"){ if(r) r.value=(recv==null?"":(+recv).toFixed(3)); }   // 3rd decimal: the opposite block is never round (fee)
   else{ if(s) s.value=(send==null?"":(+send).toFixed(3)); }
 }
-let quoteSeq=0;   // garde anti-réponse-périmée : une saisie plus récente invalide une réponse async plus lente
+let quoteSeq=0;   // stale-response guard: a more recent keystroke invalidates a slower async response
 async function quote(){
   const seq=++quoteSeq;
-  selN=null;   // changer sens/montant réinitialise le découpage sélectionné
+  selN=null;   // changing direction/amount resets the selected split
   const dk=document.getElementById("dir").value, x=+document.getElementById("amt").value;
   const mode=document.getElementById("mode").value;
   const o=document.getElementById("out");
   const D=I18N[LANG];
-  if(!(x>0)){ o.innerHTML=""; fillOpp(mode,null,null); const rc=document.getElementById("reco"); if(rc)rc.innerHTML=""; const sp=document.getElementById("splitout"); if(sp)sp.innerHTML=""; hideSplitcard(); return; }   // rien sous les montants quand vide (AUDIT vague1 #4)
+  if(!(x>0)){ o.innerHTML=""; fillOpp(mode,null,null); const rc=document.getElementById("reco"); if(rc)rc.innerHTML=""; const sp=document.getElementById("splitout"); if(sp)sp.innerHTML=""; hideSplitcard(); return; }   // nothing below the amounts when empty (AUDIT wave1 #4)
   try{
     const j=await postQuote(dk,x,true,mode);
-    if(seq!==quoteSeq) return;   // une saisie plus récente a pris le relais → on jette ce résultat périmé
-    if(j.error){o.innerHTML="<span class='warn'>"+escapeHtml(j.error.message||D.errFallback)+"</span>";fillOpp(mode,null,null);const rc=document.getElementById("reco");if(rc)rc.innerHTML="";const sp=document.getElementById("splitout");if(sp)sp.innerHTML="";hideSplitcard();return;}   // vider aussi aperçu+tableau (sinon ils gardent l'ancien devis, AUDIT R4)
+    if(seq!==quoteSeq) return;   // a more recent keystroke has taken over → discard this stale result
+    if(j.error){o.innerHTML="<span class='warn'>"+escapeHtml(j.error.message||D.errFallback)+"</span>";fillOpp(mode,null,null);const rc=document.getElementById("reco");if(rc)rc.innerHTML="";const sp=document.getElementById("splitout");if(sp)sp.innerHTML="";hideSplitcard();return;}   // also clear the preview+table (otherwise they keep the old quote, AUDIT R4)
     const fee=+j.source.fee, send=+j.source.amount, recv=+j.destination.amount;
-    lastDevis={dk,T:x,mode,fee,recv,send};   // mémorise pour le tableau de découpage
-    fillOpp(mode,send,recv);                 // remplit le bloc opposé (envoyé↔reçu)
-    const Ldest=LIVE[dk]&&LIVE[dk].L;   // solde live du hub de destination = liquidité bindable
-    o.innerHTML=(Ldest&&recv>Ldest) ? D.quoteWarnOverLiq(recv,Ldest) : "";   // phrase "Tu envoies…" retirée ; on ne garde que l'avertissement liquidité
-    simul();   // squelette immédiat : lignes « … » en chargement, n=1 se remplit dès réception (progressif, pas d'écran de chargement sur le tableau)
-    await ensureChunkFees(dk,x,mode,Ldest,splitMax,()=>{ if(seq===quoteSeq) simul(); });   // dryrun {T/n} → min EXACT, remplissage progressif à chaque frais (sweep générique retiré)
-    if(seq!==quoteSeq) return;   // une saisie plus récente a pris le relais pendant les dryrun → jeter (le devis courant rendra)
+    lastDevis={dk,T:x,mode,fee,recv,send};   // remembered for the split table
+    fillOpp(mode,send,recv);                 // fills the opposite block (sent↔received)
+    const Ldest=LIVE[dk]&&LIVE[dk].L;   // destination hub's live balance = bindable liquidity
+    o.innerHTML=(Ldest&&recv>Ldest) ? D.quoteWarnOverLiq(recv,Ldest) : "";   // "You send…" sentence removed; only the liquidity warning is kept
+    simul();   // immediate skeleton: "…" loading rows, n=1 fills in as soon as it's received (progressive, no loading screen on the table)
+    await ensureChunkFees(dk,x,mode,Ldest,splitMax,()=>{ if(seq===quoteSeq) simul(); });   // dryrun {T/n} → EXACT min, progressive filling on each fee (generic sweep removed)
+    if(seq!==quoteSeq) return;   // a more recent keystroke took over during the dryruns → discard (the current quote will render)
   }catch(e){
     if(seq!==quoteSeq) return;
-    const pct=livePct(dk,x)||0, fee=x*pct/100, send=mode==="exactIn"?x:x+fee, recv=mode==="exactIn"?x-fee:x;   // repli hors-ligne : courbe mesurée (MEAS)
+    const pct=livePct(dk,x)||0, fee=x*pct/100, send=mode==="exactIn"?x:x+fee, recv=mode==="exactIn"?x-fee:x;   // offline fallback: measured curve (MEAS)
     fillOpp(mode,send,recv);
     o.innerHTML="";
   }
@@ -547,7 +547,7 @@ async function stellarBal(){
 }
 async function baseBal(){
   const data="0x70a08231"+"000000000000000000000000"+BASE_HUB.slice(2).toLowerCase();
-  // mainnet.base.org & publicnode sont CORS-OK en navigateur ; llamarpc bloque le CORS (retiré) → plus d'erreur console
+  // mainnet.base.org & publicnode are CORS-OK in the browser; llamarpc blocks CORS (removed) → no more console error
   for(const rpc of ["https://mainnet.base.org","https://base-rpc.publicnode.com"]){
     try{const r=await fetch(rpc,{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_call",params:[{to:EURC_B,data},"latest"]})});
@@ -556,29 +556,29 @@ async function baseBal(){
   }
   return null;
 }
-// Liquidité = solde EURC du hub sur la chaîne de réception (= Available API, prouvé au centime)
-let LIVE={B2S:{L:null,pts:null,sweptAt:null},S2B:{L:null,pts:null,sweptAt:null}};   // sweptAt = Available lors du dernier balayage de la courbe (pour le cache)
-let lastDevis=null;   // dernier devis live (pour caler la ligne "1 envoi" du tableau)
-let splitRows=[], splitMeta={}, bestN=1, selN=null, splitMax=10;   // reco + découpage sélectionné + nb de lignes affichées (flèche +5)
-let hoverAmt=null, chartGeo=null;   // survol du graphe : montant pointé + géométrie px↔valeur
+// Liquidity = the hub's EURC balance on the receiving chain (= Available API, proven to the cent)
+let LIVE={B2S:{L:null,pts:null,sweptAt:null},S2B:{L:null,pts:null,sweptAt:null}};   // sweptAt = Available at the last curve sweep (for the cache)
+let lastDevis=null;   // last live quote (to align the "1 send" row of the table)
+let splitRows=[], splitMeta={}, bestN=1, selN=null, splitMax=10;   // reco + selected split + number of displayed rows (+5 arrow)
+let hoverAmt=null, chartGeo=null;   // chart hover: pointed amount + px↔value geometry
 
-// décimal string -> unités entières (6 déc EURC), sans erreur flottante
+// decimal string -> integer units (6 EURC decimals), no floating-point error
 function toUnits(s,dec=6){let[i,f=""]=String(s).trim().split(".");f=(f+"0".repeat(dec)).slice(0,dec);return(BigInt(i||"0")*10n**BigInt(dec)+BigInt(f||"0")).toString();}
 console.assert(toUnits("100.09")==="100090000"&&toUnits("5")==="5000000"&&toUnits("0.5")==="500000","toUnits KO");
 
-// (updAcct supprimé — plus de sélecteur de compte codé en dur ; l'adressage vient des wallets connectés)
-// libellé du bouton = découpage actif (sélectionné au clic, sinon reco)
+// (updAcct removed — no more hardcoded account selector; addressing comes from connected wallets)
+// button label = active split (selected by click, otherwise reco)
 function updBatchLabel(){ const b=document.getElementById("genbtn"); if(!b) return; const n=selN||bestN||1;
   b.textContent=I18N[LANG].updBatchLabelText(n,!!selN); }
-// copie presse-papier avec retour visuel
+// clipboard copy with visual feedback
 function cp(t,btn){ navigator.clipboard.writeText(t).then(()=>{const o=btn.textContent;btn.textContent=I18N[LANG].copied;setTimeout(()=>btn.textContent=o,1200);}).catch(()=>{}); }
 
-// ============ LOTS : store keyé window._batches, empilement, repli (<details>), persistance localStorage ============
-window._batches = window._batches || {};   // { bid: batch } · bid = id du 1er intent du lot
+// ============ BATCHES: store keyed on window._batches, stacking, collapse (<details>), localStorage persistence ============
+window._batches = window._batches || {};   // { bid: batch } · bid = id of the batch's 1st intent
 const BSTORE="rozoBatches";
 function saveBatches(){ try{ localStorage.setItem(BSTORE, JSON.stringify(window._batches)); }catch(e){} }
-window.saveBatches=saveBatches;   // wallet.js écrit rows[i].srcTx puis appelle saveBatches → l'état signé vit dans le STORE (pas le DOM) : survit au re-rendu (langue) et au restore, empêche le double-envoi
-// construit l'objet lot depuis les réponses API (non-dryrun). srcTx = tx source (dépôt) une fois signé → verrouille la tranche.
+window.saveBatches=saveBatches;   // wallet.js writes rows[i].srcTx then calls saveBatches → the signed state lives in the STORE (not the DOM): survives re-render (language) and restore, prevents double-sending
+// builds the batch object from the API responses (non-dryrun). srcTx = source tx (deposit) once signed → locks the chunk.
 function buildBatch(dk,js){
   const rows=js.map(j=>({ id:j.id, dep:j.source.receiverAddress, memo:j.source.receiverMemo||null,
     send:+j.source.amount, rec:+j.destination.amount,
@@ -587,51 +587,51 @@ function buildBatch(dk,js){
   const expMs=rows.map(r=>r.exp?new Date(r.exp).getTime():0).filter(Boolean);
   return { id:js[0].id, dk, createdAt:Date.now(),
     expiresAt: expMs.length?Math.max(...expMs):Date.now()+600000,
-    evmAddr: window.evmAddr||"", stellarAddr: window.stellarAddr||"",   // evm = côté Base · stellar = côté Stellar (rôles src/dst dérivés du sens ; stellarAddr = expéditeur attendu en S2B)
+    evmAddr: window.evmAddr||"", stellarAddr: window.stellarAddr||"",   // evm = Base side · stellar = Stellar side (src/dst roles derived from the direction; stellarAddr = expected sender in S2B)
     restored:false, rows };
 }
 
-// vert si API≈on-chain, orange si écart >1 EURC (api==null → neutre). Partagé refresh() + refreshLiqDir().
+// green if API≈on-chain, orange if gap >1 EURC (api==null → neutral). Shared by refresh() + refreshLiqDir().
 function markLiq(vid,api,chain){const e=document.getElementById(vid);if(!e)return;e.classList.remove("match","diff");if(api==null)return;e.classList.add(chain!=null&&Math.abs(api-chain)>1?"diff":"match");}
-// Après une création réelle d'intents : re-lit l'Available du SENS visé (la réservation l'a fait baisser) ET le solde on-chain, met à jour les 2 cartouches + LIVE.L, ré-évalue le décalage API/on-chain, et invalide le cache de devis de ce sens (frais périmés).
+// After a real intent creation: re-reads the Available of the TARGETED direction (the reservation lowered it) AND the on-chain balance, updates both badges + LIVE.L, re-evaluates the API/on-chain gap, and invalidates that direction's quote cache (stale fees).
 async function refreshLiqDir(dk){
   const vid=dk==="B2S"?"liqB":"liqS", chid=dk==="B2S"?"chB":"chS", el=document.getElementById(vid), ce=document.getElementById(chid);
-  if(el) el.textContent="…";                       // feedback immédiat : lecture en cours
-  const [nl,ch]=await Promise.all([liq(dk).catch(()=>null),(dk==="B2S"?stellarBal():baseBal()).catch(()=>null)]);   // Available (API) + solde hub on-chain du sens
+  if(el) el.textContent="…";                       // immediate feedback: reading in progress
+  const [nl,ch]=await Promise.all([liq(dk).catch(()=>null),(dk==="B2S"?stellarBal():baseBal()).catch(()=>null)]);   // Available (API) + the direction's on-chain hub balance
   if(nl!=null){ LIVE[dk].L=nl; if(el) el.textContent=eur(nl)+" EURC"; delete dryCache[dk]; }
-  else if(el) el.textContent=(LIVE[dk].L!=null?eur(LIVE[dk].L)+" EURC":"n/a");   // échec réseau → remet la dernière valeur connue
-  if(ch!=null && ce) ce.textContent=eur(ch)+" EURC";   // solde on-chain (souvent inchangé : règlement en attente)
-  markLiq(vid, nl!=null?nl:LIVE[dk].L, ch);   // Available baissé mais on-chain pas encore réglé → écart détecté → orange (respecte la vérif API/on-chain)
+  else if(el) el.textContent=(LIVE[dk].L!=null?eur(LIVE[dk].L)+" EURC":"n/a");   // network failure → restores the last known value
+  if(ch!=null && ce) ce.textContent=eur(ch)+" EURC";   // on-chain balance (often unchanged: settlement pending)
+  markLiq(vid, nl!=null?nl:LIVE[dk].L, ch);   // Available dropped but on-chain not yet settled → gap detected → orange (honors the API/on-chain check)
 }
-// Crée les N intents (reco) puis empile un lot (carte repliable) dans #batchout.
+// Creates the N intents (reco) then stacks a batch (collapsible card) into #batchout.
 async function genBatch(){
-  if(window._genInFlight) return;   // RC-2 : garde ré-entrance (double-clic « Générer » → double réservation d'intents)
+  if(window._genInFlight) return;   // RC-2: re-entrance guard (double-click "Generate" → double intent reservation)
   const dk=document.getElementById("dir").value;
   const mode=document.getElementById("mode").value, T=+document.getElementById("amt").value;
   const n=selN||bestN||1, c=T/n;
   const D=I18N[LANG];
-  const st=document.getElementById("genstatus");   // statut transient SÉPARÉ de #batchout → ne pas effacer les lots empilés
+  const st=document.getElementById("genstatus");   // transient status SEPARATE from #batchout → don't erase the stacked batches
   const msg=h=>{ if(st) st.innerHTML=h; };
   if(!(T>0)){ msg(D.genBatchNeedAmount); return; }
-  if(!destWallet(dk)){ msg(D.genBatchNeedDestWallet(dk)); return; }   // création réelle → wallet destination obligatoire
+  if(!destWallet(dk)){ msg(D.genBatchNeedDestWallet(dk)); return; }   // real creation → destination wallet mandatory
   const row=(splitRows||[]).find(r=>r.n===n);
   if(row&&!row.ok){ msg(D.genBatchInfeasible(n)); return; }
-  window._genInFlight=true; const gbtn=document.getElementById("genbtn"); if(gbtn) gbtn.disabled=true;   // RC-2 : verrou + feedback pendant la création async
+  window._genInFlight=true; const gbtn=document.getElementById("genbtn"); if(gbtn) gbtn.disabled=true;   // RC-2: lock + feedback during the async creation
   try{
     msg(D.genBatchCreating(n));
     let settled;
     try{ settled=await Promise.allSettled(Array.from({length:n},()=>postQuote(dk,c,false,mode))); }
-    catch(e){ msg(D.genBatchNetFail(escapeHtml(e.message||String(e)))); return; }   // improbable (allSettled ne reject pas lui-même) ; garde-fou quand même
-    // RC-12 : un reject réseau (ou .json() sur corps non-JSON) sur UNE requête ne doit plus jeter les intents déjà créés par les autres
+    catch(e){ msg(D.genBatchNetFail(escapeHtml(e.message||String(e)))); return; }   // unlikely (allSettled doesn't reject itself); safeguard anyway
+    // RC-12: a network reject (or .json() on a non-JSON body) on ONE request must no longer discard the intents already created by the others
     const js=settled.filter(r=>r.status==="fulfilled").map(r=>r.value), netFailed=settled.length-js.length;
-    // échec PARTIEL : garder les intents créés (float réservé, trackables) + signaler — ne pas tout jeter (AUDIT R7)
+    // PARTIAL failure: keep the created intents (float reserved, trackable) + report it — don't discard everything (AUDIT R7)
     const okJs=js.filter(j=>!j.error), failed=js.filter(j=>j.error);
     if(!okJs.length){ msg(netFailed&&!failed.length ? D.genBatchNetFail(D.errFallback) : D.genBatchRozoFail(failed[0]&&failed[0].error&&escapeHtml(failed[0].error.message||""))); return; }
-    // RC-3 : S2B — le mémo est l'UNIQUE clé de routage. Absent/vide → Memo.text("null") = tx VALIDE vers le hub, dépôt inappariable, perdu sans refund. Refuser. (B2S : dépôt par adresse, memo légitimement null.)
+    // RC-3: S2B — the memo is the ONLY routing key. Missing/empty → Memo.text("null") = a VALID tx to the hub, an unmatchable deposit, lost with no refund. Refuse it. (B2S: deposit by address, memo legitimately null.)
     if(dk==="S2B" && okJs.some(j=>!(j.source&&typeof j.source.receiverMemo==="string"&&j.source.receiverMemo.trim()))){ msg(D.genBatchBadMemo); return; }
-    const b=buildBatch(dk,okJs); window._batches[b.id]=b; saveBatches();   // #15 : le store accumule les lots
-    renderBatches(b.id);   // lot frais = déplié, empilé avec les précédents
-    refreshLiqDir(dk);     // intents créés → la réservation a bougé l'Available de CE sens → refresh ciblé de sa liquidité + cache devis périmé
+    const b=buildBatch(dk,okJs); window._batches[b.id]=b; saveBatches();   // #15: the store accumulates the batches
+    renderBatches(b.id);   // fresh batch = expanded, stacked with the previous ones
+    refreshLiqDir(dk);     // intents created → the reservation moved THIS direction's Available → targeted refresh of its liquidity + stale quote cache
     // PASSIVE S2B LOG (task C): accumulate θ of REAL S2B batches to recalibrate the dot (KRAP) empirically. Guards = don't skew θ:
     //  S2B only · COMPLETE batch (okJs.length===n, else fees/realise don't cover the whole split) · priced row (ok, not loading, feeFlat not null).
     if(dk==="S2B" && okJs.length===n && row && row.ok && !row.loading && row.feeFlat!=null){
@@ -643,31 +643,31 @@ async function genBatch(){
       fetch("/__log",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(rec)}).catch(()=>{});   // .catch: no unhandled rejection off serve.py (prod / file://, endpoint absent)
     }
     const totalFailed=failed.length+netFailed, firstMsg=escapeHtml((failed[0]&&failed[0].error&&failed[0].error.message)||"");
-    msg(totalFailed ? `<span class="warn" style="font-weight:600">⚠ ${LANG==="fr"?`Lot INCOMPLET : ${okJs.length}/${n} intents créés, ${totalFailed} en échec (${firstMsg}). Signe les tranches créées puis relance le reste.`:`INCOMPLETE batch: ${okJs.length}/${n} intents created, ${totalFailed} failed (${firstMsg}). Sign the created chunks then retry the rest.`}</span>` : "");   // signal fort d'under-delivery (gate /code-review)
-  } finally { window._genInFlight=false; const g=document.getElementById("genbtn"); if(g) g.disabled=false; }   // RC-2 : release sur TOUS les chemins (retours early inclus)
+    msg(totalFailed ? `<span class="warn" style="font-weight:600">⚠ ${LANG==="fr"?`Lot INCOMPLET : ${okJs.length}/${n} intents créés, ${totalFailed} en échec (${firstMsg}). Signe les tranches créées puis relance le reste.`:`INCOMPLETE batch: ${okJs.length}/${n} intents created, ${totalFailed} failed (${firstMsg}). Sign the created chunks then retry the rest.`}</span>` : "");   // strong signal of under-delivery (gate /code-review)
+  } finally { window._genInFlight=false; const g=document.getElementById("genbtn"); if(g) g.disabled=false; }   // RC-2: release on EVERY path (including early returns)
 }
-// B→S : N transactions Safe SÉPARÉES (source = Base). Un batch atomique = 1 tx source → Rozo n'en règle qu'une, les autres bouncent (test 02/07). Donc N tx = N signatures, comme le S→B.
-// en-tête chips de marque (sens du flux) — réutilisé par batchCardHTML (summary du lot)
+// B→S: N SEPARATE Safe transactions (source = Base). An atomic batch = 1 source tx → Rozo settles only one, the others bounce (tested 02/07). So N tx = N signatures, same as S→B.
+// brand chip header (flow direction) — reused by batchCardHTML (batch summary)
 const chipFlow=dk=>{const B=`<span class="chip b"><span class="sq"></span>Base</span>`,S=`<span class="chip s"><svg class="logo"><use href="#stellar-mark"/></svg>Stellar</span>`,arw=`<span class="mut2" style="margin:0 8px">→</span>`;return dk==="B2S"?B+arw+S:S+arw+B;};
-// RC-14 : JSON Safe Transaction Builder (1 tranche B→S) construit ET téléchargé AU CLIC — plus de blob créé (et jamais révoqué) à chaque renderBatches()
+// RC-14: JSON Safe Transaction Builder (1 B→S chunk) built AND downloaded ON CLICK — no more blob created (and never revoked) on every renderBatches()
 function downloadB2sJson(bid,i){
   const b=(window._batches||{})[bid], r=b&&b.rows[i]; if(!r) return;
   const one={version:"1.0",chainId:"8453",createdAt:b.createdAt,meta:{name:`Rozo B→S ${i+1}/${b.rows.length} · ${eur(r.send)} EURC`,description:`Base ${b.evmAddr} → Stellar ${b.stellarAddr}`,txBuilderVersion:"1.16.0"},transactions:[{to:EURC_B,value:"0",data:null,contractMethod:{inputs:[{name:"to",type:"address",internalType:"address"},{name:"value",type:"uint256",internalType:"uint256"}],name:"transfer",payable:false},contractInputsValues:{to:r.dep,value:r.units}}]};
   const url=URL.createObjectURL(new Blob([JSON.stringify(one,null,2)],{type:"application/json"}));
   const a=document.createElement("a"); a.href=url; a.download=`rozo-b2s-${i+1}of${b.rows.length}.json`; document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);   // laisse le temps au navigateur de démarrer le download avant de libérer
+  setTimeout(()=>URL.revokeObjectURL(url),1000);   // gives the browser time to start the download before releasing it
 }
 window.downloadB2sJson=downloadB2sJson;
-// carte repliable d'un lot (#16). srcTx présent = tranche déposée → verrouillée (plus de bouton de signature) : anti double-envoi.
-// D4/D5 — état d'expiration → classe couleur (vert>5min / orange 2-5 / rouge<2 / "exp" passé) partagée carte+tableau+ticker
+// collapsible card for a batch (#16). srcTx present = chunk deposited → locked (no more signing button): anti double-send.
+// D4/D5 — expiry state → color class (green>5min / orange 2-5 / red<2 / "exp" past) shared by card+table+ticker
 function expInfo(expMs){ const rem=(expMs||0)-Date.now();
   const cls = rem<=0?"exp" : rem<120000?"r" : rem<300000?"o" : "g";
   return {rem,cls}; }
-const mmss=ms=>{ const s=Math.max(0,Math.floor(ms/1000)); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); };   // compte à rebours mm:ss
+const mmss=ms=>{ const s=Math.max(0,Math.floor(ms/1000)); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); };   // mm:ss countdown
 function expBadge(expMs,fr){ const {rem,cls}=expInfo(expMs);
   const txt = rem<=0 ? (fr?"expiré":"expired") : mmss(rem);
   return {cls,txt}; }
-// un seul ticker 1 s : recolore badges + cellules d'heure sans re-rendre (préserve l'état déplié) ; démarré par renderBatches
+// a single 1s ticker: recolors badges + time cells without re-rendering (preserves the expanded state); started by renderBatches
 let _expTick=null;
 function startExpiryTicker(){ if(_expTick) return;
   _expTick=setInterval(()=>{ const fr=LANG==="fr";
@@ -682,27 +682,27 @@ function batchCardHTML(b, open){
   const D=I18N[LANG], fr=LANG==="fr", dk=b.dk, rows=b.rows, now=Date.now();
   let totalSend=0,totalRecv=0; rows.forEach(r=>{totalSend+=r.send;totalRecv+=r.rec;});
   const deposited=rows.filter(r=>r.srcTx).length, expd=b.expiresAt&&b.expiresAt<now;
-  const eb=expBadge(b.expiresAt,fr);                                   // D4/D5 : badge = heure d'expiration colorée, "expiré" une fois passé
-  const dest = dk==="B2S" ? `Stellar <code>${b.stellarAddr}</code>` : `Base <code>${b.evmAddr}</code>`;   // D3 : seul le wallet destination est figé → affiché en entier, source retirée
+  const eb=expBadge(b.expiresAt,fr);                                   // D4/D5: badge = colored expiry time, "expired" once past
+  const dest = dk==="B2S" ? `Stellar <code>${b.stellarAddr}</code>` : `Base <code>${b.evmAddr}</code>`;   // D3: only the destination wallet is fixed → shown in full, source removed
   const hub=dk==="B2S"?(fr?"hub Stellar":"Stellar hub"):(fr?"hub Base":"Base hub");
   const tFee0=totalSend-totalRecv, tPct0=totalSend>0?tFee0/totalSend*100:0;
   const depNote = deposited>0?` · <b>${deposited}/${rows.length}</b> ${fr?"déposées":"deposited"}`:"";
   let s=`<details class="bcard${expd?" expired":""}" data-bid="${b.id}" data-exp="${b.expiresAt||0}"${open?" open":""}>`;
-  s+=`<summary><span class="bflow">${chipFlow(dk)}</span><span class="bsum"><b>${rows.length}</b> ${fr?(rows.length>1?"tranches":"tranche"):(rows.length>1?"chunks":"chunk")} · <b>${eur(totalSend)} → ${eur(totalRecv)} EURC</b> · ${fr?"frais":"fee"} ${eur(tFee0)} € (${tPct0.toFixed(2)} %)${depNote}</span><span class="bbadge ${eb.cls}">${eb.txt}</span></summary>`;   // D1 : sommes bridgées en gras, frais abs+% en normal
+  s+=`<summary><span class="bflow">${chipFlow(dk)}</span><span class="bsum"><b>${rows.length}</b> ${fr?(rows.length>1?"tranches":"tranche"):(rows.length>1?"chunks":"chunk")} · <b>${eur(totalSend)} → ${eur(totalRecv)} EURC</b> · ${fr?"frais":"fee"} ${eur(tFee0)} € (${tPct0.toFixed(2)} %)${depNote}</span><span class="bbadge ${eb.cls}">${eb.txt}</span></summary>`;   // D1: bridged amounts in bold, abs+% fee in normal weight
   s+=`<div class="bbody"><div class="path">${fr?"vers":"to"} ${dest}</div>`;
   s+=`<div class="reserved"><span class="ico">🔒</span><span>${fr?`<b>Liquidité réservée</b> ${eur(totalRecv)} EURC sur le ${hub} · frais <b>figés</b> jusqu'à expiration (~10 min). Non signé → self-heal, aucun fonds bloqué.`:`<b>Liquidity reserved</b> ${eur(totalRecv)} EURC on the ${hub} · fees <b>frozen</b> until expiry (~10 min). Unsigned → self-heals, no funds locked.`}</span></div>`;
   const th=dk==="B2S"?D.b2sTableHead:D.s2bTableHead;
   s+=`<div class="tblwrap"><table><tr>${th.map(x=>`<th>${x}</th>`).join("")}</tr>`;
   rows.forEach((r,i)=>{
     const eMs=r.exp?new Date(r.exp).getTime():0;
-    const expCell=`<td class="exp ${eMs?expInfo(eMs).cls:""}" data-exp="${eMs}">${r.exp?new Date(r.exp).toLocaleTimeString(LOCALE):"—"}</td>`;   // D4 : heure colorée (normal>5min, orange<5, rouge<2)
-    const mid=dk==="B2S"?`<td class="mono mut2"><a href="https://basescan.org/address/${encodeURIComponent(r.dep)}" target="_blank" rel="noopener">${escapeHtml(r.dep.slice(0,6))}…${escapeHtml(r.dep.slice(-4))} ↗</a></td>`:`<td class="mono mut2">${escapeHtml(r.memo)}</td>`;   // RC-9 : dep/memo viennent de la réponse API
-    let act; const sg=r.signing&&!r.srcTx;   // RC-1 : signature en vol → bouton verrouillé (état durable dans le store, survit au re-rendu langue/restore)
-    if(r.srcTx){   // tranche déposée → verrou (lien explorer source), pas de re-signature
+    const expCell=`<td class="exp ${eMs?expInfo(eMs).cls:""}" data-exp="${eMs}">${r.exp?new Date(r.exp).toLocaleTimeString(LOCALE):"—"}</td>`;   // D4: colored time (normal>5min, orange<5, red<2)
+    const mid=dk==="B2S"?`<td class="mono mut2"><a href="https://basescan.org/address/${encodeURIComponent(r.dep)}" target="_blank" rel="noopener">${escapeHtml(r.dep.slice(0,6))}…${escapeHtml(r.dep.slice(-4))} ↗</a></td>`:`<td class="mono mut2">${escapeHtml(r.memo)}</td>`;   // RC-9: dep/memo come from the API response
+    let act; const sg=r.signing&&!r.srcTx;   // RC-1: signature in flight → button locked (durable state in the store, survives language re-render/restore)
+    if(r.srcTx){   // chunk deposited → locked (source explorer link), no re-signing
       const u=dk==="B2S"?`https://basescan.org/tx/${encodeURIComponent(r.srcTx)}`:`https://stellar.expert/explorer/public/tx/${encodeURIComponent(r.srcTx)}`;
       act=`<td>✅ <a href="${u}" target="_blank" rel="noopener">${escapeHtml(String(r.srcTx).slice(0,10))}… ↗</a></td>`;
     } else if(dk==="B2S"){
-      // RC-14 : JSON Safe Transaction Builder construit ET revoqué AU CLIC (downloadB2sJson) — plus de blob créé à chaque rendu
+      // RC-14: JSON Safe Transaction Builder built AND revoked ON CLICK (downloadB2sJson) — no more blob created on every render
       act=`<td><button class="btn sm" onclick="evmSignRow('${b.id}',${i},this)"${sg?" disabled":""}>${sg?(fr?"signature…":"signing…"):D.b2sSignBtn}</button> <button class="btn sm ghost" onclick="downloadB2sJson('${b.id}',${i})">${D.b2sJsonBtn}</button></td>`;
     } else {
       const issuer=EURC_S.split(":")[1];
@@ -718,34 +718,34 @@ function batchCardHTML(b, open){
   s+=`<div class="trackfoot"><button id="trkbtn-${b.id}" class="btn sm ghost" onclick="trackBridge('${b.id}')">${(window._trkOn&&window._trkOn[b.id])?D.trackHide:D.trackBtn}</button></div><div id="trk-${b.id}" class="trkpanel"></div>`;
   return s+`</div></details>`;
 }
-// re-rend TOUS les lots du store dans #batchout (source unique). Préserve l'état ouvert/replié courant ; freshId = déplié.
+// re-renders ALL the store's batches into #batchout (single source). Preserves the current open/collapsed state; freshId = expanded.
 function renderBatches(freshId){
   const out=document.getElementById("batchout"); if(!out) return;
   const openSet=new Set(); out.querySelectorAll("details[data-bid]").forEach(d=>{ if(d.open) openSet.add(d.getAttribute("data-bid")); });
   const list=Object.values(window._batches).sort((a,b)=>a.createdAt-b.createdAt);
   out.innerHTML=list.map(b=>batchCardHTML(b, freshId===b.id||openSet.has(b.id))).join("");
-  if(list.length) startExpiryTicker();   // recolore heures/badges chaque seconde (D4/D5)
+  if(list.length) startExpiryTicker();   // recolors times/badges every second (D4/D5)
 }
-// Suivi live d'UN lot : poll GET /payments/{id} par tranche jusqu'à livraison. Écrit srcTx au store (verrou) ; ne touche QUE #trk-<bid> (jamais renderBatches → polls concurrents ne se battent pas).
-window._trkTimers=window._trkTimers||{};   // RC-10 : registre {poll,cd,gen} par bid — clear explicite au toggle-OFF/cap 60 + jeton anti-résurrection
+// Live tracking of ONE batch: poll GET /payments/{id} per chunk until delivery. Writes srcTx to the store (lock); touches ONLY #trk-<bid> (never renderBatches → concurrent polls don't fight each other).
+window._trkTimers=window._trkTimers||{};   // RC-10: {poll,cd,gen} registry per bid — explicit clear on toggle-OFF/cap 60 + anti-resurrection token
 async function trackBridge(bid){
   const b=window._batches[bid], el0=document.getElementById("trk-"+bid);
   if(!el0) return;
   const tbtn=document.getElementById("trkbtn-"+bid);
   window._trkOn=window._trkOn||{};
   const clearTimers=()=>{ const t=window._trkTimers[bid]; if(t){ if(t.poll)clearTimeout(t.poll); if(t.cd)clearInterval(t.cd); } };
-  if(window._trkOn[bid]){ window._trkOn[bid]=false; clearTimers(); delete window._trkTimers[bid]; el0.innerHTML=""; if(tbtn)tbtn.textContent=I18N[LANG].trackBtn; return; }   // toggle OFF : coupe poll+cdTimer explicitement (RC-10)
+  if(window._trkOn[bid]){ window._trkOn[bid]=false; clearTimers(); delete window._trkTimers[bid]; el0.innerHTML=""; if(tbtn)tbtn.textContent=I18N[LANG].trackBtn; return; }   // toggle OFF: explicitly cuts poll+cdTimer (RC-10)
   const ids=b?b.rows.map(r=>r.id):null;
-  if(!ids||!ids.length){ el0.innerHTML=I18N[LANG].trackNeedGen; return; }   // RC-11 : garde AVANT de poser _trkOn=true ; el0 (pas "el", ReferenceError)
+  if(!ids||!ids.length){ el0.innerHTML=I18N[LANG].trackNeedGen; return; }   // RC-11: guard BEFORE setting _trkOn=true; el0 (not "el", ReferenceError)
   window._trkOn[bid]=true; if(tbtn)tbtn.textContent=I18N[LANG].trackHide;
-  clearTimers();   // au cas où un ancien registre traînerait encore pour ce bid
+  clearTimers();   // in case an old registry is still lingering for this bid
   const gen=((window._trkTimers[bid]&&window._trkTimers[bid].gen)||0)+1;
-  window._trkTimers[bid]={gen,poll:null,cd:null};   // RC-10 : un setTimeout/interval d'une génération périmée (toggle OFF→ON rapide) est ignoré ci-dessous
+  window._trkTimers[bid]={gen,poll:null,cd:null};   // RC-10: a setTimeout/interval from a stale generation (fast toggle OFF→ON) is ignored below
   const current=()=>window._trkTimers[bid]&&window._trkTimers[bid].gen===gen;
   const dk=b.dk, srcCh=dk==="B2S"?"base":"stellar", dstCh=dk==="B2S"?"stellar":"base";
-  const link=(hash,ch)=>hash?`<a href="${ch==="base"?"https://basescan.org/tx/":"https://stellar.expert/explorer/public/tx/"}${encodeURIComponent(hash)}" target="_blank" rel="noopener">${escapeHtml(String(hash).slice(0,8))}… ↗</a>`:"—";   // RC-9 : hash encodé en href, échappé en texte
-  const receipt=id=>`<a href="https://invoice.rozo.ai/receipt?id=${encodeURIComponent(id)}" target="_blank" rel="noopener">Rozo receipt ↗</a>`;   // reçu Rozo par tranche (utile support) — RC-9 : id encodé
-  // statut brut de l'API → libellé lisible (#17)
+  const link=(hash,ch)=>hash?`<a href="${ch==="base"?"https://basescan.org/tx/":"https://stellar.expert/explorer/public/tx/"}${encodeURIComponent(hash)}" target="_blank" rel="noopener">${escapeHtml(String(hash).slice(0,8))}… ↗</a>`:"—";   // RC-9: hash encoded in href, escaped in text
+  const receipt=id=>`<a href="https://invoice.rozo.ai/receipt?id=${encodeURIComponent(id)}" target="_blank" rel="noopener">Rozo receipt ↗</a>`;   // Rozo receipt per chunk (useful for support) — RC-9: id encoded
+  // raw API status → readable label (#17)
   const human=(status,done,fr)=>{ if(done) return fr?"Livré":"Delivered"; const s=String(status||"").toLowerCase();
     if(/unpaid/.test(s)) return fr?"En attente du dépôt":"Awaiting deposit";
     if(/bounce/.test(s)) return fr?"Rejeté (bounce)":"Bounced";
@@ -753,19 +753,19 @@ async function trackBridge(bid){
     if(/expire/.test(s)) return fr?"Expiré":"Expired";
     if(/fail|cancel/.test(s)) return fr?"Échec":"Failed";
     if(/start|process|pending|progress|paid/.test(s)) return fr?"Dépôt reçu, en cours":"Deposit received, processing";
-    return status?escapeHtml(status):"?"; };   // RC-9 : statut brut API échappé avant innerHTML
+    return status?escapeHtml(status):"?"; };   // RC-9: raw API status escaped before innerHTML
   let rounds=0, cdLeft=5;
   const poll=async()=>{
-    if(!current()) return;   // RC-10 : jeton périmé (toggle OFF→ON entre-temps) → un vieux setTimeout ressuscité ne fait rien
-    const el=document.getElementById("trk-"+bid); if(!el||!(window._trkOn&&window._trkOn[bid])) return;   // re-résout par id à CHAQUE tick : survit au re-rendu ; s'arrête si le lot a disparu OU si le suivi a été fermé (toggle)
-    const fr=LANG==="fr", D=I18N[LANG];   // relu à CHAQUE tick → le suivi suit la langue de l'app (#14)
+    if(!current()) return;   // RC-10: stale token (toggle OFF→ON in the meantime) → a resurrected old setTimeout does nothing
+    const el=document.getElementById("trk-"+bid); if(!el||!(window._trkOn&&window._trkOn[bid])) return;   // re-resolves by id on EVERY tick: survives re-render; stops if the batch disappeared OR if tracking was closed (toggle)
+    const fr=LANG==="fr", D=I18N[LANG];   // re-read on EVERY tick → tracking follows the app's language (#14)
     const st=await Promise.all(ids.map(id=>fetch(API+"/payments/"+id).then(r=>r.json()).catch(()=>null)));
-    if(!current()) return;   // re-vérifie après l'await : un toggle a pu survenir pendant le fetch
+    if(!current()) return;   // re-checks after the await: a toggle may have happened during the fetch
     let h=`<div class="card pad">`, allDone=true, done=0, wrote=false;
     st.forEach((s,i)=>{
       if(!s){ h+=`<div class="trk"><span class="ic">–</span><span class="n">#${i+1}</span><span class="lk mut">${D.trackUnreachable} · ${receipt(ids[i])}</span></div>`; allDone=false; return; }
       const status=s.status||"?", stx=s.source&&s.source.txHash, dtx=s.destination&&s.destination.txHash, isDone=!!dtx;
-      if(stx && b.rows[i] && !b.rows[i].srcTx){ b.rows[i].srcTx=stx; wrote=true; }   // dépôt détecté → verrou persistant (survit au restore/langue)
+      if(stx && b.rows[i] && !b.rows[i].srcTx){ b.rows[i].srcTx=stx; wrote=true; }   // deposit detected → persistent lock (survives restore/language)
       if(isDone) done++; else allDone=false;
       const cls=isDone?"done":(/bounce|refund|expired|fail|cancel/i.test(status)?"warn":"live");
       const icon=isDone?"✓":(cls==="warn"?"!":"…");
@@ -780,29 +780,29 @@ async function trackBridge(bid){
     const t=window._trkTimers[bid];
     if(allDone){ if(t&&t.cd){clearInterval(t.cd);t.cd=null;} }
     else if(rounds++<60){ cdLeft=5; if(t&&current()) t.poll=setTimeout(poll,5000); }
-    else if(t&&t.cd){clearInterval(t.cd);t.cd=null;}   // RC-10 : cap 60 tours atteint → cdTimer explicitement coupé (fuite corrigée)
+    else if(t&&t.cd){clearInterval(t.cd);t.cd=null;}   // RC-10: 60-round cap reached → cdTimer explicitly cut (leak fixed)
   };
   el0.innerHTML=I18N[LANG].trackQuerying;
   window._trkTimers[bid].cd=setInterval(()=>{
     if(!current()){ const t=window._trkTimers[bid]; if(t&&t.cd)clearInterval(t.cd); return; }
     const e=document.getElementById("trk-"+bid); if(!e||!(window._trkOn&&window._trkOn[bid])){const t=window._trkTimers[bid]; if(t&&t.cd){clearInterval(t.cd);t.cd=null;} return;}
     const cd=e.querySelector(".cd"); if(cd&&cdLeft>0){cdLeft--;cd.textContent=cdLeft;}
-  },1000);   // D6 : décompte visible entre polls
+  },1000);   // D6: visible countdown between polls
   poll();
 }
-// #10 restore : relit localStorage, purge les expirés, re-rend (replié), puis verrouille one-shot les tranches déjà déposées (dépôt hors-app/autre appareil) — pas de poll continu au chargement.
+// #10 restore: re-reads localStorage, purges expired ones, re-renders (collapsed), then one-shot locks chunks already deposited (deposit outside-app/other device) — no continuous polling on load.
 async function loadBatches(){
   let raw; try{ raw=localStorage.getItem(BSTORE); }catch(e){ return; }
   if(!raw) return;
   let obj; try{ obj=JSON.parse(raw)||{}; }catch(e){ return; }
   const now=Date.now(); let changed=false;
   for(const [id,b] of Object.entries(obj)){
-    const delivered=b&&Array.isArray(b.rows)&&b.rows.length>0&&b.rows.every(r=>r.srcTx);   // RC-13 : toutes les tranches signées → historique/reçus à préserver, même expiré
+    const delivered=b&&Array.isArray(b.rows)&&b.rows.length>0&&b.rows.every(r=>r.srcTx);   // RC-13: every chunk signed → history/receipts to preserve, even expired
     if(!b||(!delivered&&(!b.expiresAt||b.expiresAt<now))){ delete obj[id]; changed=true; } else b.restored=true;
   }
   window._batches=obj;
   if(changed) saveBatches();
-  renderBatches();   // repliés
+  renderBatches();   // collapsed
   const list=Object.values(obj); if(!list.length) return;
   let locked=false;
   await Promise.all(list.flatMap(b=>b.rows.map(async r=>{
@@ -811,12 +811,12 @@ async function loadBatches(){
   })));
   if(locked){ saveBatches(); renderBatches(); }
 }
-const SWEEP=[100,120,150,200,300,400,500,750,1000,1250,1500,2000,2500,3000,3500,4000,4500,5000,5500,6000,8000,10000,11500,12500];   // densifié (petit bout : creux réel 100–750 ; milieu 1250–5500) : min colle au réel (±cent, jamais optimiste — arrondi cent = garde-fou ; résidu ≤+cent sur tranches non ancrées). Max en k=1 (pas de sur-pondération).
-// Balayage en 2 vagues, grands incréments d'abord puis resserrement, concurrence limitée
-// → rafale amortie et respectueuse de l'API (le balayage est rare grâce au cache).
-const SWEEP_W1=[100,400,1000,2000,3000,4500,6000,8000,10000,12500];   // vague 1 : grands incréments (courbe utilisable vite)
-const SWEEP_W2=SWEEP.filter(a=>!SWEEP_W1.includes(a));                // vague 2 : points intermédiaires (resserrement)
-const SWEEP_CONC=6;                                                  // requêtes simultanées max par vague
+const SWEEP=[100,120,150,200,300,400,500,750,1000,1250,1500,2000,2500,3000,3500,4000,4500,5000,5500,6000,8000,10000,11500,12500];   // densified (short leg: real trough 100–750; middle 1250–5500): min tracks reality (±cent, never optimistic — cent rounding = safeguard; residual ≤+cent on non-anchored chunks). Max at k=1 (no over-weighting).
+// Sweep in 2 waves, big increments first then narrowing, limited concurrency
+// → a damped, API-friendly burst (the sweep is rare thanks to the cache).
+const SWEEP_W1=[100,400,1000,2000,3000,4500,6000,8000,10000,12500];   // wave 1: big increments (curve usable quickly)
+const SWEEP_W2=SWEEP.filter(a=>!SWEEP_W1.includes(a));                // wave 2: intermediate points (narrowing)
+const SWEEP_CONC=6;                                                  // max simultaneous requests per wave
 async function sweepWave(dk,amts,pts,onProg){
   const q=[...amts];
   await Promise.all(Array.from({length:Math.min(SWEEP_CONC,q.length)},async()=>{
@@ -825,37 +825,37 @@ async function sweepWave(dk,amts,pts,onProg){
 }
 async function sweepCurve(dk,L,onProg){
   try{
-    const cap=(L!=null&&L>0)?L:Infinity;   // NE PAS balayer au-dessus du plafond : l'API y renvoie un forfait fixe (cap protocole MAX_PROTOCOL_FEE_BPS) = artefact sur-liquidité, pas le vrai barème
+    const cap=(L!=null&&L>0)?L:Infinity;   // do NOT sweep above the cap: the API returns a fixed flat fee there (protocol cap MAX_PROTOCOL_FEE_BPS) = an over-liquidity artifact, not the real schedule
     const pts=[];
-    await sweepWave(dk,SWEEP_W1.filter(a=>a<=cap),pts,onProg);   // grands incréments (≤ plafond)
-    const w2=SWEEP_W2.filter(a=>a<=cap); if(cap<Infinity) w2.push(Math.floor(cap));   // resserrement + POINT EXACT au plafond (sinon la courbe fige plat au dernier point sous le cap)
+    await sweepWave(dk,SWEEP_W1.filter(a=>a<=cap),pts,onProg);   // big increments (≤ cap)
+    const w2=SWEEP_W2.filter(a=>a<=cap); if(cap<Infinity) w2.push(Math.floor(cap));   // narrowing + EXACT POINT at the cap (otherwise the curve freezes flat at the last point below the cap)
     await sweepWave(dk,w2,pts,onProg);
     pts.sort((a,b)=>a[0]-b[0]);
     return pts.length>3?pts:null;
   }catch(e){return null;}
 }
-// ---- Cache de la courbe : la courbe frais dépend de l'Available (L). Principe : si L a CHANGÉ
-//      (dans un sens OU l'autre), on re-balaye pour coller au réel ; si L est inchangé, la courbe
-//      est exactement valide → cache (localStorage), un refresh coûte alors ~4 appels au lieu de 52.
-//      Toujours frais après un changement ⇒ jamais optimiste ET juste (pas de cache pessimiste traînant).
+// ---- Curve cache: the fee curve depends on the Available (L). Principle: if L has CHANGED
+//      (in one direction OR the other), re-sweep to track reality; if L is unchanged, the curve
+//      is exactly valid → cache (localStorage), a refresh then costs ~4 calls instead of 52.
+//      Always fresh after a change ⇒ never optimistic AND accurate (no lingering pessimistic cache).
 const CURVE_KEY="rozoCurve";
-const SWEEP_EPS=1;   // seuil anti-jitter (EURC) : une variation < 1 EURC ne bouge aucun frais ; toute vraie variation (≥ un bridge) re-balaye
-const SWEEP_SIG=SWEEP.join(",")+"|leLc";   // signature de grille — "|leLc" = version sans sur-cap (montants ≤ plafond) + point exact au plafond ; invalide les caches d'avant le correctif
+const SWEEP_EPS=1;   // anti-jitter threshold (EURC): a variation < 1 EURC doesn't move any fee; any real variation (≥ one bridge) re-sweeps
+const SWEEP_SIG=SWEEP.join(",")+"|leLc";   // grid signature — "|leLc" = the version without over-cap (amounts ≤ cap) + exact point at the cap; invalidates caches from before the fix
 function saveCurve(){ try{ localStorage.setItem(CURVE_KEY,JSON.stringify({sweep:SWEEP_SIG,B2S:{pts:LIVE.B2S.pts,sweptAt:LIVE.B2S.sweptAt},S2B:{pts:LIVE.S2B.pts,sweptAt:LIVE.S2B.sweptAt}})); }catch(e){} }
-function loadCurve(){ try{ const c=JSON.parse(localStorage.getItem(CURVE_KEY)||"null"); if(c&&c.sweep===SWEEP_SIG) for(const dk of["B2S","S2B"]) if(c[dk]&&c[dk].pts){ LIVE[dk].pts=c[dk].pts; LIVE[dk].sweptAt=c[dk].sweptAt; } }catch(e){} }   // signature de grille : ignore un cache d'une ancienne version de SWEEP
+function loadCurve(){ try{ const c=JSON.parse(localStorage.getItem(CURVE_KEY)||"null"); if(c&&c.sweep===SWEEP_SIG) for(const dk of["B2S","S2B"]) if(c[dk]&&c[dk].pts){ LIVE[dk].pts=c[dk].pts; LIVE[dk].sweptAt=c[dk].sweptAt; } }catch(e){} }   // grid signature: ignores a cache from an older version of SWEEP
 async function curveFor(dk,L,onProg){
   const c=LIVE[dk];
   const unchanged = c.pts && c.sweptAt!=null && (
-    L==null                                    // Available inconnu (appel échoué) → on garde le cache (dégradation gracieuse), pas de balayage à l'aveugle
-    || Math.abs(L - c.sweptAt) <= SWEEP_EPS     // Available inchangé → courbe encore exacte
+    L==null                                    // Available unknown (call failed) → keep the cache (graceful degradation), no blind sweeping
+    || Math.abs(L - c.sweptAt) <= SWEEP_EPS     // Available unchanged → curve still exact
   );
-  if(unchanged) return c.pts;                   // cache : 0 appel
-  const pts = await sweepCurve(dk,L,onProg);    // L a changé (ou 1er balayage) → re-balaye les montants ≤ plafond pour coller au réel
+  if(unchanged) return c.pts;                   // cache: 0 calls
+  const pts = await sweepCurve(dk,L,onProg);    // L changed (or first sweep) → re-sweeps amounts ≤ cap to track reality
   if(pts){ c.pts=pts; c.sweptAt=(L!=null?L:c.sweptAt); saveCurve(); }
-  return c.pts;                                 // garde l'ancienne courbe si le balayage échoue
+  return c.pts;                                 // keeps the old curve if the sweep fails
 }
-// courbe du graphe (page Doc UNIQUEMENT) : balayée PARESSEUSEMENT à l'ouverture de la Doc — plus jamais au chargement ni au devis. Cache si L inchangé (0 appel).
-// overlay de chargement : voile + roue + EXPLICATION (ce qu'on fetche) + PROGRESSION (barre done/total). Retourne {set,done}.
+// chart curve (Doc page ONLY): swept LAZILY when the Doc opens — never again on load or on quote. Cached if L unchanged (0 calls).
+// loading overlay: veil + spinner + EXPLANATION (what's being fetched) + PROGRESS (done/total bar). Returns {set,done}.
 function loader(container,label){
   if(!container) return {set(){},done(){}};
   if(getComputedStyle(container).position==="static") container.style.position="relative";
@@ -872,32 +872,32 @@ async function ensureChartCurve(){
   const card=(document.getElementById("chart")||{}).closest?document.getElementById("chart").closest(".card"):null;
   const ld=loader(card, I18N[LANG].loadCurve);
   try{
-    let total=0, done=0;   // total = dryruns à balayer sur les 2 sens (sens cachés = 0)
+    let total=0, done=0;   // total = dryruns to sweep across both directions (hidden directions = 0)
     for(const dk of["B2S","S2B"]){ const c=LIVE[dk], L=c.L, cap=(L>0?L:Infinity);
       const cached=c.pts&&c.sweptAt!=null&&(L==null||Math.abs(L-c.sweptAt)<=SWEEP_EPS);
       if(!cached) total+=SWEEP.filter(a=>a<=cap).length+(cap<Infinity?1:0); }
     ld.set(0,total);
     for(const dk of["B2S","S2B"]) LIVE[dk].pts=await curveFor(dk,LIVE[dk].L,()=>ld.set(++done,total));
   } finally{ ld.done(); } }
-let lastTs=null;   // cache du dernier résultat de refresh() : {ok,time} — permet à setLang() de retraduire #ts sans réseau
+let lastTs=null;   // cache of the last refresh() result: {ok,time} — lets setLang() re-translate #ts without a network call
 function renderTs(){
   const e=document.getElementById("ts"); if(!e||!lastTs) return;
   e.textContent=lastTs.ok?I18N[LANG].tsUpdated(lastTs.time.toLocaleTimeString(LOCALE)):I18N[LANG].tsOffline;
 }
 async function refresh(){
-  if(window._refreshing) return; window._refreshing=true;   // garde ré-entrance : deux cycles concurrents doublaient la rafale API (goHome+bouton ↻, ou double-clic)
+  if(window._refreshing) return; window._refreshing=true;   // re-entrance guard: two concurrent cycles used to double the API burst (goHome+↻ button, or double-click)
   try{
     const set=(id,v)=>document.getElementById(id).textContent=(v==null?"n/a":eur(v)+" EURC");
     document.getElementById("ts").textContent=I18N[LANG].tsUpdating;
-    const _ld=loader(document.querySelector(".card.liq"), I18N[LANG].loadLiq); let _d=0; const _tick=()=>_ld.set(++_d,4);   // overlay + progression (4 appels)
-    // 1) données live LÉGÈRES — toujours rafraîchies (Available + soldes on-chain), ~4 appels
+    const _ld=loader(document.querySelector(".card.liq"), I18N[LANG].loadLiq); let _d=0; const _tick=()=>_ld.set(++_d,4);   // overlay + progress (4 calls)
+    // 1) LIGHT live data — always refreshed (Available + on-chain balances), ~4 calls
     const[aB,aS,sH,bH]=await Promise.all([liq("B2S").catch(()=>null).then(v=>{_tick();return v;}),liq("S2B").catch(()=>null).then(v=>{_tick();return v;}),stellarBal().catch(()=>null).then(v=>{_tick();return v;}),baseBal().catch(()=>null).then(v=>{_tick();return v;})]);
     _ld.done();
-    set("liqB",aB);set("chB",sH);set("liqS",aS);set("chS",bH);   // dispo = Available (API create, = plafond réel de refus) · vérif = solde hub lu on-chain
-    markLiq("liqS",aS,bH); markLiq("liqB",aB,sH);   // vert si API≈on-chain, orange si écart (bridge récent, non-bloquant)
-    LIVE.B2S.L=(aB!=null?aB:sH);LIVE.S2B.L=(aS!=null?aS:bH);   // plafond du graphe = Available (au-delà = refusé), fallback on-chain si l'API échoue
-    // 2) SWEEP RETIRÉ du chargement/refresh : la courbe frais n'est plus balayée ici (le graphe Doc la balaye paresseusement à l'ouverture).
-    //    Le tableau de découpage re-devise ses tranches en dryrun {T/n} (cache-aware) à la liquidité courante : 0 dryrun si L inchangé.
+    set("liqB",aB);set("chB",sH);set("liqS",aS);set("chS",bH);   // available = Available (API create, = real refusal cap) · check = hub balance read on-chain
+    markLiq("liqS",aS,bH); markLiq("liqB",aB,sH);   // green if API≈on-chain, orange if there's a gap (recent bridge, non-blocking)
+    LIVE.B2S.L=(aB!=null?aB:sH);LIVE.S2B.L=(aS!=null?aS:bH);   // chart cap = Available (beyond it = refused), on-chain fallback if the API fails
+    // 2) SWEEP REMOVED from load/refresh: the fee curve is no longer swept here (the Doc chart sweeps it lazily on open).
+    //    The split table re-quotes its chunks via dryrun {T/n} (cache-aware) at the current liquidity: 0 dryrun if L is unchanged.
     drawChart();
     const _dk=document.getElementById("dir").value, _mode=document.getElementById("mode").value, _T=+document.getElementById("amt").value;
     if(_T>0) await ensureChunkFees(_dk,_T,_mode,LIVE[_dk]&&LIVE[_dk].L,splitMax,()=>simul());
@@ -906,14 +906,14 @@ async function refresh(){
   } finally { window._refreshing=false; }
 }
 
-// ---- graphique canvas (sans dépendance) ----
+// ---- canvas chart (no dependency) ----
 function drawChart(){
   const c=document.getElementById("chart"),g=c.getContext("2d");
   const cs=getComputedStyle(document.body),v=n=>cs.getPropertyValue(n).trim();
   const COL={grid:v('--bd'),grid2:v('--chartgrid'),text:v('--mut'),warn:v('--warn'),b2s:v('--b2s'),s2b:v('--s2b')};
   const W=c.width,H=c.height,L=58,R=18,T=18,B=44, x0=L,x1=W-R,y0=H-B,y1=T;
   const XMAX=13000;
-  // axe Y auto-échelle : s'adapte si le frais live dépasse 0,40 % → plus de courbe hors cadre
+  // Y axis auto-scale: adapts if the live fee exceeds 0.40% → no more curve out of frame
   let YMAX=0.40; { let mx=0; for(const dk of["B2S","S2B"]){ const ps=(LIVE[dk]&&LIVE[dk].pts)||MEAS[dk]||[]; for(const p of ps) if(p[1]>mx) mx=p[1]; } YMAX=Math.max(0.40, Math.ceil(mx*1.05/0.05)*0.05); }
   const X=val=>x0+(val/XMAX)*(x1-x0), Y=val=>y0-(val/YMAX)*(y0-y1);
   g.clearRect(0,0,W,H); g.font="12px sans-serif"; g.textBaseline="middle";
@@ -924,21 +924,21 @@ function drawChart(){
     g.textAlign="center";g.fillText(xv?(xv/1000)+"k":"0",X(xv),y0+16);}
   g.fillText(I18N[LANG].chartAmountAxis,(x0+x1)/2,H-10);
   for(const dk of["B2S","S2B"]){const col=dk==="B2S"?COL.b2s:COL.s2b;
-    const Lv=LIVE[dk]&&LIVE[dk].L, pts=(LIVE[dk]&&LIVE[dk].pts)||MEAS[dk];   // ligne plafond SEULEMENT si liquidité live connue
+    const Lv=LIVE[dk]&&LIVE[dk].L, pts=(LIVE[dk]&&LIVE[dk].pts)||MEAS[dk];   // cap line ONLY if the live liquidity is known
     if(Lv){ const Lx=Math.min(X(Lv),x1);
       g.setLineDash([4,4]);g.strokeStyle=col;g.globalAlpha=.45;
       g.beginPath();g.moveTo(Lx,y0);g.lineTo(Lx,y1);g.stroke();g.globalAlpha=1;g.setLineDash([]);
       g.textAlign="center";g.fillStyle=col;g.fillText(I18N[LANG].chartCap+eur(Math.round(Lv)),Lx,y1+(dk==="B2S"?40:54)); }
-    let cpts=Lv?pts.filter(p=>p[0]<=Lv):pts.slice();   // tronquer au plafond live (au-delà = refusé en 1 envoi)
+    let cpts=Lv?pts.filter(p=>p[0]<=Lv):pts.slice();   // truncate at the live cap (beyond it = refused in 1 send)
     if(Lv){ const ye=livePct(dk,Lv); if(ye!=null) cpts=cpts.concat([[Lv,ye]]); }
-    // trait plein sur toute la courbe mesurée (pointillé near-edge retiré : la prémisse d'un clamp de frais près du plafond est réfutée par les mesures)
+    // solid line across the whole measured curve (near-edge dashing removed: the premise of a fee clamp near the cap is disproven by the measurements)
     if(cpts.length>=2){ g.strokeStyle=col;g.lineWidth=2.2;g.beginPath(); cpts.forEach((pt,i)=>{const xx=X(pt[0]),yy=Y(pt[1]);i?g.lineTo(xx,yy):g.moveTo(xx,yy);}); g.stroke(); }
     g.fillStyle=col;cpts.forEach(pt=>{g.beginPath();g.arc(X(pt[0]),Y(pt[1]),3,0,7);g.fill();});
   }
   g.textAlign="left";g.fillStyle=COL.b2s;g.fillRect(X(800),y1+6,12,3);g.fillText("Base → Stellar",X(800)+18,y1+8);
   g.fillStyle=COL.s2b;g.fillRect(X(800),y1+22,12,3);g.fillText("Stellar → Base",X(800)+18,y1+24);
-  chartGeo={x0,x1,XMAX};   // pour convertir la position souris → montant
-  // ---- survol : ligne repère + points + infobulle (montant + frais des 2 sens) ----
+  chartGeo={x0,x1,XMAX};   // to convert the mouse position → amount
+  // ---- hover: marker line + points + tooltip (amount + fee for both directions) ----
   if(hoverAmt!=null && hoverAmt>=0){
     const hx=X(hoverAmt);
     g.strokeStyle=COL.text;g.globalAlpha=.5;g.setLineDash([2,3]);g.beginPath();g.moveTo(hx,y1);g.lineTo(hx,y0);g.stroke();g.setLineDash([]);g.globalAlpha=1;
@@ -999,8 +999,8 @@ function toggleTheme(){
   document.getElementById("theme").textContent=light?I18N[LANG].themeDark:I18N[LANG].themeLight;
   drawChart();
 }
-// re-rend #out depuis l'état EN CACHE (lastDevis), sans réseau. Même garde de fraîcheur que simul() (dk+mode+montant) ;
-// si le devis en cache ne correspond plus à l'état courant, on laisse #out tel quel (contrat de setLang()).
+// re-renders #out from the CACHED state (lastDevis), with no network call. Same freshness guard as simul() (dk+mode+amount);
+// if the cached quote no longer matches the current state, #out is left as-is (setLang()'s contract).
 function renderOutCached(){
   const o=document.getElementById("out"); if(!o) return;
   const dk=document.getElementById("dir").value, mode=document.getElementById("mode").value, x=+document.getElementById("amt").value;
@@ -1008,24 +1008,24 @@ function renderOutCached(){
   if(!lastDevis || !(lastDevis.dk===dk && lastDevis.mode===mode && Math.abs(lastDevis.T-x)<0.5)) return;
   const D=I18N[LANG], {recv}=lastDevis;
   const Ldest=LIVE[dk]&&LIVE[dk].L;
-  o.innerHTML=(Ldest&&recv>Ldest)?D.quoteWarnOverLiq(recv,Ldest):"";   // seul l'avertissement liquidité subsiste (phrase "Tu envoies…" retirée)
+  o.innerHTML=(Ldest&&recv>Ldest)?D.quoteWarnOverLiq(recv,Ldest):"";   // only the liquidity warning remains ("You send…" sentence removed)
 }
-// changement de langue : re-rend tout depuis l'état EN CACHE (aucun fetch) → instantané, sans flash, wallets connectés préservés.
+// language change: re-renders everything from the CACHED state (no fetch) → instant, no flash, connected wallets preserved.
 function setLang(l){ if((l!=="fr"&&l!=="en")||l===LANG) return;
   LANG=l; LOCALE=l==="fr"?"fr-FR":"en-US"; window.LANG=l; document.documentElement.lang=l;
   try{localStorage.setItem("rozoLang",l)}catch(e){}
   applyI18N(); updateDirUI(); updateLangBtn();
   const tb=document.getElementById("theme"); if(tb) tb.textContent=document.documentElement.classList.contains("light")?I18N[LANG].themeDark:I18N[LANG].themeLight;
-  window.checkWalletMatch&&window.checkWalletMatch();   // re-libellé statut wallet dans la nouvelle langue (sinon applyI18N vient d'écraser à tort en "non connecté")
-  renderOutCached();   // #out depuis lastDevis (cache), pas d'appel réseau
-  simul();             // #splitout + #reco depuis LIVE/lastDevis (cache) ; préserve selN
-  renderTs();          // #ts depuis lastTs (cache)
-  drawChart();         // libellés de la courbe (axe, plafond) — lecture pure de LIVE/MEAS, pas de réseau
-  renderBatches();   // #14 : tous les lots suivent la langue (re-rendu depuis le store, état ouvert/replié préservé) ; un suivi actif est à re-cliquer
+  window.checkWalletMatch&&window.checkWalletMatch();   // re-labels the wallet status in the new language (otherwise applyI18N just wrongly overwrote it to "not connected")
+  renderOutCached();   // #out from lastDevis (cache), no network call
+  simul();             // #splitout + #reco from LIVE/lastDevis (cache); preserves selN
+  renderTs();          // #ts from lastTs (cache)
+  drawChart();         // curve labels (axis, cap) — pure read of LIVE/MEAS, no network
+  renderBatches();   // #14: all batches follow the language (re-rendered from the store, open/collapsed state preserved); active tracking must be re-clicked
 }
 function toggleLang(){ setLang(LANG==="fr"?"en":"fr"); }
 function updateLangBtn(){ const b=document.getElementById("lang"); if(b) b.textContent=LANG.toUpperCase(); }
-// applique le dictionnaire I18N à tous les éléments statiques (titres, en-têtes, textes fixes)
+// applies the I18N dictionary to all static elements (titles, headers, fixed text)
 function applyI18N(){
   const D=I18N[LANG];
   document.title=D.pageTitle;
@@ -1043,8 +1043,8 @@ function applyI18N(){
   const drb=document.getElementById("dirbtn"); if(drb) drb.title=D.dirbtnTitle;
   const cv=document.getElementById("chart"); if(cv) cv.setAttribute("aria-label",D.chartAriaLabel);
   ["amtSend","amtRecv"].forEach(id=>{const e=document.getElementById(id); if(e) e.placeholder=D.amtPlaceholder;});
-  setT("lblSend",D.amtSent); setT("lblRecv",D.amtRecv);   // libellés des deux blocs entrée/sortie
-  // RC-8 : nom accessible par input (send vs receive) — le <span class="lbl"> voisin n'est pas un <label for>, un lecteur d'écran ne les distingue pas sans aria-label
+  setT("lblSend",D.amtSent); setT("lblRecv",D.amtRecv);   // labels of the two input/output blocks
+  // RC-8: accessible name per input (send vs receive) — the neighboring <span class="lbl"> isn't a <label for>, a screen reader can't tell them apart without aria-label
   const setAria=(id,v)=>{const e=document.getElementById(id); if(e) e.setAttribute("aria-label",v);};
   setAria("amtSend",D.amtSent); setAria("amtRecv",D.amtRecv);
   setT("subtext",D.subtext); setT("h2Quote",D.h2Quote);
@@ -1066,24 +1066,24 @@ function applyI18N(){
   setH("pOfficialBridge",D.pOfficialBridge); setH("pRefContact",D.pRefContact);
   setT("h2Addresses",D.h2Addresses); setT("hubStellarLabel",D.hubStellarLabel); setT("hubBaseLabel",D.hubBaseLabel);
   setH("pSources",D.pSources);
-  setH("splitnote",D.splitEstimateNote);   // note d'estimation à côté du bouton Générer (#2)
-  const ts2=document.getElementById("ts2"); if(ts2) ts2.textContent=new Date().toLocaleString(LOCALE);   // setH ci-dessus recrée #ts2 (vide) à chaque appel → le republier ici, sinon la date disparaît après un setLang()
-  updBatchLabel();   // #genbtn : sinon reste au texte HTML statique tant qu'aucun montant n'a été saisi
+  setH("splitnote",D.splitEstimateNote);   // estimation note next to the Generate button (#2)
+  const ts2=document.getElementById("ts2"); if(ts2) ts2.textContent=new Date().toLocaleString(LOCALE);   // setH above recreates #ts2 (empty) on every call → republish it here, otherwise the date disappears after a setLang()
+  updBatchLabel();   // #genbtn: otherwise it stays on the static HTML text as long as no amount has been entered
   updateLangBtn();
 }
 applyI18N();
 
-// thème : la classe .light est déjà posée sur <html> par le script inline du <head> (avant paint, anti-FOUC) ; ici on ne fait que synchroniser le libellé du bouton
+// theme: the .light class is already set on <html> by the inline <head> script (before paint, anti-FOUC); here we only sync the button label
 try{
   const isLight=document.documentElement.classList.contains("light");
   document.getElementById("theme").textContent=isLight?I18N[LANG].themeDark:I18N[LANG].themeLight;
 }catch(e){}
-// #ts2 (Documentation, "Généré le") : déjà rempli par applyI18N() ci-dessus (appelée au chargement du script)
+// #ts2 (Documentation, "Generated on"): already filled by applyI18N() above (called on script load)
 if(location.protocol==="file:"){
   const b=document.createElement("div");
   b.style.cssText="background:var(--warn);color:#000;padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:13px;line-height:1.6";
   b.innerHTML=I18N[LANG].fileWarnHtml(location.pathname.replace(/\/[^/]*$/,""));
-  (document.querySelector('.stage')||document.body).prepend(b);   // RC-5 : ".wrap" n'existe pas (conteneur réel = ".stage") → TypeError qui interrompait l'init en file://
+  (document.querySelector('.stage')||document.body).prepend(b);   // RC-5: ".wrap" doesn't exist (real container = ".stage") → TypeError that used to interrupt init under file://
 }
 (function(){ const cv=document.getElementById("chart"); if(!cv) return;
   cv.addEventListener("mousemove",e=>{ if(!chartGeo) return; const r=cv.getBoundingClientRect();
@@ -1092,13 +1092,13 @@ if(location.protocol==="file:"){
   cv.addEventListener("mouseleave",()=>{ hoverAmt=null; drawChart(); });
   cv.style.cursor="crosshair";
 })();
-loadCurve(); updLbl(); updateDirUI(); drawChart(); quote(); simul(); refresh();   // loadCurve avant : rendu instantané depuis le cache, refresh ne re-balaye que si l'Available a bougé
-loadBatches();   // #10 : restaure les lots persistés (purge expirés + verrou one-shot des tranches déjà déposées)
+loadCurve(); updLbl(); updateDirUI(); drawChart(); quote(); simul(); refresh();   // loadCurve first: instant render from the cache, refresh only re-sweeps if the Available has moved
+loadBatches();   // #10: restores the persisted batches (purges expired ones + one-shot lock of chunks already deposited)
 
-// auto-refresh retiré (à la demande) : la liquidité ne se rafraîchit qu'au chargement et via le bouton ↻
+// auto-refresh removed (on request): liquidity only refreshes on load and via the ↻ button
 
-/* Tooltip portal : rend le contenu de .tip-box dans un nœud position:fixed au-dessus de tout (calqué sur stellar-swap "Confiance").
-   Contenu adapté LANGUE (chaînes I18N re-rendues) + THÈME (variables CSS). Flip bas→haut si pas la place. */
+/* Tooltip portal: renders the content of .tip-box into a position:fixed node above everything (modeled on stellar-swap "Trust").
+   Content adapted to LANGUAGE (re-rendered I18N strings) + THEME (CSS variables). Flips bottom→top if there's no room. */
 (function(){
   const portal=document.getElementById("tipPortal"); if(!portal) return;
   const show=wrap=>{ const box=wrap.querySelector(".tip-box"); if(!box) return;
@@ -1110,7 +1110,7 @@ loadBatches();   // #10 : restaure les lots persistés (purge expirés + verrou 
   const hide=()=>{ if(portal.style.display==="none") return; portal.style.display="none"; portal.innerHTML=""; };
   document.addEventListener("mouseover",e=>{ const w=e.target.closest&&e.target.closest(".tip-wrap"); if(w) show(w); });
   document.addEventListener("mouseout",e=>{ const w=e.target.closest&&e.target.closest(".tip-wrap"); if(!w) return; if(e.relatedTarget&&w.contains(e.relatedTarget)) return; hide(); });
-  // a11y : mêmes tooltips au focus clavier (tip-wrap posent tabindex=0) qu'au survol souris
+  // a11y: same tooltips on keyboard focus (tip-wrap sets tabindex=0) as on mouse hover
   document.addEventListener("focusin",e=>{ const w=e.target.closest&&e.target.closest(".tip-wrap"); if(w) show(w); });
   document.addEventListener("focusout",e=>{ const w=e.target.closest&&e.target.closest(".tip-wrap"); if(w) hide(); });
   window.addEventListener("scroll",hide,{capture:true,passive:true});

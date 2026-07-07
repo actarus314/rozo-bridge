@@ -7,6 +7,7 @@ CLAUDE.md
 
 # deps
 node_modules/
+__pycache__/
 
 # build artifacts
 dist/
