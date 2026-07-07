@@ -80,10 +80,14 @@ tracks how the real, generated bridges compare to the projected range over time.
 ## Structure
 
 ```
-web/   — the app: serve.py, rozo-bridge.html, assets/ (JS/CSS + vendored Stellar wallet kit)
-CLI/   — rozo-quote.sh, command-line quote script (see CLI/README.md)
-data/  — runtime intent log, gitignored
+web/     — the app: serve.py, rozo-bridge.html, assets/ (JS/CSS + vendored Stellar wallet kit)
+CLI/     — rozo-quote.sh, command-line quote script (see CLI/README.md)
+scripts/ — dev-only: regenerates web/assets/walletkit.js (npm install && npm run build:walletkit)
+data/    — runtime intent log, gitignored
 ```
+
+The app itself has no build step and no runtime dependencies — `package.json` only
+serves `scripts/build-walletkit.mjs`, never touched by `serve.py`.
 
 ## License
 
@@ -165,10 +169,14 @@ fourchette projetée dans le temps.
 ## Structure
 
 ```
-web/   — l'app : serve.py, rozo-bridge.html, assets/ (JS/CSS + kit wallet Stellar vendored)
-CLI/   — rozo-quote.sh, script de devis en ligne de commande (voir CLI/README.md)
-data/  — log d'intents runtime, ignoré par Git
+web/     — l'app : serve.py, rozo-bridge.html, assets/ (JS/CSS + kit wallet Stellar vendored)
+CLI/     — rozo-quote.sh, script de devis en ligne de commande (voir CLI/README.md)
+scripts/ — dev only : régénère web/assets/walletkit.js (npm install && npm run build:walletkit)
+data/    — log d'intents runtime, ignoré par Git
 ```
+
+L'app elle-même n'a aucune étape de build ni dépendance runtime — `package.json` ne
+sert qu'à `scripts/build-walletkit.mjs`, jamais touché par `serve.py`.
 
 ## Licence
 
