@@ -7,6 +7,11 @@ on:
 
 # Lightweight checks for a zero-build, zero-dependency static app: syntax + i18n parity + fee-model
 # self-check. No `npm install` — the scripts use only Node built-ins. CodeQL runs separately (default setup).
+
+# Least privilege for GITHUB_TOKEN: these checks only read the repo (checkout + node), nothing writes.
+permissions:
+  contents: read
+
 jobs:
   checks:
     runs-on: ubuntu-latest
