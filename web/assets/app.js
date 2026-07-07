@@ -106,7 +106,7 @@ const I18N={
     quoteWarnOverLiq:(recv,avail)=>`<div class="alert"><span class="ico">ⓘ</span><span><b>${eur(recv)} EURC</b> en un seul envoi &gt; liquidité dispo <b>${eur(avail)}</b> : un bridge 1-shot échouerait. <b>Fractionner</b> ci-dessous ou attendre la recharge du hub.</span></div>`,
     infeasibleRow:`✗ tranche &gt; liquidité dispo`,
     sendLabel:n=>n===1?"1 envoi":n+" × ",
-    feeHighAdvice:p=>`Frais élevés (<b>${p} %</b>) Attendre une recharge (~10 min) ou réduire/fractionner le montant.`,
+    feeHighAdvice:p=>`Frais élevés (<b>${p} %</b>) — attendre une recharge du hub (<b>délai imprévisible</b> : de ~10 min à plusieurs heures, au bon vouloir du desk Rozo) ou réduire/fractionner le montant.`,
     updBatchLabelText:(n,sel)=>`⚙ Générer les transactions (${n}×${sel?" sélectionné":" reco"})`,
     copied:"✓ copié",
     genBatchNeedAmount:`<span class="mut">Un montant doit d'abord être renseigné dans le devis.</span>`,
@@ -138,6 +138,7 @@ const I18N={
     dispStatsFmt:(N,med,p90)=>`<b>N = ${N}</b> batch(s) S→B · θ médian <b>${med}</b> · θ p90 <b>${p90}</b>`,
     fileWarnHtml:path=>`⚠ <b>Cette page doit être ouverte via http</b>, pas en <code>file://</code> — sinon les wallets (Ambire/Rabby/Freighter) et la signature ne fonctionnent pas. Dans un terminal :<br><code>cd ${path} &amp;&amp; python3 -m http.server 8787</code><br>puis : <code>http://localhost:8787/rozo-bridge.html</code>`,
     moduleNoEvm:"aucun wallet EVM injecté — nécessite Ambire/Rabby (et une page servie en http)",
+    walletBtnHint:"Se connecter pour signer — les devis et la liquidité fonctionnent sans wallet.",
     moduleRejected:m=>`refusé: ${m}`,
     moduleDisconnected:"déconnecté",
     evmSignUnsupported:"ce wallet ne supporte pas l'envoi atomique (EIP-5792) → import JSON dans Safe{Wallet} recommandé (atomicité préservée).",
@@ -226,7 +227,7 @@ const I18N={
     quoteWarnOverLiq:(recv,avail)=>`<div class="alert"><span class="ico">ⓘ</span><span><b>${eur(recv)} EURC</b> in a single send &gt; available liquidity <b>${eur(avail)}</b>: a one-shot bridge would fail. <b>Splitting it</b> below or waiting for the hub to refill is recommended.</span></div>`,
     infeasibleRow:`✗ chunk &gt; available liquidity`,
     sendLabel:n=>n===1?"1 send":n+" × ",
-    feeHighAdvice:p=>`High fees (<b>${p} %</b>) Waiting for a refill (~10 min) or reducing/splitting the amount is recommended.`,
+    feeHighAdvice:p=>`High fees (<b>${p} %</b>) — waiting for a hub refill (<b>unpredictable</b>: from ~10 min to several hours, at the Rozo desk's discretion) or reducing/splitting the amount is recommended.`,
     updBatchLabelText:(n,sel)=>`⚙ Generate the transactions (${n}×${sel?" selected":" reco"})`,
     copied:"✓ copied",
     genBatchNeedAmount:`<span class="mut">An amount must be entered in the quote first.</span>`,
@@ -258,6 +259,7 @@ const I18N={
     dispStatsFmt:(N,med,p90)=>`<b>N = ${N}</b> S→B batch(es) · median θ <b>${med}</b> · p90 θ <b>${p90}</b>`,
     fileWarnHtml:path=>`⚠ <b>This page needs to run over http</b>, not <code>file://</code> — otherwise wallets (Ambire/Rabby/Freighter) and signing won't work. In a terminal:<br><code>cd ${path} &amp;&amp; python3 -m http.server 8787</code><br>then: <code>http://localhost:8787/rozo-bridge.html</code>`,
     moduleNoEvm:"no EVM wallet injected — requires Ambire/Rabby, with the page served over http",
+    walletBtnHint:"Connect to sign — quotes and liquidity work without a wallet.",
     moduleRejected:m=>`rejected: ${m}`,
     moduleDisconnected:"disconnected",
     evmSignUnsupported:"this wallet doesn't support atomic sending (EIP-5792) → the JSON import in Safe{Wallet} is recommended instead (atomicity preserved).",
@@ -1045,6 +1047,7 @@ function applyI18N(){
   const hba=document.getElementById("hubBaseA"); if(hba) hba.title=D.hubBaseTitle;
   const hsa=document.getElementById("hubStellarA"); if(hsa) hsa.title=D.hubStellarTitle;
   const mxb=document.getElementById("maxbtn"); if(mxb) mxb.title=D.maxbtnTitle;
+  document.querySelectorAll(".wbtn").forEach(b=>b.title=D.walletBtnHint);   // hover hint: quotes need no wallet, only signing does
   const drb=document.getElementById("dirbtn"); if(drb) drb.title=D.dirbtnTitle;
   const cv=document.getElementById("chart"); if(cv) cv.setAttribute("aria-label",D.chartAriaLabel);
   ["amtSend","amtRecv"].forEach(id=>{const e=document.getElementById(id); if(e) e.placeholder=D.amtPlaceholder;});
