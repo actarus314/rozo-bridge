@@ -82,17 +82,6 @@
   </div>
   <div id="batchout" class="blk"></div>
 
-  <!-- Inverse planner: largest amount bridgeable (current direction) under a target fee% -->
-  <details class="card pad blk planner">
-    <summary id="plannerSummary">▸ Planificateur inverse — combien bridger sous X % de frais ?</summary>
-    <div class="prow">
-      <label id="plannerLabel" for="plannerPct">Frais % cible (max)</label>
-      <input id="plannerPct" class="num" type="number" min="0" step="0.01" placeholder="0.10" oninput="renderPlanner()" aria-label="Frais % cible max">
-      <span class="cur">%</span>
-    </div>
-    <div id="plannerOut" class="mut" style="margin-top:10px"></div>
-  </details>
-
 </section>
 
 <!-- ==================== DOCUMENTATION ==================== -->
@@ -117,13 +106,13 @@
       <li id="modelLi1">Déterministe (même entrée → même frais), indépendant de l'appId.</li>
       <li id="modelLi2">Driver dominant = remplissage du hub (Available), pas le ratio montant/liquidité.</li>
       <li id="modelLi3">Sur Stellar→Base, créer un intent réserve l'Available → empiler les tranches fait baisser le L restant → le frais % monte le long d'une surface mesurée <code>fee%(montant, L)</code> (mesures historiques en drainage réel — distinctes du balayage de la page Doc, qui ne sert qu'au graphe), plafonnée à 0,50 %. En Base→Stellar, créer un intent ne réserve plus l'Available → pas d'escalade (valeur unique par tranche).</li>
-      <li id="modelLi4">Routes : le niveau base% et la montée diffèrent (B→S ~0,09 &lt; S→B ~0,12 %) → une surface par route, mesurée séparément pour projeter max et coût probable ; max ≤0,03 € / 16 séries — le min est un devis dryrun réel (exact, pas une projection).</li>
+      <li id="modelLi4">Routes : le niveau base% et la montée diffèrent (B→S ~0,09 &lt; S→B ~0,12 %) → une surface par route, mesurée séparément pour projeter max et coût probable ; max ≤0,04 € / 16 séries — le min est un devis dryrun réel (exact, pas une projection).</li>
       <li id="modelLi5">Frais figés à la création et honorés à la livraison — vérifié dans les 2 sens (03/07/2026).</li>
     </ul></div>
   </div>
 
   <h3 class="docsub" id="h2WhyRange">Pourquoi une fourchette min/max</h3>
-  <p id="pWhyRange">Une fourchette n'apparaît que sur le sens <b>Stellar→Base</b>, où créer un intent <b>réserve l'Available</b> du hub → empiler des tranches le draine → chaque tranche suivante est plus chère. Le découpage s'y lit en <b>trois valeurs</b> : <b>min</b> (N devis <b>dryrun réels</b> — un par taille de tranche T/n, sommés : le frais exact si chaque tranche part à hub plein, aucun drainage — meilleur cas, <b>exact</b>), <b>max</b> (tranches en série, chaque intent draine le hub → la suivante plus chère, cap 0,50 % — pire cas <b>estimé</b> depuis la surface mesurée, <b>collé au réel ≤0,03 €</b>), et le <b>coût probable</b> affiché entre les deux (même surface, ancrée sur le min exact). En pratique les N créations partent en <b>parallèle</b> → le serveur partage le snapshot par <b>vagues</b> → le réalisé est une <b>variable aléatoire</b> entre min et max (proche du min à peu de tranches). Sur <b>Base→Stellar</b>, créer un intent <b>fige le frais mais ne réserve plus l'Available</b> → aucun drainage → <b>chaque tranche affiche une valeur unique</b> (min = max, ni fourchette ni coût probable). La <b>génération donne le chiffre engageant</b>.</p>
+  <div id="pWhyRange">Une fourchette n'apparaît que sur le sens <b>Stellar→Base</b>.<br>Là, créer un intent <b>réserve l'Available</b> du hub : empiler des tranches le draine, donc chaque tranche suivante coûte plus.<br>Le découpage s'y lit alors en <b>trois valeurs</b> :<ul><li><b>min</b> — N devis <b>dryrun réels</b> (un par taille de tranche T/n), sommés. C'est le frais exact si chaque tranche partait à hub plein, sans drainage. Meilleur cas, <b>exact</b>.</li><li><b>max</b> — les tranches créées en série, chaque intent drainant le hub. Pire cas, <b>estimé</b> depuis la surface mesurée (cap 0,50 %), <b>collé au réel ≤0,04 €</b>.</li><li><b>coût probable</b> — affiché entre les deux, même surface, ancré sur le min exact.</li></ul>En pratique, les N créations partent en <b>parallèle</b>.<br>Le serveur partage le snapshot par <b>vagues</b>.<br>Le réalisé est donc une <b>variable aléatoire</b> entre min et max — proche du min quand il y a peu de tranches.<br>Sur <b>Base→Stellar</b>, créer un intent <b>fige le frais mais ne réserve pas l'Available</b>.<br>Sans drainage, <b>chaque tranche a une valeur unique</b> (min = max) : ni fourchette, ni coût probable.<br>La <b>génération donne le chiffre engageant</b>.</div>
 
   <h3 class="docsub" id="h2Curve">Courbe des frais (frais % vs montant)</h3>
   <div class="card pad">
@@ -131,7 +120,7 @@
     <div id="pCurveExplain" class="mut" style="font-size:12.5px;margin-bottom:0"><ul style="margin:0 0 0 -2px">
       <li>Points = mesures live (dryrun, identiques pour tous les appId).</li>
       <li>Balayage paresseux : lancé à l'ouverture de la page Doc, seulement pour les montants ≤ plafond de liquidité (+ un point exact au plafond) — sert uniquement à ce graphe, pas au devis.</li>
-      <li>Lignes verticales = plafond de liquidité live (= solde du hub) ; chaque courbe s'arrête à son plafond.</li>
+      <li>Lignes verticales = plafond de liquidité live (= Available de l'API Rozo, ≈ solde on-chain du hub) ; chaque courbe s'arrête à son plafond.</li>
       <li>Au-delà du plafond, un envoi unique est refusé (fractionne).</li>
       <li>Le frais % est le plus élevé près du plafond, et grimpe encore quand le hub se draine.</li>
       <li>Les petits montants montent vers ~0,50 % (plancher 0,01 € + arrondi cent).</li>
@@ -149,7 +138,7 @@
   <div id="pSrc">Rien n'est codé en dur — le frais suit la liquidité, qui bouge :<ul><li><b>Devis (min, max, coût probable)</b> : le <b>min</b> vient de <b>n devis dryrun réels</b> (un par taille de tranche T/n), <b>mis en cache</b> par (sens, mode, montant) et invalidés si l'Available bouge de <b>&gt;1 EURC</b> — à liquidité inchangée, un re-devis ne relance aucun dryrun. Le tableau de découpage se remplit tranche par tranche.</li><li><b>Courbe de frais</b> (page Doc uniquement) : balayage <b>dryrun paresseux</b>, lancé à l'ouverture de la Doc, limité aux montants <b>≤ plafond de liquidité</b> (+ un point exact au plafond) — sert au graphe, pas au devis.</li><li><b>Liquidité (Available)</b> : un intent volontairement trop gros → le refus renvoie « Available:&nbsp;X ».</li><li><b>Vérification on-chain</b> : solde EURC des hubs (Horizon côté Stellar, RPC côté Base), comparé à l'API — alerte si écart.</li></ul>Pas de rafraîchissement automatique : au chargement de la page, puis via le bouton ↻.</div>
 
   <h3 class="docsub" id="h3Math">Les formules &amp; la précision</h3>
-  <div id="pMath">Notations : <b>c = T/n</b> (montant d'une tranche), <b>dryrun(c)</b> = devis réel de l'API pour une tranche de taille c (exact, déjà arrondi au cent), <b>p₁ = dryrun(c)/c</b> (taux exact mesuré sur la 1ʳᵉ tranche), <b>Lᵢ = L0 − i·c</b> (Available restant avant la tranche i), <b>fee%(c, L)</b> = surface mesurée (interp bilinéaire, cap 0,50 %), escalade <b>R(c,i) = fee%(c, Lᵢ) / fee%(c, L0)</b>, <b>⌈·⌉¢</b> = arrondi au centime supérieur (plancher 0,01 €).<div class="formula">min = n · dryrun(c) — exact, aucune interpolation<br>max = Σᵢ ⌈ min( 0,5%·c , c · p₁ · R(c,i) ) ⌉¢<br>coût probable = Σᵢ ⌈ max( c·p₁ , 0,70 · c·p₁·R(c,i) ) ⌉¢</div>Les formules <b>max</b> et <b>coût probable</b> décrivent le sens <b>Stellar→Base</b> (créer un intent réserve l'Available → l'escalade R(c,i) monte). Sur <b>Base→Stellar</b>, aucune réservation → <b>R(c,i)=1</b> pour tout i → max et coût probable retombent sur le min : la <b>valeur affichée = n·dryrun(c)</b>, unique. <b>Précision mesurée</b> : le <b>min</b> est <b>exact</b> — c'est la somme de n devis dryrun réels, pas une borne. Le <b>max</b> colle au réel à <b>≤0,03 €</b> (16 séries réelles en série stricte). Surface <b>stable</b> (pas de dérive), re-mesurable par dryrun si Rozo change son algo.</div>
+  <div id="pMath">Notations : <b>c = T/n</b> (montant d'une tranche), <b>dryrun(c)</b> = devis réel de l'API pour une tranche de taille c (exact, déjà arrondi au cent), <b>p₁ = dryrun(c)/c</b> (taux exact mesuré sur la 1ʳᵉ tranche), <b>Lᵢ = L0 − i·c</b> (Available restant avant la tranche i), <b>fee%(c, L)</b> = surface mesurée (interp bilinéaire, cap 0,50 %), escalade <b>R(c,i) = fee%(c, Lᵢ) / fee%(c, L0)</b>, <b>⌈·⌉¢</b> = arrondi au centime supérieur (plancher 0,01 €).<div class="formula">min = n · dryrun(c) — exact, aucune interpolation<br>max = Σᵢ ⌈ min( 0,5%·c , c · p₁ · R(c,i) ) ⌉¢<br>coût probable = Σᵢ ⌈ max( c·p₁ , 0,70 · c·p₁·R(c,i) ) ⌉¢</div>Les formules <b>max</b> et <b>coût probable</b> décrivent le sens <b>Stellar→Base</b> (créer un intent réserve l'Available → l'escalade R(c,i) monte). Sur <b>Base→Stellar</b>, aucune réservation → <b>R(c,i)=1</b> pour tout i → max et coût probable retombent sur le min : la <b>valeur affichée = n·dryrun(c)</b>, unique. <b>Précision mesurée</b> : le <b>min</b> est <b>exact</b> — c'est la somme de n devis dryrun réels, pas une borne. Le <b>max</b> colle au réel à <b>≤0,04 €</b> (16 séries réelles en série stricte). Surface <b>stable</b> (pas de dérive), re-mesurable par dryrun si Rozo change son algo.</div>
 
   <!-- ══ Group 3: Execution ══ -->
   <div class="docgroup"><h2 id="docGrpExec">Exécution</h2><span class="rule"></span></div>
@@ -187,13 +176,14 @@
 </div>
 
 <!-- app version: filled live from the latest GitHub release (see loadAppVersion() in app.js); static text below is only the offline/rate-limited fallback -->
-<footer id="appVersion" class="mut" style="max-width:960px;margin:0 auto;padding:0 22px 24px;font-size:11.5px;text-align:center">Rozo Bridge v1.1.0</footer>
+<footer class="mut" style="max-width:960px;margin:0 auto;padding:0 22px 24px;font-size:11.5px;text-align:center"><a id="appVersion" href="https://github.com/actarus314/rozo-bridge" target="_blank" rel="noopener" style="color:inherit">Rozo Bridge v1.1.0</a></footer>
 
 <!-- hover tooltip portal (position:fixed, above everything) — cf. #tipPortal in app.js -->
 <div id="tipPortal"></div>
 
 <!-- RC-4: floating major version @16 without SRI → pinned to the exact version (latest 16.x, 2026-07) + sha384 integrity (verified against jsDelivr AND unpkg, identical files) -->
 <script defer src="https://cdn.jsdelivr.net/npm/@stellar/stellar-sdk@16.0.1/dist/stellar-sdk.min.js" integrity="sha384-REcmfSi4RUqS194PHQSo3M8WtbY0KYNrXqA8ewN7HdIaiY5MFTdBvlA/SFfZdOMS" crossorigin="anonymous"></script>
+<script src="assets/i18n.js"></script>
 <script src="assets/app.js"></script>
 <script type="module" src="assets/wallet.js"></script>
 </body>
