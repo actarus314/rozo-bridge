@@ -1,7 +1,7 @@
 {
   "name": "rozo-bridge-devtools",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Dev-only tooling for this repo. The app itself (web/) has no build step and no runtime dependencies — this only regenerates the vendored web/assets/walletkit.js bundle.",
   "scripts": {
     "build:walletkit": "node scripts/build-walletkit.mjs"
