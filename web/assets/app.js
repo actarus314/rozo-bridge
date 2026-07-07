@@ -496,7 +496,7 @@ function batchCardHTML(b, open){
   let s=`<details class="bcard${expd?" expired":""}" data-bid="${b.id}" data-exp="${b.expiresAt||0}"${open?" open":""}>`;
   s+=`<summary><span class="bflow">${chipFlow(dk)}</span><span class="bsum"><b>${rows.length}</b> ${D.chunkWord(rows.length)} · <b>${eur(totalSend)} → ${eur(totalRecv)} EURC</b> · ${D.feeWord} ${eur(tFee0)} € (${tPct0.toFixed(2)} %)${depNote}</span><span class="bbadge ${eb.cls}">${eb.txt}</span></summary>`;   // D1: bridged amounts in bold, abs+% fee in normal weight
   s+=`<div class="bbody"><div class="path">${D.bTo} ${dest}</div>`;
-  s+=`<div class="reserved"><span class="ico">🔒</span><span>${D.reservedNote(eur(totalRecv), hub)}</span></div>`;
+  s+=`<div class="reserved"><span class="ico">🔒</span><span>${D.reservedNote(dk, eur(totalRecv), hub)}</span></div>`;
   const regenN=rows.filter(r=>!r.srcTx && r.exp && new Date(r.exp).getTime()<=now).length;   // expired + unsigned → offer a fresh-intent regen
   if(regenN>0) s+=`<div class="regenbar"><button class="btn sm ghost" onclick="regenBatch('${b.id}')">${D.regenBtnLabel(regenN)}</button><span class="mut2">${D.regenNote}</span></div>`;
   const th=dk==="B2S"?D.b2sTableHead:D.s2bTableHead;
