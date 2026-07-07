@@ -82,6 +82,17 @@
   </div>
   <div id="batchout" class="blk"></div>
 
+  <!-- Inverse planner: largest amount bridgeable (current direction) under a target fee% -->
+  <details class="card pad blk planner">
+    <summary id="plannerSummary">▸ Planificateur inverse — combien bridger sous X % de frais ?</summary>
+    <div class="prow">
+      <label id="plannerLabel" for="plannerPct">Frais % cible (max)</label>
+      <input id="plannerPct" class="num" type="number" min="0" step="0.01" placeholder="0.10" oninput="renderPlanner()" aria-label="Frais % cible max">
+      <span class="cur">%</span>
+    </div>
+    <div id="plannerOut" class="mut" style="margin-top:10px"></div>
+  </details>
+
 </section>
 
 <!-- ==================== DOCUMENTATION ==================== -->

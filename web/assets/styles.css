@@ -58,6 +58,12 @@ button{font-family:inherit;cursor:pointer}
 .brand .dot{width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,var(--stellar),var(--base))}
 .brand .brandlogo{width:22px;height:22px;border-radius:6px;object-fit:cover}
 .badge-unoff{align-self:center;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);border:1px solid var(--bd2);border-radius:999px;padding:1px 6px;white-space:nowrap;cursor:default}
+.exportbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12px}
+.exportbar .egrow{flex:1}
+.regenbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:2px 0 10px;font-size:12px}
+.planner>summary{cursor:pointer;font-weight:600;color:var(--heading);list-style:none}
+.planner .prow{display:flex;align-items:center;gap:8px;margin-top:12px}
+.planner .prow input{width:110px}
 @media(max-width:640px){   /* mobile: free up rows so the tool isn't pushed far below the fold */
   .topbar{gap:8px;padding:8px 12px}
   .topbar #ts{display:none}
