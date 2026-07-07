@@ -32,6 +32,19 @@ upstream to [`@creit.tech/stellar-wallets-kit`](https://github.com/Creit-Tech/St
 instead), and Rozo's own API/infrastructure (report to Rozo directly, see
 their contact info in the app's Documentation tab).
 
+## Known accepted findings
+
+Dependabot flags several transitive vulnerabilities (protobufjs, uuid,
+elliptic — via `@trezor/*` and `@solana/wallet-adapter-base`, pulled in by
+`@creit.tech/stellar-wallets-kit`'s own dependency tree). These are **dev-time
+only**: they live in `node_modules/` (gitignored, never shipped) and are only
+used by Ledger/Trezor/Solana code paths that `scripts/build-walletkit.mjs`
+doesn't import into the vendored bundle at all (see the entry list in that
+file). `npm audit fix` (non-breaking) resolves none of them — only
+`--force`, which would downgrade `stellar-wallets-kit` to a much older,
+unmaintained version. Revisit when upstream bumps its own Ledger/Trezor
+dependencies.
+
 ## Response
 
 This is maintained solo, best-effort, no SLA — but security reports get
