@@ -347,11 +347,10 @@ async function ensureChunkFees(dk,T,mode,L,maxN,onFee){
 // Reservation per direction: creating an S→B intent reserves the Available (drain → escalation); B→S freezes the fee but NO LONGER reserves it (verified 2026-07-06) → no drain → single value per chunk.
 // REVERT (original logic where B→S escalated like S→B): set RESERVES.B2S = true (one line) — AND restore the pMath/pWhyRange range wording (B2S regains a range). Do NOT remove the B2S surface from SURF (reference for this revert).
 const RESERVES = {S2B:true, B2S:false};
-function simul(){
-  const dk=document.getElementById("dir").value, T=+document.getElementById("amt").value;   // taken from the quote
-  const L0=(LIVE[dk]&&LIVE[dk].L)||DIR[dk].L;
-  const out=document.getElementById("splitout"); if(!out) return; if(!(T>0)){out.innerHTML="";hideSplitcard();return;} const _sc=document.getElementById("splitcard"); if(_sc)_sc.style.display="";
-  const mode=document.getElementById("mode").value;   // exactOut: T=fixed received · exactIn: T=fixed sent
+// PURE model math (no DOM, no module-state writes → unit-testable in isolation, cf. scripts/test-model.mjs):
+// given the live liquidity L0 and the exact per-chunk fees fees[n]=dryrun(T/n) (euros), build the split rows
+// (min/max/likely per n) + the recommended split (smallest capturing ≥90% of the saving). Model → MODELE-FRAIS.md.
+function computeSplit(dk,T,mode,L0,fees,splitMax,lastDevis){
   const rows=[];
   // Empirical model (curve + escalation measured on 2 routes, Campaign C 05/07): fees frozen at CREATION; creating an intent RESERVES the Available →
   // fee(chunk) = c·livePct(c)·R(c,reserved). Level = livePct (live curve at quote time, anchor); shape = measured surface:
@@ -361,11 +360,10 @@ function simul(){
   // Campaign E surface (dryrun sweep, 2 routes, full drain): aggregated gap ≤0.04€/series over 16 measured series. Cf. fee-study/METHODOLOGIE §6.
   const KRAP = dk==="S2B" ? 0.70 : 0.85;   // fast headline = KRAP × serial worst-case, ROUTE-SPECIFIC. S2B=0.70 (Romain's call: the realized cost hugs the min, 0.85 read too high). B2S=0.85 kept for the RESERVES.B2S=true revert, but INERT while B2S doesn't reserve (ratio=1 → feeWorst≤feeFlat → fee=feeFlat, no likely cost). Realized = RANDOM variable (0 to ~0.9 per draw, proven on 2 routes): 0.70 covers fewer draws than 0.85 — assumed. Only k=1 would be never-optimistic in all cases.
   // NB: a weighting by N ("small N is cheaper") was tried 2× then PERMANENTLY removed — the S2B sweep (03/07) showed that the "threshold" N seen on B2S was a lucky sample; realized(N) is non-monotonic/random (N=3→0.90 but N=5→0). No deterministic threshold. DO NOT retry.
-  const cache=(dryCache[dk]||{})[ckey(mode,T)]||{fees:{}};   // exact fees already received (progressive filling)
   for(let n=1;n<=splitMax;n++){
     const c=T/n;
     if(c>L0+1e-6){ rows.push({n,c,ok:false}); continue; }        // chunk > liquidity = infeasible (independent of the fee)
-    const ef=cache.fees[n];                                       // EXACT fee in cache, or undefined (dryrun {T/n} not yet received)
+    const ef=fees[n];                                            // EXACT fee (dryrun T/n), or undefined (not yet received → "…" row)
     if(ef==null){ rows.push({n,c,ok:true,loading:true}); continue; }   // waiting → "…" row (no approximation)
     const s0=surfPct(dk,c,L0);                           // surface level at L0 (denominator of the escalation)
     let fee=0,feeWorst=0,feeFlat=0,recvT=0,sentT=0,ok=true,reserved=0; const chunks=[];
@@ -387,8 +385,20 @@ function simul(){
   let best=null;
   if(feas.length){ const c1=feas[0].fee, minFee=Math.min(...feas.map(r=>r.fee)), maxSav=c1-minFee; best=feas[0];   // reference = real min (fee(n) non-monotonic: floor+penalty, cf. AUDIT R10); the loop below always reassigns best
     for(const r of feas){ if(maxSav<=0||(c1-r.fee)>=0.9*maxSav){best=r;break;} } }   // knee: ≥90% of the saving
-  splitRows=rows; splitMeta={dk,mode}; bestN=best?best.n:1;
+  return {rows, best, bestN: best?best.n:1};
+}
+window._model={computeSplit,surfPct,eurCeil,SURF,RESERVES};   // dev/test hook (offline): pure model exposed for scripts/test-model.mjs, same pattern as window._buildPayXDR
+
+function simul(){
+  const dk=document.getElementById("dir").value, T=+document.getElementById("amt").value;   // taken from the quote
+  const L0=(LIVE[dk]&&LIVE[dk].L)||DIR[dk].L;
+  const out=document.getElementById("splitout"); if(!out) return; if(!(T>0)){out.innerHTML="";hideSplitcard();return;} const _sc=document.getElementById("splitcard"); if(_sc)_sc.style.display="";
+  const mode=document.getElementById("mode").value;   // exactOut: T=fixed received · exactIn: T=fixed sent
+  const cache=(dryCache[dk]||{})[ckey(mode,T)]||{fees:{}};   // exact fees already received (progressive filling)
+  const {rows, best, bestN:bn}=computeSplit(dk,T,mode,L0,cache.fees,splitMax,lastDevis);   // ← the model math, pure & testable
+  splitRows=rows; splitMeta={dk,mode}; bestN=bn;
   if(selN!=null){const sr=rows.find(r=>r.n===selN); if(!sr||!sr.ok) selN=null;}   // revalidates the selection if it became infeasible (AUDIT R3)
+  const feas=rows.filter(r=>r.ok&&!r.loading);   // for the pricing-progress line below (loading rows have no fee)
   const D=I18N[LANG], fr=LANG==="fr";
   const active=(selN&&rows.find(r=>r.n===selN&&r.ok))||best;   // clicked row = active (fed to block 2), otherwise reco
   const feePct=(f,r)=>r&&r.sent>0?f/r.sent*100:0;   // % = fee/SENT per row (AUDIT R2)
