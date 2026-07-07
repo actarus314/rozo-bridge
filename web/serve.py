@@ -77,7 +77,16 @@ class H(http.server.SimpleHTTPRequestHandler):
             with lock: state["bye"] = time.time()
             self.send_response(204); self.end_headers(); return
         if self.path.startswith("/__log"):   # append one validated JSON line; create data/ on demand
-            n = int(self.headers.get("Content-Length") or 0)
+            origin = self.headers.get("Origin")   # cross-origin drive-by writes always carry Origin; same-origin fetches often don't
+            if origin and origin not in (f"http://localhost:{PORT}", f"http://127.0.0.1:{PORT}"):
+                self.send_response(403); self.end_headers(); return
+            cl = self.headers.get("Content-Length")
+            try:
+                n = int(cl)
+            except (TypeError, ValueError):
+                n = -1
+            if n < 0 or n > 8192:   # cap body size before reading it
+                self.send_response(413); self.end_headers(); return
             body = self.rfile.read(n) if n > 0 else b""
             try:
                 rec = json.loads(body)

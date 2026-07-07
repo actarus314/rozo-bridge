@@ -84,6 +84,7 @@ else: print(f"[{dirn}] received {amt:g} EURC | you send {send:.4f} | fee {fee:.4
     ;;
   liq)
     [ -n "$arg" ] || { echo "Usage: $0 liq <B2S|S2B>" >&2; exit 2; }
+    case "$arg" in B2S|S2B) ;; *) echo "Invalid direction: $arg (B2S or S2B)" >&2; exit 2 ;; esac
     post "$CREATE" "$arg" "99999999" | DIR="$arg" JSON="$JSON" python3 -c '
 import sys,json,os,re
 d=json.load(sys.stdin); dirn=os.environ["DIR"]; js=os.environ.get("JSON")=="1"
@@ -98,6 +99,7 @@ else:
     ;;
   curve)
     [ -n "$arg" ] || { echo "Usage: $0 curve <B2S|S2B>" >&2; exit 2; }
+    case "$arg" in B2S|S2B) ;; *) echo "Invalid direction: $arg (B2S or S2B)" >&2; exit 2 ;; esac
     [ "$JSON" = 1 ] || echo "[$arg] fee% by amount (dryrun, pure curve):"   # --json → NDJSON (one object per line, jq-friendly)
     for x in 100 1000 5000 10000 20000 50000; do
       post "$DRY" "$arg" "$x" | X="$x" DIR="$arg" JSON="$JSON" python3 -c '
