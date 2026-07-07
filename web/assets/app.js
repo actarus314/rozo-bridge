@@ -106,7 +106,7 @@ const I18N={
     quoteWarnOverLiq:(recv,avail)=>`<div class="alert"><span class="ico">ⓘ</span><span><b>${eur(recv)} EURC</b> en un seul envoi &gt; liquidité dispo <b>${eur(avail)}</b> : un bridge 1-shot échouerait. <b>Fractionner</b> ci-dessous ou attendre la recharge du hub.</span></div>`,
     infeasibleRow:`✗ tranche &gt; liquidité dispo`,
     sendLabel:n=>n===1?"1 envoi":n+" × ",
-    feeHighAdvice:p=>`Frais élevés (<b>${p} %</b>) Attendre une recharge (~10 min) ou réduire/fractionner le montant.`,
+    feeHighAdvice:p=>`Frais élevés (<b>${p} %</b>) — attendre une recharge du hub (<b>délai imprévisible</b> : de ~10 min à plusieurs heures, au bon vouloir du desk Rozo) ou réduire/fractionner le montant.`,
     updBatchLabelText:(n,sel)=>`⚙ Générer les transactions (${n}×${sel?" sélectionné":" reco"})`,
     copied:"✓ copié",
     genBatchNeedAmount:`<span class="mut">Un montant doit d'abord être renseigné dans le devis.</span>`,
@@ -138,6 +138,14 @@ const I18N={
     dispStatsFmt:(N,med,p90)=>`<b>N = ${N}</b> batch(s) S→B · θ médian <b>${med}</b> · θ p90 <b>${p90}</b>`,
     fileWarnHtml:path=>`⚠ <b>Cette page doit être ouverte via http</b>, pas en <code>file://</code> — sinon les wallets (Ambire/Rabby/Freighter) et la signature ne fonctionnent pas. Dans un terminal :<br><code>cd ${path} &amp;&amp; python3 -m http.server 8787</code><br>puis : <code>http://localhost:8787/rozo-bridge.html</code>`,
     moduleNoEvm:"aucun wallet EVM injecté — nécessite Ambire/Rabby (et une page servie en http)",
+    walletBtnHint:"Se connecter pour signer — les devis et la liquidité fonctionnent sans wallet.",
+    exportBatchesHint:"Télécharger l'historique des lots (réconciliation / compta) — CSV une ligne par tranche, JSON complet.",
+    regenBtnLabel:n=>`↻ régénérer ${n} tranche${n>1?"s":""} expirée${n>1?"s":""}`,
+    regenCreating:n=>`Régénération de ${n} tranche${n>1?"s":""} expirée${n>1?"s":""}…`,
+    plannerSummary:"▸ Planificateur inverse — combien bridger sous X % de frais ?",
+    plannerLabel:"Frais % cible (max)",
+    plannerResult:o=>`Jusqu'à ~<b>${eur(o.amount)} EURC</b> en un seul envoi (frais ~${o.pct.toFixed(3)} %). Plafond de liquidité actuel : <b>${eur(o.L)} EURC</b> — fractionner permet d'approcher ce plafond en gardant chaque tranche basse.`,
+    plannerNone:p=>`Aucun montant sous ${p} % à la liquidité actuelle (le plancher de frais mesuré est plus haut).`,
     moduleRejected:m=>`refusé: ${m}`,
     moduleDisconnected:"déconnecté",
     evmSignUnsupported:"ce wallet ne supporte pas l'envoi atomique (EIP-5792) → import JSON dans Safe{Wallet} recommandé (atomicité préservée).",
@@ -226,7 +234,7 @@ const I18N={
     quoteWarnOverLiq:(recv,avail)=>`<div class="alert"><span class="ico">ⓘ</span><span><b>${eur(recv)} EURC</b> in a single send &gt; available liquidity <b>${eur(avail)}</b>: a one-shot bridge would fail. <b>Splitting it</b> below or waiting for the hub to refill is recommended.</span></div>`,
     infeasibleRow:`✗ chunk &gt; available liquidity`,
     sendLabel:n=>n===1?"1 send":n+" × ",
-    feeHighAdvice:p=>`High fees (<b>${p} %</b>) Waiting for a refill (~10 min) or reducing/splitting the amount is recommended.`,
+    feeHighAdvice:p=>`High fees (<b>${p} %</b>) — waiting for a hub refill (<b>unpredictable</b>: from ~10 min to several hours, at the Rozo desk's discretion) or reducing/splitting the amount is recommended.`,
     updBatchLabelText:(n,sel)=>`⚙ Generate the transactions (${n}×${sel?" selected":" reco"})`,
     copied:"✓ copied",
     genBatchNeedAmount:`<span class="mut">An amount must be entered in the quote first.</span>`,
@@ -258,6 +266,14 @@ const I18N={
     dispStatsFmt:(N,med,p90)=>`<b>N = ${N}</b> S→B batch(es) · median θ <b>${med}</b> · p90 θ <b>${p90}</b>`,
     fileWarnHtml:path=>`⚠ <b>This page needs to run over http</b>, not <code>file://</code> — otherwise wallets (Ambire/Rabby/Freighter) and signing won't work. In a terminal:<br><code>cd ${path} &amp;&amp; python3 -m http.server 8787</code><br>then: <code>http://localhost:8787/rozo-bridge.html</code>`,
     moduleNoEvm:"no EVM wallet injected — requires Ambire/Rabby, with the page served over http",
+    walletBtnHint:"Connect to sign — quotes and liquidity work without a wallet.",
+    exportBatchesHint:"Download the batch history (reconciliation/accounting) — CSV one row per chunk, JSON full.",
+    regenBtnLabel:n=>`↻ regenerate ${n} expired chunk${n>1?"s":""}`,
+    regenCreating:n=>`Regenerating ${n} expired chunk${n>1?"s":""}…`,
+    plannerSummary:"▸ Inverse planner — how much can I bridge under X% fees?",
+    plannerLabel:"Target fee % (max)",
+    plannerResult:o=>`Up to ~<b>${eur(o.amount)} EURC</b> in a single send (fee ~${o.pct.toFixed(3)}%). Current liquidity cap: <b>${eur(o.L)} EURC</b> — splitting lets you approach that cap while keeping each chunk low.`,
+    plannerNone:p=>`No amount stays under ${p}% at current liquidity (the measured fee floor is higher).`,
     moduleRejected:m=>`rejected: ${m}`,
     moduleDisconnected:"disconnected",
     evmSignUnsupported:"this wallet doesn't support atomic sending (EIP-5792) → the JSON import in Safe{Wallet} is recommended instead (atomicity preserved).",
@@ -293,6 +309,25 @@ function livePct(dk,c){
   for(let i=1;i<pts.length;i++){ if(c<=pts[i][0]){ const a=pts[i-1],b=pts[i]; return a[1]+(b[1]-a[1])*(c-a[0])/(b[0]-a[0]); } }
   return pts[pts.length-1][1];
 }
+// Inverse planner: largest single send whose live fee% ≤ target, capped by the hub's liquidity L (the hard ceiling
+// for one batch). livePct rises with amount → the qualifying set is bounded above; scan then include the exact cap.
+function solveMaxAmount(dk,pMax){
+  const L=(LIVE[dk]&&LIVE[dk].L)||DIR[dk].L;
+  if(!(pMax>0)||!(L>0)) return null;
+  let best=0;
+  for(let c=10;c<=L;c+=Math.max(10,c*0.03)){ const p=livePct(dk,c); if(p!=null&&p<=pMax) best=c; }
+  const pL=livePct(dk,L); if(pL!=null&&pL<=pMax) best=L;   // include the exact liquidity cap
+  return { L, amount:best, pct:best?livePct(dk,best):null };
+}
+function renderPlanner(){
+  const el=document.getElementById("plannerOut"); if(!el) return;
+  const D=I18N[LANG], dk=document.getElementById("dir").value;
+  const pMax=+((document.getElementById("plannerPct")||{}).value);
+  if(!(pMax>0)){ el.innerHTML=""; return; }
+  const r=solveMaxAmount(dk,pMax);
+  el.innerHTML=(!r||!r.amount)?`<span class="mut">${D.plannerNone(pMax)}</span>`:D.plannerResult(r);
+}
+window.renderPlanner=renderPlanner;
 function hideSplitcard(){const sc=document.getElementById("splitcard");if(sc)sc.style.display="none";}
 // #7 — a wallet's EURC balance (sending chain) for the "max" button
 async function evmEurcBal(addr){
@@ -350,9 +385,16 @@ async function ensureChunkFees(dk,T,mode,L,maxN,onFee){
       if(j&&j.source&&!j.error){ e.fees[n]=+j.source.fee; onFee&&onFee(); } } }));
   return e;
 }
+// ============ MODEL PARAMETERS — the fee-model tuning knobs, gathered (see workspace MODELE-FRAIS.md) ============
+// The measured fee surface SURF={cap,amounts,B2S,S2B} lives just above (search "const SURF="); the curve-sweep
+// knobs SWEEP_CONC / SWEEP_EPS live with the sweep code below. These four scalars are the ones a re-tune touches.
 // Reservation per direction: creating an S→B intent reserves the Available (drain → escalation); B→S freezes the fee but NO LONGER reserves it (verified 2026-07-06) → no drain → single value per chunk.
 // REVERT (original logic where B→S escalated like S→B): set RESERVES.B2S = true (one line) — AND restore the pMath/pWhyRange range wording (B2S regains a range). Do NOT remove the B2S surface from SURF (reference for this revert).
 const RESERVES = {S2B:true, B2S:false};
+// Fast headline = KRAP × serial worst-case, ROUTE-SPECIFIC. S2B=0.70 (Romain's call: the realized cost hugs the min, 0.85 read too high). B2S=0.85 kept for the RESERVES.B2S=true revert, but INERT while B2S doesn't reserve (ratio=1 → feeWorst≤feeFlat → fee=feeFlat, no likely cost). Realized = RANDOM variable (0 to ~0.9 per draw, proven on 2 routes): 0.70 covers fewer draws than 0.85 — assumed. Recalibrate empirically via the Dispersion tab. Only k=1 would be never-optimistic in all cases.
+// NB: a weighting by N ("small N is cheaper") was tried 2× then PERMANENTLY removed — the S2B sweep (03/07) showed the "threshold" N seen on B2S was a lucky sample; realized(N) is non-monotonic/random (N=3→0.90 but N=5→0). No deterministic threshold. DO NOT retry.
+const KRAP = {S2B:0.70, B2S:0.85};
+const HIGH_FEE_PCT = 0.25;   // ≥ this DISPLAYED fee% triggers the "high fees — wait for a refill / split" advice (renderReco)
 // PURE model math (no DOM, no module-state writes → unit-testable in isolation, cf. scripts/test-model.mjs):
 // given the live liquidity L0 and the exact per-chunk fees fees[n]=dryrun(T/n) (euros), build the split rows
 // (min/max/likely per n) + the recommended split (smallest capturing ≥90% of the saving). Model → MODELE-FRAIS.md.
@@ -364,8 +406,7 @@ function computeSplit(dk,T,mode,L0,fees,splitMax,lastDevis){
   // Spaced out: we create+sign one chunk at a time, L heals (~10 min) between → each chunk at a full L0, R=1 (real saving).
   // Fast (batch = what genBatch does): reservations stack → L drops → next chunks are dearer (serial worst case).
   // Campaign E surface (dryrun sweep, 2 routes, full drain): aggregated gap ≤0.04€/series over 16 measured series. Cf. fee-study/METHODOLOGIE §6.
-  const KRAP = dk==="S2B" ? 0.70 : 0.85;   // fast headline = KRAP × serial worst-case, ROUTE-SPECIFIC. S2B=0.70 (Romain's call: the realized cost hugs the min, 0.85 read too high). B2S=0.85 kept for the RESERVES.B2S=true revert, but INERT while B2S doesn't reserve (ratio=1 → feeWorst≤feeFlat → fee=feeFlat, no likely cost). Realized = RANDOM variable (0 to ~0.9 per draw, proven on 2 routes): 0.70 covers fewer draws than 0.85 — assumed. Only k=1 would be never-optimistic in all cases.
-  // NB: a weighting by N ("small N is cheaper") was tried 2× then PERMANENTLY removed — the S2B sweep (03/07) showed that the "threshold" N seen on B2S was a lucky sample; realized(N) is non-monotonic/random (N=3→0.90 but N=5→0). No deterministic threshold. DO NOT retry.
+  // KRAP (route-specific) + the surface/reserves knobs are module consts — see the MODEL PARAMETERS block above.
   for(let n=1;n<=splitMax;n++){
     const c=T/n;
     if(c>L0+1e-6){ rows.push({n,c,ok:false}); continue; }        // chunk > liquidity = infeasible (independent of the fee)
@@ -377,7 +418,7 @@ function computeSplit(dk,T,mode,L0,fees,splitMax,lastDevis){
       const raw=ef;                                                  // EXACT base (euros), identical for each chunk at a full L0
       const ratio=RESERVES[dk]?((s0>0)?surfPct(dk,c,L0-reserved)/s0:1):1;   // escalation shape (measured surface), dimensionless — forced to 1 on a direction that does NOT reserve (B→S): no drain → feeWorst≤feeFlat → single value shown
       const rawW=Math.min(c*SURF.cap/100, raw*ratio);                // serial worst case (euros); 0.5% cap = c·0.005
-      const ff=eurCeil(raw), fw=eurCeil(rawW), f=eurCeil(Math.max(raw,KRAP*rawW));   // min = exact fee (Rozo already rounds it); max/likely rounded UP to the cent
+      const ff=eurCeil(raw), fw=eurCeil(rawW), f=eurCeil(Math.max(raw,KRAP[dk]*rawW));   // min = exact fee (Rozo already rounds it); max/likely rounded UP to the cent
       const recv=mode==="exactIn"?c-f:c, sent=mode==="exactIn"?c:c+f;
       const cap=L0;                                                  // feasibility PER CHUNK: each delivery must fit within the hub
       if(recv>cap+1e-6){ok=false;break;}
@@ -466,7 +507,7 @@ function renderReco(best,dk,T,sel){
   }
   const isReco=best.n===bestN;   // #3: active = the recommended band (the knee)? → "why" sentence + "recommended" eyebrow ONLY in that case (on a manually chosen band, the "smallest split capturing ≥90%" sentence would lie)
   // refill advice: fee of the selected band > 0.25% = low hub → waiting for the refill lowers it. Guard recv≥100: below this amount the high % comes from the €0.01 floor, not from draining (waiting wouldn't help). // ponytail: 0.25% threshold chosen by the user
-  const advice=(T<=L0 && +pct(head).toFixed(2)>=0.25 && best.recv>=100)?`<div class="alert"><span class="ico">⚠</span><span>${I18N[LANG].feeHighAdvice(pct(head).toFixed(2))}</span></div>`:"";   // threshold on the DISPLAYED (rounded) value ≥0.25%; removed in over-liq (T>L0) where the liquidity alert already shows (no double alert)
+  const advice=(T<=L0 && +pct(head).toFixed(2)>=HIGH_FEE_PCT && best.recv>=100)?`<div class="alert"><span class="ico">⚠</span><span>${I18N[LANG].feeHighAdvice(pct(head).toFixed(2))}</span></div>`:"";   // threshold on the DISPLAYED (rounded) value ≥HIGH_FEE_PCT; removed in over-liq (T>L0) where the liquidity alert already shows (no double alert)
   el.innerHTML=`<div class="eyebrow">${isReco?(fr?"Plan recommandé":"Recommended plan"):(fr?"Plan choisi":"Chosen plan")}</div><div class="plan">${plan}</div>${isReco?`<div class="sub">${why}</div>`:""}<div class="grid${uncertain?"":" two"}">${costTile}${rangeTile}${recvTile}</div>${bar}${advice}`;
 }
 // clicking a row = this split becomes active → re-renders block 2 (reco) + highlights the row
@@ -542,6 +583,7 @@ async function quote(){
     return;   // skip the trailing simul() (it would re-render loading rows that never resolve)
   }
   simul();
+  renderPlanner();   // refresh the inverse planner if a target fee% is set (direction/amount may have changed)
 }
 
 async function liq(dirKey){ // plafond via endpoint create (huge amount)
@@ -549,21 +591,10 @@ async function liq(dirKey){ // plafond via endpoint create (huge amount)
   const m=String(j?.error?.message||"").match(/Available:\s*([0-9.]+)/);
   return m?+m[1]:null;
 }
-async function stellarBal(){
-  const r=await fetch("https://horizon.stellar.org/accounts/"+STELLAR_HUB); const j=await r.json();
-  const b=(j.balances||[]).find(x=>x.asset_code==="EURC"); return b?+b.balance:null;
-}
-async function baseBal(){
-  const data="0x70a08231"+"000000000000000000000000"+BASE_HUB.slice(2).toLowerCase();
-  // mainnet.base.org & publicnode are CORS-OK in the browser; llamarpc blocks CORS (removed) → no more console error
-  for(const rpc of ["https://mainnet.base.org","https://base-rpc.publicnode.com"]){
-    try{const r=await fetch(rpc,{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_call",params:[{to:EURC_B,data},"latest"]})});
-      const j=await r.json(); if(j.result) return parseInt(j.result,16)/1e6;
-    }catch(e){}
-  }
-  return null;
-}
+// Hub balances = the same on-chain readers as the wallet ones, just aimed at the relayer hub addresses
+// (single source of truth: RPC list / EURC contract / decimals live once, in evmEurcBal & stellarEurcBal).
+const stellarBal=()=>stellarEurcBal(STELLAR_HUB);   // callers wrap with .catch → null on failure either way
+const baseBal=()=>evmEurcBal(BASE_HUB);
 // Liquidity = the hub's EURC balance on the receiving chain (= Available API, proven to the cent)
 let LIVE={B2S:{L:null,pts:null,sweptAt:null},S2B:{L:null,pts:null,sweptAt:null}};   // sweptAt = Available at the last curve sweep (for the cache)
 let lastDevis=null;   // last live quote (to align the "1 send" row of the table)
@@ -586,14 +617,16 @@ window._batches = window._batches || {};   // { bid: batch } · bid = id of the 
 const BSTORE="rozoBatches";
 function saveBatches(){ try{ localStorage.setItem(BSTORE, JSON.stringify(window._batches)); }catch(e){} }
 window.saveBatches=saveBatches;   // wallet.js writes rows[i].srcTx then calls saveBatches → the signed state lives in the STORE (not the DOM): survives re-render (language) and restore, prevents double-sending
-// builds the batch object from the API responses (non-dryrun). srcTx = source tx (deposit) once signed → locks the chunk.
-function buildBatch(dk,js){
-  const rows=js.map(j=>({ id:j.id, dep:j.source.receiverAddress, memo:j.source.receiverMemo||null,
-    send:+j.source.amount, rec:+j.destination.amount,
-    units:dk==="B2S"?toUnits(j.source.amount):null, to:dk==="B2S"?EURC_B:null,
-    exp:j.expiresAt||null, srcTx:null }));
+// one batch row from an intent response (non-dryrun). srcTx = source tx (deposit) once signed → locks the chunk. Shared by buildBatch + regenBatch.
+const intentRow=(dk,j)=>({ id:j.id, dep:j.source.receiverAddress, memo:j.source.receiverMemo||null,
+  send:+j.source.amount, rec:+j.destination.amount,
+  units:dk==="B2S"?toUnits(j.source.amount):null, to:dk==="B2S"?EURC_B:null,
+  exp:j.expiresAt||null, srcTx:null });
+// builds the batch object from the API responses (non-dryrun).
+function buildBatch(dk,mode,js){
+  const rows=js.map(j=>intentRow(dk,j));
   const expMs=rows.map(r=>r.exp?new Date(r.exp).getTime():0).filter(Boolean);
-  return { id:js[0].id, dk, createdAt:Date.now(),
+  return { id:js[0].id, dk, mode, createdAt:Date.now(),
     expiresAt: expMs.length?Math.max(...expMs):Date.now()+600000,
     evmAddr: window.evmAddr||"", stellarAddr: window.stellarAddr||"",   // evm = Base side · stellar = Stellar side (src/dst roles derived from the direction; stellarAddr = expected sender in S2B)
     restored:false, rows };
@@ -637,7 +670,7 @@ async function genBatch(){
     if(!okJs.length){ msg(netFailed&&!failed.length ? D.genBatchNetFail(D.errFallback) : D.genBatchRozoFail(failed[0]&&failed[0].error&&escapeHtml(failed[0].error.message||""))); return; }
     // RC-3: S2B — the memo is the ONLY routing key. Missing/empty → Memo.text("null") = a VALID tx to the hub, an unmatchable deposit, lost with no refund. Refuse it. (B2S: deposit by address, memo legitimately null.)
     if(dk==="S2B" && okJs.some(j=>!(j.source&&typeof j.source.receiverMemo==="string"&&j.source.receiverMemo.trim()))){ msg(D.genBatchBadMemo); return; }
-    const b=buildBatch(dk,okJs); window._batches[b.id]=b; saveBatches();   // #15: the store accumulates the batches
+    const b=buildBatch(dk,mode,okJs); window._batches[b.id]=b; saveBatches();   // #15: the store accumulates the batches
     renderBatches(b.id);   // fresh batch = expanded, stacked with the previous ones
     refreshLiqDir(dk);     // intents created → the reservation moved THIS direction's Available → targeted refresh of its liquidity + stale quote cache
     // PASSIVE S2B LOG (task C): accumulate θ of REAL S2B batches to recalibrate the dot (KRAP) empirically. Guards = don't skew θ:
@@ -654,6 +687,32 @@ async function genBatch(){
     msg(totalFailed ? `<span class="warn" style="font-weight:600">⚠ ${LANG==="fr"?`Lot INCOMPLET : ${okJs.length}/${n} intents créés, ${totalFailed} en échec (${firstMsg}). Tranches créées à signer, reste du lot à relancer.`:`INCOMPLETE batch: ${okJs.length}/${n} intents created, ${totalFailed} failed (${firstMsg}). Created chunks awaiting signature; the rest of the batch can be retried.`}</span>` : "");   // strong signal of under-delivery (gate /code-review)
   } finally { window._genInFlight=false; const g=document.getElementById("genbtn"); if(g) g.disabled=false; }   // RC-2: release on EVERY path (including early returns)
 }
+// Regenerate ONLY the expired + unsigned chunks of a batch — delivers the "the rest can be retried" the INCOMPLETE
+// message already promises. Signed (deposited) rows and still-valid unsigned rows are untouched; on S2B this
+// re-reserves ONLY the regenerated amounts, not the whole split.
+async function regenBatch(bid){
+  if(window._genInFlight) return;   // RC-2: shares genBatch's anti-double-create lock
+  const b=(window._batches||{})[bid]; if(!b) return;
+  const D=I18N[LANG], now=Date.now();
+  const idxs=b.rows.map((r,i)=>i).filter(i=>{ const r=b.rows[i]; return !r.srcTx && r.exp && new Date(r.exp).getTime()<=now; });   // expired AND unsigned only
+  if(!idxs.length) return;
+  const mode=b.mode||"exactOut", st=document.getElementById("genstatus"), msg=h=>{ if(st) st.innerHTML=h; };
+  window._genInFlight=true; const gbtn=document.getElementById("genbtn"); if(gbtn) gbtn.disabled=true;
+  try{
+    msg(D.regenCreating(idxs.length));
+    const settled=await Promise.allSettled(idxs.map(i=>postQuote(b.dk, mode==="exactIn"?b.rows[i].send:b.rows[i].rec, false, mode)));
+    let ok=0;
+    settled.forEach((s,k)=>{ const j=s.status==="fulfilled"?s.value:null, i=idxs[k];
+      if(!(j&&j.source&&!j.error)) return;
+      if(b.dk==="S2B" && !(typeof j.source.receiverMemo==="string" && j.source.receiverMemo.trim())) return;   // RC-3: refuse an empty-memo S2B intent (unmatchable, lost deposit)
+      b.rows[i]=intentRow(b.dk,j); ok++; });   // replace in place — srcTx reset to null (fresh, unsigned)
+    const expMs=b.rows.map(r=>r.exp?new Date(r.exp).getTime():0).filter(Boolean);
+    b.expiresAt=expMs.length?Math.max(...expMs):b.expiresAt;
+    saveBatches(); renderBatches(bid); refreshLiqDir(b.dk);   // S2B: reservation moved → refresh that direction's Available + stale cache
+    msg(ok===idxs.length?"":`<span class="warn">${LANG==="fr"?`${ok}/${idxs.length} régénérées — réessayer pour le reste`:`${ok}/${idxs.length} regenerated — retry for the rest`}</span>`);
+  } finally { window._genInFlight=false; const g=document.getElementById("genbtn"); if(g) g.disabled=false; }
+}
+window.regenBatch=regenBatch;
 // B→S: N SEPARATE Safe transactions (source = Base). An atomic batch = 1 source tx → Rozo settles only one, the others bounce (tested 02/07). So N tx = N signatures, same as S→B.
 // brand chip header (flow direction) — reused by batchCardHTML (batch summary)
 const chipFlow=dk=>{const B=`<span class="chip b"><span class="sq"></span>Base</span>`,S=`<span class="chip s"><svg class="logo"><use href="#stellar-mark"/></svg>Stellar</span>`,arw=`<span class="mut2" style="margin:0 8px">→</span>`;return dk==="B2S"?B+arw+S:S+arw+B;};
@@ -666,6 +725,25 @@ function downloadB2sJson(bid,i){
   setTimeout(()=>URL.revokeObjectURL(url),1000);   // gives the browser time to start the download before releasing it
 }
 window.downloadB2sJson=downloadB2sJson;
+// Export the whole batch history (reconciliation/accounting): JSON = the raw store; CSV = one row per chunk.
+function exportBatches(fmt){
+  const list=Object.values(window._batches||{}).sort((a,b)=>a.createdAt-b.createdAt);
+  if(!list.length) return;
+  let data, name;
+  if(fmt==="json"){ data=JSON.stringify(list,null,2); name="rozo-batches.json"; }
+  else{   // CSV, one row per chunk — fee = send − received (the spread)
+    const cols=["batch_id","created_at","direction","chunk","chunks","send_eurc","received_eurc","fee_eurc","intent_id","deposit_tx","expires_at","deposited"];
+    const esc=v=>{ const s=v==null?"":String(v); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; };
+    const lines=[cols.join(",")];
+    for(const b of list){ const created=new Date(b.createdAt).toISOString();
+      b.rows.forEach((r,i)=>lines.push([b.id,created,b.dk,i+1,b.rows.length,r.send,r.rec,(r.send-r.rec).toFixed(6),r.id,r.srcTx||"",r.exp||"",r.srcTx?"yes":"no"].map(esc).join(","))); }
+    data=lines.join("\n"); name="rozo-batches.csv";
+  }
+  const url=URL.createObjectURL(new Blob([data],{type:fmt==="json"?"application/json":"text/csv"}));
+  const a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);   // same one-shot pattern as downloadB2sJson
+}
+window.exportBatches=exportBatches;
 // collapsible card for a batch (#16). srcTx present = chunk deposited → locked (no more signing button): anti double-send.
 // D4/D5 — expiry state → color class (green>5min / orange 2-5 / red<2 / "exp" past) shared by card+table+ticker
 function expInfo(expMs){ const rem=(expMs||0)-Date.now();
@@ -699,6 +777,8 @@ function batchCardHTML(b, open){
   s+=`<summary><span class="bflow">${chipFlow(dk)}</span><span class="bsum"><b>${rows.length}</b> ${fr?(rows.length>1?"tranches":"tranche"):(rows.length>1?"chunks":"chunk")} · <b>${eur(totalSend)} → ${eur(totalRecv)} EURC</b> · ${fr?"frais":"fee"} ${eur(tFee0)} € (${tPct0.toFixed(2)} %)${depNote}</span><span class="bbadge ${eb.cls}">${eb.txt}</span></summary>`;   // D1: bridged amounts in bold, abs+% fee in normal weight
   s+=`<div class="bbody"><div class="path">${fr?"vers":"to"} ${dest}</div>`;
   s+=`<div class="reserved"><span class="ico">🔒</span><span>${fr?`<b>Liquidité réservée</b> ${eur(totalRecv)} EURC sur le ${hub} · frais <b>figés</b> jusqu'à expiration (~10 min). Non signé → self-heal, aucun fonds bloqué.`:`<b>Liquidity reserved</b> ${eur(totalRecv)} EURC on the ${hub} · fees <b>frozen</b> until expiry (~10 min). Unsigned → self-heals, no funds locked.`}</span></div>`;
+  const regenN=rows.filter(r=>!r.srcTx && r.exp && new Date(r.exp).getTime()<=now).length;   // expired + unsigned → offer a fresh-intent regen
+  if(regenN>0) s+=`<div class="regenbar"><button class="btn sm ghost" onclick="regenBatch('${b.id}')">${D.regenBtnLabel(regenN)}</button><span class="mut2">${fr?"nouveaux intents à signer ; tranches déjà déposées conservées":"fresh intents to sign; already-deposited chunks kept"}</span></div>`;
   const th=dk==="B2S"?D.b2sTableHead:D.s2bTableHead;
   s+=`<div class="tblwrap"><table><tr>${th.map(x=>`<th>${x}</th>`).join("")}</tr>`;
   rows.forEach((r,i)=>{
@@ -731,7 +811,9 @@ function renderBatches(freshId){
   const out=document.getElementById("batchout"); if(!out) return;
   const openSet=new Set(); out.querySelectorAll("details[data-bid]").forEach(d=>{ if(d.open) openSet.add(d.getAttribute("data-bid")); });
   const list=Object.values(window._batches).sort((a,b)=>a.createdAt-b.createdAt);
-  out.innerHTML=list.map(b=>batchCardHTML(b, freshId===b.id||openSet.has(b.id))).join("");
+  const fr=LANG==="fr", hint=I18N[LANG].exportBatchesHint;
+  const bar=list.length?`<div class="exportbar"><span class="mut2">${list.length} ${fr?(list.length>1?"lots":"lot"):(list.length>1?"batches":"batch")}</span><span class="egrow"></span><button class="btn sm ghost" title="${hint}" onclick="exportBatches('csv')">⬇ CSV</button><button class="btn sm ghost" title="${hint}" onclick="exportBatches('json')">⬇ JSON</button></div>`:"";
+  out.innerHTML=bar+list.map(b=>batchCardHTML(b, freshId===b.id||openSet.has(b.id))).join("");
   if(list.length) startExpiryTicker();   // recolors times/badges every second (D4/D5)
 }
 // Live tracking of ONE batch: poll GET /payments/{id} per chunk until delivery. Writes srcTx to the store (lock); touches ONLY #trk-<bid> (never renderBatches → concurrent polls don't fight each other).
@@ -911,6 +993,7 @@ async function refresh(){
     if(_T>0) await ensureChunkFees(_dk,_T,_mode,LIVE[_dk]&&LIVE[_dk].L,splitMax,()=>simul());
     simul();
     lastTs={ok:!!(aB||aS||sH||bH),time:new Date()}; renderTs();
+    renderPlanner();   // liquidity just refreshed → update the inverse planner's cap
   } finally { window._refreshing=false; }
 }
 
@@ -1050,6 +1133,8 @@ function applyI18N(){
   const hba=document.getElementById("hubBaseA"); if(hba) hba.title=D.hubBaseTitle;
   const hsa=document.getElementById("hubStellarA"); if(hsa) hsa.title=D.hubStellarTitle;
   const mxb=document.getElementById("maxbtn"); if(mxb) mxb.title=D.maxbtnTitle;
+  document.querySelectorAll(".wbtn").forEach(b=>b.title=D.walletBtnHint);   // hover hint: quotes need no wallet, only signing does
+  setT("plannerSummary",D.plannerSummary); setT("plannerLabel",D.plannerLabel); if(typeof renderPlanner==="function") renderPlanner();
   const drb=document.getElementById("dirbtn"); if(drb) drb.title=D.dirbtnTitle;
   const cv=document.getElementById("chart"); if(cv) cv.setAttribute("aria-label",D.chartAriaLabel);
   ["amtSend","amtRecv"].forEach(id=>{const e=document.getElementById(id); if(e) e.placeholder=D.amtPlaceholder;});

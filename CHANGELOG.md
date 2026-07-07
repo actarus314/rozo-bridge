@@ -9,13 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 - CLI `--json` flag (`rozo-quote.sh`): machine-readable output on any subcommand for piping into jq/spreadsheets (`curve` emits NDJSON).
+- Export the batch history: a CSV (one row per chunk — dates, direction, amounts, fee, intent id, deposit tx) and a full JSON, for reconciliation/accounting.
+- Regenerate only the expired, unsigned chunks of a batch: fresh intents for those rows, already-signed chunks kept (on Stellar→Base this re-reserves only the regenerated amounts).
+- Inverse fee planner: the largest single amount bridgeable now under a target fee%, capped by the hub's liquidity.
 - Unofficial / not-affiliated-with-Rozo badge on the Bridge top bar, and a first-run onboarding hint on the empty Bridge tab.
+- Wallet buttons now hint that quotes and liquidity work without a wallet — only signing needs one.
 - Touch support for the fee-curve tooltip (previously mouse-hover only).
 - Dev/CI self-checks: a fee-model invariant test and an i18n fr/en parity check, run by a new CI workflow (syntax + parity + model).
 
 ### Changed
 - Reworded the release-cutting checklist in CONTRIBUTING.md so the version bump + CHANGELOG entries land in the same commit that gets tagged (both past releases had tagged a commit one step ahead of the bump).
 - Extracted the pure fee-model math into `computeSplit()` so it can be tested in isolation — no behaviour change.
+- Gathered the fee-model tuning knobs into one block and deduplicated the on-chain balance readers (internal; no behaviour change).
+- The high-fees advice no longer implies a fixed ~10 min refill: hub refills are desk-driven and unpredictable (from ~10 min to several hours).
 - Larger `max` button tap target and a narrow-screen top-bar reflow for mobile.
 
 ### Fixed

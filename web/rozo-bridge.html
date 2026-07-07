@@ -29,8 +29,8 @@
   <span id="ts" class="mut2" style="font-size:11.5px"></span>
   <div class="spacer"></div>
   <div class="wallets">
-    <button class="wbtn" onclick="window.evmToggle&&evmToggle()"><span class="d"></span><span class="chip b"><span class="sq"></span>Base</span><span id="evmStatus" class="st">non connecté</span></button>
-    <button class="wbtn" onclick="window.stellarToggle&&stellarToggle()"><span class="d"></span><span class="chip s"><svg class="logo"><use href="#stellar-mark"/></svg>Stellar</span><span id="sStatus" class="st">non connecté</span></button>
+    <button class="wbtn" title="Se connecter pour signer — les devis et la liquidité fonctionnent sans wallet." onclick="window.evmToggle&&evmToggle()"><span class="d"></span><span class="chip b"><span class="sq"></span>Base</span><span id="evmStatus" class="st">non connecté</span></button>
+    <button class="wbtn" title="Se connecter pour signer — les devis et la liquidité fonctionnent sans wallet." onclick="window.stellarToggle&&stellarToggle()"><span class="d"></span><span class="chip s"><svg class="logo"><use href="#stellar-mark"/></svg>Stellar</span><span id="sStatus" class="st">non connecté</span></button>
   </div>
   <button id="lang" class="plain" onclick="toggleLang()">FR</button>
   <button id="theme" class="plain" onclick="toggleTheme()">☾ sombre</button>
@@ -81,6 +81,17 @@
     <div id="genstatus" class="mut" style="margin-top:8px"></div>
   </div>
   <div id="batchout" class="blk"></div>
+
+  <!-- Inverse planner: largest amount bridgeable (current direction) under a target fee% -->
+  <details class="card pad blk planner">
+    <summary id="plannerSummary">▸ Planificateur inverse — combien bridger sous X % de frais ?</summary>
+    <div class="prow">
+      <label id="plannerLabel" for="plannerPct">Frais % cible (max)</label>
+      <input id="plannerPct" class="num" type="number" min="0" step="0.01" placeholder="0.10" oninput="renderPlanner()" aria-label="Frais % cible max">
+      <span class="cur">%</span>
+    </div>
+    <div id="plannerOut" class="mut" style="margin-top:10px"></div>
+  </details>
 
 </section>
 
