@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Reworded the release-cutting checklist in CONTRIBUTING.md so the version bump + CHANGELOG entries land in the same commit that gets tagged (both past releases had tagged a commit one step ahead of the bump).
 - Extracted the pure fee-model math into `computeSplit()` so it can be tested in isolation — no behaviour change.
 - Gathered the fee-model tuning knobs into one block and deduplicated the on-chain balance readers (internal; no behaviour change).
+- Folded the last inline fr/en UI strings into the i18n dictionary and moved it to its own `assets/i18n.js`, so the fr/en parity check now covers the whole interface (internal; no behaviour change).
 - The high-fees advice no longer implies a fixed ~10 min refill: hub refills are desk-driven and unpredictable (from ~10 min to several hours).
 - Larger `max` button tap target and a narrow-screen top-bar reflow for mobile.
 

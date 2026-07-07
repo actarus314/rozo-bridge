@@ -1,6 +1,7 @@
-// Load web/assets/app.js in a headless sandbox (no DOM) and return the populated `window` stub.
-// app.js is a classic browser script (zero build); it exposes window.I18N and window._model. The dev/CI
-// checks (check-i18n, test-model) reach those offline through here — no bundler, no dependencies.
+// Load web/assets/{i18n,app}.js in a headless sandbox (no DOM) and return the populated `window` stub.
+// They're classic browser scripts (zero build): i18n.js declares I18N (exposing window.I18N) and app.js reads it +
+// exposes window._model. In the page they're two <script> tags sharing the global scope; here we concatenate them
+// (i18n first) to mirror that. The dev/CI checks (check-i18n, test-model) reach those offline through this.
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
@@ -8,7 +9,8 @@ import { dirname, join } from 'node:path';
 
 export function loadApp() {
   const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-  const src = readFileSync(join(root, 'web/assets/app.js'), 'utf8');
+  const rd = f => readFileSync(join(root, f), 'utf8');
+  const src = rd('web/assets/i18n.js') + '\n' + rd('web/assets/app.js');   // i18n.js loads BEFORE app.js in the page
   // universal stub: any get/call/construct returns itself (so DOM/network calls are no-ops); `then` is
   // undefined so `await stub` doesn't hang; set stores on the target so `window.I18N = …` is readable back.
   const u = new Proxy(function () {}, {
