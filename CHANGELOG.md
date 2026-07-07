@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.2.2](https://github.com/actarus314/rozo-bridge/releases/tag/v1.2.2) - 2026-07-07
+
 ### Security
 - Batch cards now escape the connected wallet address before displaying it, and wallet-provider error messages are escaped too, so a malicious wallet or browser extension can no longer inject markup through them.
 - The local dev launcher (`serve.py`) now rejects cross-origin writes to its `/__log` endpoint and caps the request size, closing a drive-by-localhost write from another open tab.

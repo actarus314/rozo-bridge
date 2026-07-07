@@ -31,10 +31,12 @@ Don't open a public issue for a security concern — see [SECURITY.md](SECURITY.
 ## Cutting a release
 
 - Bump the version in `package.json` (hand-maintained — no build step reads it) AND move the
-  `[Unreleased]` entries in `CHANGELOG.md` under a new `[x.y.z] - YYYY-MM-DD` heading, in the SAME commit.
-- Tag THAT commit (`git tag -a vX.Y.Z -m "..."`) and publish a GitHub Release from that tag — the app's
-  footer reads the latest release from GitHub's API at runtime, so nothing else needs updating for it to
-  show up. (Tagging must land on the commit that already contains the bumped version, so
-  `git checkout vX.Y.Z` shows a matching `package.json` — don't tag a commit one step ahead of the bump.)
+  `[Unreleased]` entries in `CHANGELOG.md` under a new `[x.y.z] - YYYY-MM-DD` heading, AND bump the footer
+  version string (`#appVersion` in `web/rozo-bridge.html`) — all in the SAME commit. Since #25 the footer
+  shows the DEPLOYED version (baked into the HTML) and only appends a "newer version available" note when a
+  newer release exists, so a stale footer would mislabel the deploy.
+- Tag THAT commit (`git tag -a vX.Y.Z -m "..."`) and publish a GitHub Release from that tag. (Tagging must
+  land on the commit that already contains the bumped version, so `git checkout vX.Y.Z` shows a matching
+  `package.json` — don't tag a commit one step ahead of the bump.)
 - Make the new version's `CHANGELOG.md` heading an **inline link on the version number**, pointing to its release:
   `## [X.Y.Z](https://github.com/actarus314/rozo-bridge/releases/tag/vX.Y.Z) - YYYY-MM-DD`.
