@@ -1,4 +1,4 @@
-// Dev/CI check: the two hand-maintained i18n dictionaries (I18N.fr / I18N.en in app.js) must have the
+// Dev/CI check: the two hand-maintained i18n dictionaries (I18N.fr / I18N.en in web/assets/i18n.js) must have the
 // SAME key set. This has broken silently before (PR #14 removed 10 orphan keys), so gate it.
 //   node scripts/check-i18n.mjs   (also `npm run check:i18n`, and a CI step)
 import assert from 'node:assert/strict';

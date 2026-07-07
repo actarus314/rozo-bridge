@@ -101,12 +101,13 @@ async function ensureChunkFees(dk,T,mode,L,maxN,onFee){
   if(!dryCache[dk]) dryCache[dk]={};   // defensive: never index an undefined direction (a cleared cache used to throw here → offline fallback)
   const k=ckey(mode,T); let e=dryCache[dk][k];
   if(e && L!=null && e.L!=null && Math.abs(e.L-L)>SWEEP_EPS){ delete dryCache[dk][k]; e=null; }   // L moved → stale cache
-  if(!e){ e={fees:{},L}; dryCache[dk][k]=e; } else if(L!=null) e.L=L;
-  if(e.fees[1]==null && lastDevis && lastDevis.dk===dk && lastDevis.mode===mode && Math.abs(lastDevis.T-T)<0.5){ e.fees[1]=lastDevis.fee; onFee&&onFee(); }   // n=1 = the quote already made (0 calls), rendered right away
-  const todo=[]; for(let n=1;n<=maxN;n++) if(e.fees[n]==null) todo.push(n);
+  if(!e){ e={fees:{},err:{},L}; dryCache[dk][k]=e; } else { if(!e.err) e.err={}; if(L!=null) e.L=L; }   // F-7: e.err[n] flags a chunk whose dryrun genuinely FAILED (network/API), distinct from "not yet fetched"
+  if(e.fees[1]==null && lastDevis && lastDevis.dk===dk && lastDevis.mode===mode && Math.abs(lastDevis.T-T)<0.5){ e.fees[1]=lastDevis.fee; delete e.err[1]; onFee&&onFee(); }   // n=1 = the quote already made (0 calls), rendered right away
+  const todo=[]; for(let n=1;n<=maxN;n++) if(e.fees[n]==null){ todo.push(n); delete e.err[n]; }   // F-7: a retry clears the prior error flag → the row shows loading again during the new attempt
   let i=0; await Promise.all(Array.from({length:Math.min(6,todo.length)},async()=>{
     while(i<todo.length){ const n=todo[i++]; const j=await postQuote(dk,T/n,true,mode).catch(()=>null);
-      if(j&&j.source&&!j.error){ e.fees[n]=+j.source.fee; onFee&&onFee(); } } }));
+      if(j&&j.source&&!j.error){ e.fees[n]=+j.source.fee; delete e.err[n]; onFee&&onFee(); }
+      else { e.err[n]=true; onFee&&onFee(); } } }));   // F-7: real failure → flag it so computeSplit/simul render an error+retry row instead of an eternal spinner (and it no longer blocks renderReco)
   return e;
 }
 // ============ MODEL PARAMETERS — the fee-model tuning knobs, gathered (see workspace MODELE-FRAIS.md) ============
@@ -122,7 +123,8 @@ const HIGH_FEE_PCT = 0.25;   // ≥ this DISPLAYED fee% triggers the "high fees 
 // PURE model math (no DOM, no module-state writes → unit-testable in isolation, cf. scripts/test-model.mjs):
 // given the live liquidity L0 and the exact per-chunk fees fees[n]=dryrun(T/n) (euros), build the split rows
 // (min/max/likely per n) + the recommended split (smallest capturing ≥90% of the saving). Model → MODELE-FRAIS.md.
-function computeSplit(dk,T,mode,L0,fees,splitMax,lastDevis){
+function computeSplit(dk,T,mode,L0,fees,splitMax,lastDevis,errs){
+  errs=errs||{};   // F-7: {n:true} for chunks whose dryrun genuinely failed (optional arg — scripts/test-model.mjs calls without it)
   const rows=[];
   // Empirical model (curve + escalation measured on 2 routes, Campaign C 05/07): fees frozen at CREATION; creating an intent RESERVES the Available →
   // fee(chunk) = c·livePct(c)·R(c,reserved). Level = livePct (live curve at quote time, anchor); shape = measured surface:
@@ -135,7 +137,7 @@ function computeSplit(dk,T,mode,L0,fees,splitMax,lastDevis){
     const c=T/n;
     if(c>L0+1e-6){ rows.push({n,c,ok:false}); continue; }        // chunk > liquidity = infeasible (independent of the fee)
     const ef=fees[n];                                            // EXACT fee (dryrun T/n), or undefined (not yet received → "…" row)
-    if(ef==null){ rows.push({n,c,ok:true,loading:true}); continue; }   // waiting → "…" row (no approximation)
+    if(ef==null){ rows.push(errs[n]?{n,c,ok:false,error:true}:{n,c,ok:true,loading:true}); continue; }   // F-7: genuinely-failed dryrun → error row (not an eternal spinner); otherwise still waiting → "…" row
     const s0=surfPct(dk,c,L0);                           // surface level at L0 (denominator of the escalation)
     let fee=0,feeWorst=0,feeFlat=0,recvT=0,sentT=0,ok=true,reserved=0; const chunks=[];
     for(let i=0;i<n;i++){
@@ -144,7 +146,7 @@ function computeSplit(dk,T,mode,L0,fees,splitMax,lastDevis){
       const rawW=Math.min(c*SURF.cap/100, raw*ratio);                // serial worst case (euros); 0.5% cap = c·0.005
       const ff=eurCeil(raw), fw=eurCeil(rawW), f=eurCeil(Math.max(raw,KRAP[dk]*rawW));   // min = exact fee (Rozo already rounds it); max/likely rounded UP to the cent
       const recv=mode==="exactIn"?c-f:c, sent=mode==="exactIn"?c:c+f;
-      const cap=L0;                                                  // feasibility PER CHUNK: each delivery must fit within the hub
+      const cap=RESERVES[dk]?L0-reserved:L0;                          // F-6: feasibility PER CHUNK against the REMAINING hub. On a direction that reserves (S2B) each created intent drains Available, so n chunks each ≤L0 can still over-subscribe cumulatively — reserved = Σ recv of the prior chunks here. B2S doesn't reserve → static L0.
       if(recv>cap+1e-6){ok=false;break;}
       chunks.push({i:i+1,recv,sent,fee:f,L:cap});
       fee+=f; feeWorst+=fw; feeFlat+=ff; recvT+=recv; sentT+=sent; reserved+=recv;
@@ -163,11 +165,14 @@ window._model={computeSplit,surfPct,eurCeil,SURF,RESERVES};   // dev/test hook (
 function simul(){
   const dk=document.getElementById("dir").value, T=+document.getElementById("amt").value;   // taken from the quote
   const L0=(LIVE[dk]&&LIVE[dk].L)||DIR[dk].L;
-  const out=document.getElementById("splitout"); if(!out) return; if(!(T>0)){out.innerHTML="";hideSplitcard();return;} const _sc=document.getElementById("splitcard"); if(_sc)_sc.style.display="";
+  const out=document.getElementById("splitout"); if(!out) return; if(!(T>0)){out.innerHTML="";hideSplitcard();return;}
   const mode=document.getElementById("mode").value;   // exactOut: T=fixed received · exactIn: T=fixed sent
-  const cache=(dryCache[dk]||{})[ckey(mode,T)]||{fees:{}};   // exact fees already received (progressive filling)
-  const {rows, best, bestN:bn}=computeSplit(dk,T,mode,L0,cache.fees,splitMax,lastDevis);   // ← the model math, pure & testable
-  splitRows=rows; splitMeta={dk,mode}; bestN=bn;
+  const _fresh=lastDevis && lastDevis.dk===dk && lastDevis.mode===mode && Math.abs(lastDevis.T-T)<0.5;   // F-11: only render a split when a LIVE quote matches the current input. After an offline/API failure (lastDevis nulled in quote()'s error paths) a language toggle (setLang→simul) must NOT resurrect a stale split from dryCache.
+  if(!_fresh){ out.innerHTML=""; hideSplitcard(); const _rc=document.getElementById("reco"); if(_rc)_rc.innerHTML=""; return; }
+  const _sc=document.getElementById("splitcard"); if(_sc)_sc.style.display="";
+  const cache=(dryCache[dk]||{})[ckey(mode,T)]||{fees:{},err:{}};   // exact fees already received (progressive filling)
+  const {rows, best, bestN:bn}=computeSplit(dk,T,mode,L0,cache.fees,splitMax,lastDevis,cache.err);   // ← the model math, pure & testable (cache.err = chunks whose dryrun failed → F-7)
+  splitRows=rows; splitMeta={dk,mode,T}; bestN=bn;   // F-8: remember T so genBatch can refuse a stale split (amount changed but repricing not done yet)
   if(selN!=null){const sr=rows.find(r=>r.n===selN); if(!sr||!sr.ok) selN=null;}   // revalidates the selection if it became infeasible (AUDIT R3)
   const feas=rows.filter(r=>r.ok&&!r.loading);   // for the pricing-progress line below (loading rows have no fee)
   const D=I18N[LANG];
@@ -181,6 +186,7 @@ function simul(){
   let h=`<table><tr><th>${HEAD[0]}</th><th>${HEAD[1]}</th><th>${HEAD[2]}</th><th>${HEAD[3]}</th><th>${HEAD[4]}</th></tr>`;
   for(const r of rows){
     if(r.loading){h+=`<tr class="loadrow"><td>${D.sendLabel(r.n)}</td><td>${eur3(r.c)}</td><td colspan="3" class="mut"><span class="minispin"></span></td></tr>`;continue;}   // fee {T/n} not yet received
+    if(r.error){h+=`<tr class="mut"><td>${r.n}×</td><td>${eur3(r.c)}</td><td colspan="3"><span class="warn">⚠ ${D.chunkFeeError}</span> <button class="btn sm ghost" onclick="quote()">${D.retryBtn}</button></td></tr>`;continue;}   // F-7: dryrun genuinely failed — explicit error + retry, not an eternal spinner; doesn't block renderReco (loading:false)
     if(!r.ok){h+=`<tr class="mut"><td>${r.n}×</td><td>${eur3(r.c)}</td><td colspan="3">${D.infeasibleRow}</td></tr>`;continue;}
     // recommended = green (always persists) · selected by click (if ≠ reco) = teal — via CLASS (hover keeps the tint, cf. CSS)
     let cls='';
@@ -287,7 +293,7 @@ async function quote(){
   try{
     const j=await postQuote(dk,x,true,mode);
     if(seq!==quoteSeq) return;   // a more recent keystroke has taken over → discard this stale result
-    if(j.error){o.innerHTML="<span class='warn'>"+escapeHtml(j.error.message||D.errFallback)+"</span>";fillOpp(mode,null,null);const rc=document.getElementById("reco");if(rc)rc.innerHTML="";const sp=document.getElementById("splitout");if(sp)sp.innerHTML="";hideSplitcard();return;}   // also clear the preview+table (otherwise they keep the old quote, AUDIT R4)
+    if(j.error){lastDevis=null;o.innerHTML="<span class='warn'>"+escapeHtml(j.error.message||D.errFallback)+"</span>";fillOpp(mode,null,null);const rc=document.getElementById("reco");if(rc)rc.innerHTML="";const sp=document.getElementById("splitout");if(sp)sp.innerHTML="";hideSplitcard();return;}   // also clear the preview+table (otherwise they keep the old quote, AUDIT R4). F-11: null lastDevis so a later setLang()/simul() doesn't resurrect this as a live split.
     const fee=+j.source.fee, send=+j.source.amount, recv=+j.destination.amount;
     lastDevis={dk,T:x,mode,fee,recv,send};   // remembered for the split table
     fillOpp(mode,send,recv);                 // fills the opposite block (sent↔received)
@@ -302,6 +308,7 @@ async function quote(){
     fillOpp(mode,send,recv);
     o.innerHTML="<span class='warn'>"+escapeHtml(D.offlineEstimate)+"</span>";   // mark it as an offline estimate, not a live dryrun quote
     const rc=document.getElementById("reco"); if(rc)rc.innerHTML=""; const sp=document.getElementById("splitout"); if(sp)sp.innerHTML=""; hideSplitcard();   // clear the split area: no infinite "pricing chunks…" spinner (dryruns are unavailable offline)
+    lastDevis=null;   // F-11: offline → drop lastDevis so a later setLang()/simul() doesn't resurrect this as a live split/quote
     return;   // skip the trailing simul() (it would re-render loading rows that never resolve)
   }
   simul();
@@ -376,6 +383,7 @@ async function genBatch(){
   const msg=h=>{ if(st) st.innerHTML=h; };
   if(!(T>0)){ msg(D.genBatchNeedAmount); return; }
   if(!destWallet(dk)){ msg(D.genBatchNeedDestWallet(dk)); return; }   // real creation → destination wallet mandatory
+  if(!splitMeta || splitMeta.dk!==dk || splitMeta.mode!==mode || splitMeta.T==null || Math.abs(splitMeta.T-T)>=0.5){ msg(D.genBatchStale); return; }   // F-8: split rows / selected n were computed for another amount (repricing debounce still in flight) → refuse rather than create an intent count never validated against the current T.
   const row=(splitRows||[]).find(r=>r.n===n);
   if(row&&!row.ok){ msg(D.genBatchInfeasible(n)); return; }
   window._genInFlight=true; const gbtn=document.getElementById("genbtn"); if(gbtn) gbtn.disabled=true;   // RC-2: lock + feedback during the async creation
@@ -416,9 +424,10 @@ async function regenBatch(bid){
   if(window._genInFlight) return;   // RC-2: shares genBatch's anti-double-create lock
   const b=(window._batches||{})[bid]; if(!b) return;
   const D=I18N[LANG], now=Date.now();
-  const idxs=b.rows.map((r,i)=>i).filter(i=>{ const r=b.rows[i]; return !r.srcTx && r.exp && new Date(r.exp).getTime()<=now; });   // expired AND unsigned only
+  const idxs=b.rows.map((r,i)=>i).filter(i=>{ const r=b.rows[i]; return !r.srcTx && !r.signing && r.exp && new Date(r.exp).getTime()<=now; });   // F-2: expired AND unsigned AND not mid-signing — a stuck-signing row's deposit may have LANDED (Horizon 5xx/timeout on submit+verify, wallet.js:132 keeps the lock), regenerating it would create a 2nd intent = DOUBLE PAYMENT.
   if(!idxs.length) return;
   const mode=b.mode||"exactOut", st=document.getElementById("genstatus"), msg=h=>{ if(st) st.innerHTML=h; };
+  if(!destWallet(b.dk)){ msg(D.genBatchNeedDestWallet(b.dk)); return; }   // F-1: real creation (postQuote dryrun=false below) → dest wallet mandatory, exactly like genBatch. Without it receiver() (l.11) falls back to the PH.* placeholder → intents route real EURC to a hardcoded non-user address (no refund).
   window._genInFlight=true; const gbtn=document.getElementById("genbtn"); if(gbtn) gbtn.disabled=true;
   try{
     msg(D.regenCreating(idxs.length));
@@ -492,7 +501,7 @@ function batchCardHTML(b, open){
   let totalSend=0,totalRecv=0; rows.forEach(r=>{totalSend+=r.send;totalRecv+=r.rec;});
   const deposited=rows.filter(r=>r.srcTx).length, expd=b.expiresAt&&b.expiresAt<now;
   const eb=expBadge(b.expiresAt);                                   // D4/D5: badge = colored expiry time, "expired" once past
-  const dest = dk==="B2S" ? `Stellar <code>${b.stellarAddr}</code>` : `Base <code>${b.evmAddr}</code>`;   // D3: only the destination wallet is fixed → shown in full, source removed
+  const dest = dk==="B2S" ? `Stellar <code>${escapeHtml(b.stellarAddr)}</code>` : `Base <code>${escapeHtml(b.evmAddr)}</code>`;   // D3: only the destination wallet is fixed → shown in full. F-3/RC-9: escape — evmAddr/stellarAddr come from the wallet provider (external, unvalidated), persisted to localStorage & re-rendered via innerHTML (stored-XSS otherwise).
   const hub=dk==="B2S"?D.hubStellarName:D.hubBaseName;
   const tFee0=totalSend-totalRecv, tPct0=totalSend>0?tFee0/totalSend*100:0;
   const depNote = deposited>0?` · <b>${deposited}/${rows.length}</b> ${D.bDeposited}`:"";
@@ -500,7 +509,7 @@ function batchCardHTML(b, open){
   s+=`<summary><span class="bflow">${chipFlow(dk)}</span><span class="bsum"><b>${rows.length}</b> ${D.chunkWord(rows.length)} · <b>${eur(totalSend)} → ${eur(totalRecv)} EURC</b> · ${D.feeWord} ${eur(tFee0)} € (${tPct0.toFixed(2)} %)${depNote}</span><span class="bbadge ${eb.cls}">${eb.txt}</span></summary>`;   // D1: bridged amounts in bold, abs+% fee in normal weight
   s+=`<div class="bbody"><div class="path">${D.bTo} ${dest}</div>`;
   s+=`<div class="reserved"><span class="ico">🔒</span><span>${D.reservedNote(dk, eur(totalRecv), hub)}</span></div>`;
-  const regenN=rows.filter(r=>!r.srcTx && r.exp && new Date(r.exp).getTime()<=now).length;   // expired + unsigned → offer a fresh-intent regen
+  const regenN=rows.filter(r=>!r.srcTx && !r.signing && r.exp && new Date(r.exp).getTime()<=now).length;   // F-2: expired + unsigned + not mid-signing (mirrors regenBatch's eligibility — never offer to regen a row whose deposit may still land)
   if(regenN>0) s+=`<div class="regenbar"><button class="btn sm ghost" onclick="regenBatch('${b.id}')">${D.regenBtnLabel(regenN)}</button><span class="mut2">${D.regenNote}</span></div>`;
   const th=dk==="B2S"?D.b2sTableHead:D.s2bTableHead;
   s+=`<div class="tblwrap"><table><tr>${th.map(x=>`<th>${x}</th>`).join("")}</tr>`;
@@ -682,6 +691,8 @@ function loader(container,label){
            done(){ ov.remove(); } };
 }
 async function ensureChartCurve(){
+  if(window._chartSweeping) return;   // F-10: re-entrance guard — a 2nd Doc-tab click before the 1st sweep resolves would launch a duplicate full dryrun sweep (both directions, ~48 calls) against the API the user is trying to conserve. Mirrors window._refreshing.
+  window._chartSweeping=true;
   const card=(document.getElementById("chart")||{}).closest?document.getElementById("chart").closest(".card"):null;
   const ld=loader(card, I18N[LANG].loadCurve);
   try{
@@ -691,7 +702,7 @@ async function ensureChartCurve(){
       if(!cached) total+=SWEEP.filter(a=>a<=cap).length+(cap<Infinity?1:0); }
     ld.set(0,total);
     for(const dk of["B2S","S2B"]) LIVE[dk].pts=await curveFor(dk,LIVE[dk].L,()=>ld.set(++done,total));
-  } finally{ ld.done(); } }
+  } finally{ ld.done(); window._chartSweeping=false; } }
 let lastTs=null;   // cache of the last refresh() result: {ok,time} — lets setLang() re-translate #ts without a network call
 function renderTs(){
   const e=document.getElementById("ts"); if(!e||!lastTs) return;

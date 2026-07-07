@@ -17,6 +17,7 @@ export function loadApp() {
     get: (t, p) => {
       if (p === 'then') return undefined;              // not thenable → `await stub` returns immediately
       if (p === Symbol.toPrimitive) return () => 0;    // coerce to 0 so the DOM-tail's canvas math doesn't throw
+      if (p === 'constructor' || p === '__proto__' || p === 'prototype') return u; // block sandbox escape via real Function ctor
       return p in t ? t[p] : u;
     },
     set: (t, p, v) => { t[p] = v; return true; },
@@ -25,7 +26,8 @@ export function loadApp() {
   const ctx = vm.createContext({
     window: u, document: u, localStorage: u, navigator: u, location: u, fetch: u, AbortSignal: u,
     setTimeout: u, setInterval: u, clearTimeout: u, clearInterval: u, requestAnimationFrame: u,
-    addEventListener: u, getComputedStyle: u, URL: u, Blob: u, FileReader: u, console,
+    addEventListener: u, getComputedStyle: u, URL: u, Blob: u, FileReader: u,
+    console: { log() {}, warn() {}, error() {}, info() {}, debug() {} }, // stub, not real console (same escape chain via .constructor)
   });
   // The bootstrap tail of app.js touches the real DOM (canvas sizing, etc.) and throws in this headless
   // sandbox — by then I18N and _model are already defined, so the throw is expected and ignored.

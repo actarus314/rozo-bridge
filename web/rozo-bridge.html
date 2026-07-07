@@ -70,8 +70,8 @@
       <select id="mode" style="display:none"><option value="exactIn" selected>exactIn</option><option value="exactOut">exactOut</option></select>
       <span id="amtlbl" style="display:none"></span>
     </div>
-    <div id="out" class="mut" style="margin:0 0 8px"></div>
-    <div id="reco"></div>
+    <div id="out" class="mut" style="margin:0 0 8px" role="status" aria-live="polite"></div>
+    <div id="reco" aria-live="polite"></div>
   </div>
 
   <!-- Split: table rendered by simul() (spaced mode removed) -->
@@ -176,7 +176,7 @@
 </div>
 
 <!-- app version: filled live from the latest GitHub release (see loadAppVersion() in app.js); static text below is only the offline/rate-limited fallback -->
-<footer class="mut" style="max-width:960px;margin:0 auto;padding:0 22px 24px;font-size:11.5px;text-align:center"><a id="appVersion" href="https://github.com/actarus314/rozo-bridge" target="_blank" rel="noopener" style="color:inherit">Rozo Bridge v1.2.1</a></footer>
+<footer class="mut" style="max-width:960px;margin:0 auto;padding:0 22px 24px;font-size:11.5px;text-align:center"><a id="appVersion" href="https://github.com/actarus314/rozo-bridge" target="_blank" rel="noopener" style="color:inherit">Rozo Bridge v1.2.2</a></footer>
 
 <!-- hover tooltip portal (position:fixed, above everything) — cf. #tipPortal in app.js -->
 <div id="tipPortal"></div>

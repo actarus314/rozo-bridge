@@ -24,7 +24,7 @@ window.evmConnect=async()=>{
     if(!window._evmHooked && window.ethereum.on){ window._evmHooked=true;   // wallet account changed → resyncs
       window.ethereum.on("accountsChanged",a=>{ window.evmAddr=a&&a[0]; if(window.evmAddr){syncFromWallet();}else{setTxt("evmStatus",D().moduleDisconnected,true);window.checkWalletMatch();} }); }
     syncFromWallet();
-  }catch(e){ setTxt("evmStatus",D().moduleRejected(e.message||e),true); }
+  }catch(e){ setTxt("evmStatus",D().moduleRejected((window.escapeHtml||(x=>x))(e.message||e)),true); }   // F-5/RC-9: escape provider-supplied error text before it reaches innerHTML (setTxt), like the Horizon path below
 };
 // click on the wallet area = toggles connect/disconnect
 window.evmDisconnect=async()=>{
@@ -91,7 +91,7 @@ function buildPayXDR(src,p){ const S=window.StellarSdk;
 window._buildPayXDR=(src,p)=>buildPayXDR(src,p).toXDR();   // for verification (offline build)
 window.stellarConnect=async()=>{
   if(!window.StellarSdk){ setTxt("sStatus",D().stellarNoSdk,true); return; }
-  try{ await ensureKit(); }catch(e){ setTxt("sStatus",D().stellarKitUnavailable(e.message||e),true); return; }
+  try{ await ensureKit(); }catch(e){ setTxt("sStatus",D().stellarKitUnavailable((window.escapeHtml||(x=>x))(e.message||e)),true); return; }   // F-5/RC-9: escape provider/import error text before innerHTML
   try{ const {address}=await SWK.authModal(); window.stellarAddr=address;
     let id=null; try{ id=SWK.selectedModule&&SWK.selectedModule.productId; }catch(_){}   // id of the selected wallet (kit) → restorable via setWallet()
     try{ localStorage.setItem("rozoStellar",JSON.stringify({id:id||null,address})); }catch(_){}   // C2: remembers wallet+address for restoration on reload
