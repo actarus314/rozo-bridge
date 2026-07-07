@@ -27,3 +27,9 @@ and any browser console errors.
 ## Security issues
 
 Don't open a public issue for a security concern — see [SECURITY.md](SECURITY.md).
+
+## Cutting a release
+
+- Bump the version in `package.json` and in the footer of `web/rozo-bridge.html` (both hand-maintained — no build step reads them).
+- Move the `[Unreleased]` entries in `CHANGELOG.md` under a new `[x.y.z] - YYYY-MM-DD` heading.
+- Tag it (`git tag -a vX.Y.Z -m "..."`) and publish a GitHub Release from that tag.
