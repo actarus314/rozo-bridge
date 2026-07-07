@@ -33,6 +33,11 @@ class H(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *a, **k):
         super().__init__(*a, directory=DIR, **k)
 
+    def end_headers(self):
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        super().end_headers()
+
     def _hb(self):
         with lock:
             state["last"] = time.time(); state["armed"] = True; state["bye"] = 0.0
@@ -52,6 +57,10 @@ class H(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
             self.send_header("Content-Length", str(len(data)))
             self.end_headers(); self.wfile.write(data); return
+        # ponytail: block dotfiles/.bak from the static fallback — loopback-only, defense-in-depth
+        base = os.path.basename(self.translate_path(self.path).rstrip("/"))
+        if base.startswith(".") or base.endswith((".bak", "~")):
+            self.send_response(404); self.end_headers(); return
         # inject the heartbeat into .html pages, serve the rest normally
         path = self.translate_path(self.path)
         if path.endswith(".html") and os.path.isfile(path):
