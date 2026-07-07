@@ -30,7 +30,9 @@ Don't open a public issue for a security concern — see [SECURITY.md](SECURITY.
 
 ## Cutting a release
 
-- Bump the version in `package.json` (hand-maintained — no build step reads it).
-- Move the `[Unreleased]` entries in `CHANGELOG.md` under a new `[x.y.z] - YYYY-MM-DD` heading.
-- Tag it (`git tag -a vX.Y.Z -m "..."`) and publish a GitHub Release from that tag — the app's footer
-  reads the latest release from GitHub's API at runtime, so nothing else needs updating for it to show up.
+- Bump the version in `package.json` (hand-maintained — no build step reads it) AND move the
+  `[Unreleased]` entries in `CHANGELOG.md` under a new `[x.y.z] - YYYY-MM-DD` heading, in the SAME commit.
+- Tag THAT commit (`git tag -a vX.Y.Z -m "..."`) and publish a GitHub Release from that tag — the app's
+  footer reads the latest release from GitHub's API at runtime, so nothing else needs updating for it to
+  show up. (Tagging must land on the commit that already contains the bumped version, so
+  `git checkout vX.Y.Z` shows a matching `package.json` — don't tag a commit one step ahead of the bump.)
