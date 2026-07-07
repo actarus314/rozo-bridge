@@ -36,3 +36,5 @@ Don't open a public issue for a security concern — see [SECURITY.md](SECURITY.
   footer reads the latest release from GitHub's API at runtime, so nothing else needs updating for it to
   show up. (Tagging must land on the commit that already contains the bumped version, so
   `git checkout vX.Y.Z` shows a matching `package.json` — don't tag a commit one step ahead of the bump.)
+- Make the new version's `CHANGELOG.md` heading an **inline link on the version number**, pointing to its release:
+  `## [X.Y.Z](https://github.com/actarus314/rozo-bridge/releases/tag/vX.Y.Z) - YYYY-MM-DD`.

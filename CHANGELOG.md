@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [1.2.1] - 2026-07-07
+## [1.2.1](https://github.com/actarus314/rozo-bridge/releases/tag/v1.2.1) - 2026-07-07
 
 ### Fixed
 - The footer now shows the **deployed** version instead of the repository's latest release (it used to overwrite its text with whatever release was newest), and it appends a discreet "newer version available ↗" link only when the deployed build is actually behind a release.
 - The split-fee table no longer stays stuck loading after generating an intent, and no longer reports live data as unavailable when switching back to that route: creating intents now re-prices the table against the updated liquidity, and a cleared quote cache is handled defensively instead of throwing.
 
-## [1.2.0] - 2026-07-07
+## [1.2.0](https://github.com/actarus314/rozo-bridge/releases/tag/v1.2.0) - 2026-07-07
 
 ### Added
 - A hosted demo on GitHub Pages (unofficial): <https://actarus314.github.io/rozo-bridge/> — the same client-side app, deployed from `web/`.
@@ -53,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `web/serve.py` now sends `X-Content-Type-Options: nosniff` / `X-Frame-Options: DENY` on every response and denies dotfile/`.bak` requests on the static file path (defense-in-depth; the server is loopback-only).
 - The CI workflow now runs with a least-privilege `GITHUB_TOKEN` (`contents: read`).
 
-## [1.1.0] - 2026-07-07
+## [1.1.0](https://github.com/actarus314/rozo-bridge/releases/tag/v1.1.0) - 2026-07-07
 
 ### Added
 - Footer showing the deployed app version, read live from GitHub's releases API (falls back to a static tag if the API is unreachable).
@@ -61,7 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 - Pinned `protobufjs` and `uuid` (dev-only, transitive via the vendored wallet-connect bundle's dependency tree) to patched versions, resolving the corresponding Dependabot alerts. `elliptic` remains open — no patched version exists upstream yet (see [SECURITY.md](SECURITY.md)).
 
-## [1.0.0] - 2026-07-07
+## [1.0.0](https://github.com/actarus314/rozo-bridge/releases/tag/v1.0.0) - 2026-07-07
 
 Initial public release.
 
