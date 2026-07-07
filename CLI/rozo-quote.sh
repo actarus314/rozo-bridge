@@ -48,7 +48,7 @@ route () {  # DIR -> "sc sa dc da ra"
   case "$1" in
     B2S) echo "8453 $EURC_BASE 1500 $EURC_STELLAR $DEST_STELLAR" ;;
     S2B) echo "1500 $EURC_STELLAR 8453 $EURC_BASE $DEST_EVM" ;;
-    *) echo "Sens invalide: $1 (B2S ou S2B)" >&2; exit 2 ;;
+    *) echo "Invalid direction: $1 (B2S or S2B)" >&2; exit 2 ;;
   esac
 }
 post () {  # URL DIR AMOUNT
@@ -64,16 +64,16 @@ cmd="${1:-}"; arg="${2:-}"
 
 case "$cmd" in
   B2S|S2B)
-    [ -n "$arg" ] || { echo "Usage: $0 $cmd <montant_recu>" >&2; exit 2; }
+    [ -n "$arg" ] || { echo "Usage: $0 $cmd <amount_received>" >&2; exit 2; }
     post "$DRY" "$cmd" "$arg" | DIR="$cmd" AMT="$arg" python3 -c '
 import sys,json,os
 d=json.load(sys.stdin); amt=float(os.environ["AMT"]); dirn=os.environ["DIR"]
 e=d.get("error")
 if e:
     msg=e.get("message",e)
-    print(f"[{dirn}] reçu {amt:g} EURC -> {msg}"); sys.exit(0)
+    print(f"[{dirn}] received {amt:g} EURC -> {msg}"); sys.exit(0)
 s=d["source"]; fee=float(s["fee"]); send=float(s["amount"])
-print(f"[{dirn}] reçu {amt:g} EURC | tu envoies {send:.4f} | frais {fee:.4f} EURC ({fee/amt*100:.3f} %)")'
+print(f"[{dirn}] received {amt:g} EURC | you send {send:.4f} | fee {fee:.4f} EURC ({fee/amt*100:.3f} %)")'
     ;;
   liq)
     [ -n "$arg" ] || { echo "Usage: $0 liq <B2S|S2B>" >&2; exit 2; }
@@ -83,15 +83,15 @@ d=json.load(sys.stdin); dirn=os.environ["DIR"]
 e=d.get("error"); msg=str(e.get("message","")) if e else ""
 if e and "Available" in msg:
     m=re.search(r"Available:\s*([0-9.]+)", msg)
-    print(f"[{dirn}] liquidité max bridgeable maintenant : {float(m.group(1)):,.2f} EURC")
+    print(f"[{dirn}] max bridgeable liquidity right now: {float(m.group(1)):,.2f} EURC")
 elif e:
     print(f"[{dirn}] {msg}")
 else:
-    print(f"[{dirn}] >= 99 999 999 EURC (pas de plafond)")'
+    print(f"[{dirn}] >= 99,999,999 EURC (no cap)")'
     ;;
   curve)
     [ -n "$arg" ] || { echo "Usage: $0 curve <B2S|S2B>" >&2; exit 2; }
-    echo "[$arg] frais% par montant (dryrun, courbe pure) :"
+    echo "[$arg] fee% by amount (dryrun, pure curve):"
     for x in 100 1000 5000 10000 20000 50000; do
       post "$DRY" "$arg" "$x" | X="$x" python3 -c '
 import sys,json,os
@@ -103,7 +103,7 @@ else:
     done
     ;;
   hub)
-    echo "Hubs du relayer Rozo — plafond = solde EURC du hub (contre-check on-chain) :"
+    echo "Rozo relayer hubs — cap = hub's EURC balance (on-chain cross-check):"
     sb=$(curl -s "https://horizon.stellar.org/accounts/$STELLAR_HUB" | python3 -c '
 import sys,json
 b=[x["balance"] for x in json.load(sys.stdin).get("balances",[]) if x.get("asset_code")=="EURC"]
@@ -120,10 +120,10 @@ print(b[0] if b else "?")')
     ;;
   *)
     echo "Usage:" >&2
-    echo "  $0 B2S <montant>    # devis Base->Stellar"   >&2
-    echo "  $0 S2B <montant>    # devis Stellar->Base"   >&2
-    echo "  $0 liq <B2S|S2B>    # liquidité dispo maintenant" >&2
-    echo "  $0 curve <B2S|S2B>  # courbe frais% vs montant"   >&2
-    echo "  $0 hub               # soldes EURC des 2 hubs on-chain" >&2
+    echo "  $0 B2S <amount>     # quote Base->Stellar"   >&2
+    echo "  $0 S2B <amount>     # quote Stellar->Base"   >&2
+    echo "  $0 liq <B2S|S2B>    # liquidity available right now" >&2
+    echo "  $0 curve <B2S|S2B>  # fee% vs amount curve"   >&2
+    echo "  $0 hub               # EURC balances of the 2 hubs on-chain" >&2
     exit 2 ;;
 esac

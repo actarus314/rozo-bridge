@@ -94,12 +94,12 @@ def watchdog():
         with lock: s = dict(state)
         if not s["armed"]:
             if now - s["start"] > BOOT:
-                print("\n⏹  Aucune page ouverte — arrêt."); os._exit(0)
+                print("\n⏹  No page open — stopping."); os._exit(0)
             continue
         if s["bye"] and now - s["bye"] > BYE and now - s["last"] > BYE:
-            print("\n⏹  Page fermée — arrêt du serveur."); os._exit(0)
+            print("\n⏹  Page closed — stopping the server."); os._exit(0)
         if now - s["last"] > IDLE:
-            print("\n⏹  Inactif — arrêt du serveur."); os._exit(0)
+            print("\n⏹  Idle — stopping the server."); os._exit(0)
 
 def main():
     global PORT
@@ -110,16 +110,16 @@ def main():
         except OSError:
             PORT += 1
     else:
-        print("Aucun port libre."); return
+        print("No free port available."); return
     url = f"http://localhost:{PORT}/{PAGE}"
     threading.Thread(target=watchdog, daemon=True).start()
     threading.Timer(0.6, lambda: webbrowser.open(url)).start()
-    print(f"▶  Rozo Bridge servi sur  {url}")
-    print("   (s'arrête seul à la fermeture de la page · Ctrl+C pour forcer)")
+    print(f"▶  Rozo Bridge served at  {url}")
+    print("   (stops by itself when the page closes · Ctrl+C to force)")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
-        print("\n⏹  Arrêt manuel.")
+        print("\n⏹  Manual stop.")
 
 if __name__ == "__main__":
     main()

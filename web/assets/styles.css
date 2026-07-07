@@ -1,20 +1,20 @@
 /* ============================================================
    Rozo Bridge — refonte UI. Palette = projet anyone (slate Tailwind).
-   Thème : :root = SOMBRE (défaut) ; :root.light = CLAIR (classe posée sur <html> par script inline en <head>, anti-FOUC — cf. app.js).
-   ⚠ Noms de variables conservés (--b2s/--s2b/--bd/--card/--chartbg/--chartgrid/--btn/
-   --ok/--warn/--mut/--fg/--bg) car lus par drawChart() et les tables générées en JS.
-   Marques officielles : Base #0000ff (Cerulean #3c8aff en sombre) · Stellar Gold #fdda24.
+   Theme: :root = DARK (default) ; :root.light = LIGHT (class set on <html> by inline script in <head>, anti-FOUC — cf. app.js).
+   ⚠ Variable names kept as-is (--b2s/--s2b/--bd/--card/--chartbg/--chartgrid/--btn/
+   --ok/--warn/--mut/--fg/--bg) because they're read by drawChart() and the JS-generated tables.
+   Official brand colors: Base #0000ff (Cerulean #3c8aff in dark mode) · Stellar Gold #fdda24.
    ============================================================ */
 :root{
-  /* ---- SOMBRE (défaut) ---- */
+  /* ---- DARK (default) ---- */
   --bg:#0f172a; --card:#151c28; --panel2:#1e293b; --bd:#2b3a4e; --bd2:#3f5069;
-  --fg:#f1f5f9; --mut:#94a3b8; --mut2:#8291a6; --heading:#cbd5e1;   /* RC-7 : #6b7a8f ne tenait pas 4.5:1 sur --bg (≈4.1:1) ; #8291a6 ≈5.6:1 */
+  --fg:#f1f5f9; --mut:#94a3b8; --mut2:#8291a6; --heading:#cbd5e1;   /* RC-7: #6b7a8f didn't hold 4.5:1 on --bg (≈4.1:1); #8291a6 ≈5.6:1 */
   --chartbg:#0f172a; --chartgrid:#1b212b; --btn:#1e293b;
   --accent:#3b82f6; --on-accent:#ffffff;
-  --cta:#14b8a6; --cta-fg:#04201d;   /* action/validation — vert sarcelle (teal, cf. stellar-swap), distinct du bleu Base */
+  --cta:#14b8a6; --cta-fg:#04201d;   /* action/validation — teal green (cf. stellar-swap), distinct from Base blue */
   --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444;
-  --b2s:#3c8aff;   /* Base (chart/texte) — Cerulean officiel, lisible en sombre */
-  --s2b:#fdda24;   /* Stellar (chart/texte) — Gold, lisible en sombre */
+  --b2s:#3c8aff;   /* Base (chart/text) — official Cerulean, readable in dark mode */
+  --s2b:#fdda24;   /* Stellar (chart/text) — Gold, readable in dark mode */
   --base:#3c8aff; --base-fg:#04122b; --stellar:#fdda24; --stellar-ink:#0f0f0f;
   --shadow:0 1px 0 rgba(0,0,0,.25);
   --r:12px; --r2:8px;
@@ -23,17 +23,17 @@
   --accent-dim:color-mix(in srgb,var(--accent) 18%,transparent);
   --ok-dim:color-mix(in srgb,var(--ok) 15%,transparent);
   --warn-dim:color-mix(in srgb,var(--warn) 17%,transparent);
-  --sel-dim:color-mix(in srgb,var(--cta) 22%,transparent);   /* ligne de découpage SÉLECTIONNÉE (≠ reco vert) */
+  --sel-dim:color-mix(in srgb,var(--cta) 22%,transparent);   /* SELECTED split row (≠ reco green) */
 }
 :root.light{
   --bg:#f1f5f9; --card:#ffffff; --panel2:#f8fafc; --bd:#e2e8f0; --bd2:#cbd5e1;
-  --fg:#0f172a; --mut:#64748b; --mut2:#56667c; --heading:#475569;   /* RC-7 : #94a3b8 ne tenait pas 4.5:1 sur --bg (≈2.3:1) ; #56667c ≈5.3:1, distinct de --mut */
+  --fg:#0f172a; --mut:#64748b; --mut2:#56667c; --heading:#475569;   /* RC-7: #94a3b8 didn't hold 4.5:1 on --bg (≈2.3:1); #56667c ≈5.3:1, distinct from --mut */
   --chartbg:#f8fafc; --chartgrid:#eaeef2; --btn:#eaeef2;
   --accent:#2563eb; --on-accent:#ffffff;
-  --cta:#0d9488; --cta-fg:#ffffff;   /* teal foncé pour texte blanc sur clair */
+  --cta:#0d9488; --cta-fg:#ffffff;   /* dark teal for white text on light background */
   --ok:#16a34a; --warn:#ea7317; --bad:#dc2626;
-  --b2s:#0000ff;   /* Base Blue officiel */
-  --s2b:#a97400;   /* Stellar : gold assombri pour lisibilité sur blanc (chip reste #fdda24) */
+  --b2s:#0000ff;   /* official Base Blue */
+  --s2b:#a97400;   /* Stellar: darkened gold for readability on white (chip stays #fdda24) */
   --base:#0000ff; --base-fg:#ffffff; --stellar:#fdda24; --stellar-ink:#0f0f0f;
   --shadow:0 1px 2px rgba(16,30,54,.07);
 }
@@ -101,17 +101,17 @@ select{cursor:pointer}
 button.plain{background:var(--btn);color:var(--fg);border:1px solid var(--bd);border-radius:8px;padding:7px 11px;font-size:12.5px;font-weight:600}
 button.plain:hover{border-color:var(--mut)}
 
-/* ---- liquidité duale (cliquable) ---- */
+/* ---- dual liquidity (clickable) ---- */
 .liq{display:grid;grid-template-columns:1fr 1fr;gap:0}
 .liq .cell{padding:14px 16px;border-right:1px solid var(--bd);cursor:pointer;position:relative;opacity:.4;transition:opacity .15s}
 .liq .cell:last-child{border-right:0}
-.liq .cell.active{opacity:1;background:color-mix(in srgb,var(--accent) 7%,transparent)}   /* sens non utilisé = éclairage baissé */
+.liq .cell.active{opacity:1;background:color-mix(in srgb,var(--accent) 7%,transparent)}   /* unused direction = dimmed */
 .liq .cell.active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
 .liq .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
 .liq .k{font-size:11px;color:var(--mut2)}
 .liq .v{font-size:22px;font-weight:700;letter-spacing:-.02em}
 .liq .v.match{color:var(--ok)} .liq .v.diff{color:var(--warn)}
-.splitnote{font-size:11px;line-height:1.35;flex:1;min-width:0}   /* #2 : note d'estimation sur la même ligne que le bouton Générer (n'agrandit pas le tableau) */
+.splitnote{font-size:11px;line-height:1.35;flex:1;min-width:0}   /* #2: estimate note on the same line as the Generate button (doesn't grow the table) */
 .splitnote b{color:var(--fg)}
 .liq .chain{font-size:11.5px;color:var(--mut);margin-top:5px}
 .liq .chain a{color:var(--mut)} .liq .chain b{color:var(--fg);font-weight:600}
@@ -119,15 +119,15 @@ button.plain:hover{border-color:var(--mut)}
 .liq .pick{font-size:10.5px;color:var(--mut2);font-weight:600}
 .liq .cell.active .pick{color:var(--accent)}
 
-/* ---- montant + reco (fusion) ---- */
-/* deux blocs entrée/sortie sur une ligne + sélecteur de sens au milieu (flip au clic) */
+/* ---- amount + reco (merged) ---- */
+/* two input/output blocks on one line + direction selector in the middle (flip on click) */
 .io{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;margin-bottom:18px}
 .amtbox{flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:4px;background:var(--bg);border:1px solid var(--bd2);border-radius:10px;padding:10px 14px}
 .amtbox .lbl{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--mut2);font-weight:600}
 .amtbox .row{display:flex;align-items:baseline;gap:8px}
 .amtbox input{flex:1;min-width:0;background:none;border:0;color:var(--fg);font-family:var(--f-num);font-size:24px;font-weight:640;width:100%;letter-spacing:-.02em;padding:0}
 .amtbox .cur{color:var(--mut);font-weight:600;flex:none}
-/* sélecteur de sens : pas de bloc, deux cartouches côte à côte + flèche à sens unique, flip au clic */
+/* direction selector: no block, two chips side by side + one-way arrow, flip on click */
 .dirbtn{flex:none;align-self:center;display:inline-flex;flex-direction:row;align-items:center;gap:8px;background:none;border:0;padding:2px 4px;cursor:pointer;color:var(--fg)}
 .dirbtn .arw{color:var(--mut2);font-size:18px;line-height:1;transition:color .12s}
 .dirbtn:hover .arw{color:var(--cta)}
@@ -155,30 +155,30 @@ button.plain:hover{border-color:var(--mut)}
 .range .lbl.hi{left:100%;transform:translateX(-100%)}
 .range .lbl.mid{left:var(--pmax);top:-13px;bottom:auto;transform:translateX(-50%);color:var(--ok);font-weight:700}   /* A1 : coût probable au-dessus du point */
 .range .lbl b{color:var(--fg)}
-/* #1 : au survol, la zone probable passe en COULEUR PLEINE (le reste de la barre reste normal) → montre que le tooltip vise la zone probable, pas la barre entière */
+/* #1: on hover, the probable zone switches to FULL COLOR (the rest of the bar stays normal) → shows the tooltip targets the probable zone, not the whole bar */
 .range .prob{transition:background .15s,border-color .15s}
 .range .prob:hover{background:var(--ok);border-color:var(--ok)}
 
-/* (mode espacé supprimé — toggle segmenté .seg/.tblhead retirés) */
+/* (spaced mode removed — .seg/.tblhead segmented toggle removed) */
 .help{color:var(--mut2);cursor:help;font-weight:400}
-/* ---- tooltips au survol (contenu direct, thème + langue) — calqué sur stellar-swap "Confiance".
-   .tip-box = source de contenu (cachée) ; rendu via #tipPortal en position:fixed → échappe au
-   clipping overflow des tables et passe au-dessus du sticky. Thème via variables CSS. ---- */
+/* ---- hover tooltips (direct content, theme + language) — modeled on stellar-swap "Trust".
+   .tip-box = content source (hidden); rendered via #tipPortal in position:fixed → escapes
+   table overflow clipping and sits above the sticky. Theme via CSS variables. ---- */
 .tip-wrap{position:relative;display:inline-flex;align-items:center;cursor:help}
 .tip-wrap .tip-icon{font-size:11px;color:var(--mut2);margin-left:4px;font-weight:400}
 .tip-wrap .tip-box{display:none}
 #tipPortal{position:fixed;z-index:99999;display:none;width:max-content;max-width:300px;
-  background:var(--fg);color:var(--bg);border-radius:8px;   /* thème INVERSÉ (lisibilité) — cf. stellar-swap "Confiance" */
+  background:var(--fg);color:var(--bg);border-radius:8px;   /* INVERTED theme (readability) — cf. stellar-swap "Trust" */
   padding:9px 12px;font-size:12px;font-weight:400;line-height:1.5;letter-spacing:0;text-transform:none;
   box-shadow:0 10px 30px rgba(0,0,0,.35);pointer-events:none}
-#tipPortal b{color:inherit;font-weight:640}   /* héritage du texte inversé */
+#tipPortal b{color:inherit;font-weight:640}   /* inherited from the inverted text */
 .maxbtn{flex:none;background:var(--panel2);border:1px solid var(--bd2);color:var(--mut);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;letter-spacing:.02em;cursor:pointer;text-transform:uppercase}
 .maxbtn:hover{color:var(--cta);border-color:var(--cta)}
 .gen{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px}
-.gen #genbtn{margin-left:auto}   /* bouton poussé à droite, la note occupe la place à gauche */
+.gen #genbtn{margin-left:auto}   /* button pushed right, the note takes up the space on the left */
 
-/* ---- intents générés : en-tête propre + réservation de liquidité ---- */
-/* lots empilés (#15/#16) : une carte repliable <details> par lot, source unique = window._batches */
+/* ---- generated intents: clean header + liquidity reservation ---- */
+/* stacked batches (#15/#16): one collapsible <details> card per batch, single source of truth = window._batches */
 .bcard{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:12px}
 .bcard>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px}
 .bcard>summary::-webkit-details-marker{display:none}
@@ -191,18 +191,18 @@ button.plain:hover{border-color:var(--mut)}
 .bcard .bbadge.g{color:var(--ok);background:var(--ok-dim)}
 .bcard .bbadge.o{color:var(--warn);background:var(--warn-dim)}
 .bcard .bbadge.r{color:var(--bad);background:color-mix(in srgb,var(--bad) 15%,transparent)}
-.bcard .bbadge.exp{color:#fff;background:#000}                 /* D5 : expiré = noir/blanc */
-.bcard.expired .bbody{opacity:.55}                            /* D5 : corps grisé mais lisible au dépliage */
+.bcard .bbadge.exp{color:#fff;background:#000}                 /* D5: expired = black/white */
+.bcard.expired .bbody{opacity:.55}                            /* D5: greyed-out body but readable when expanded */
 .bcard.expired>summary{opacity:.7}
 .bcard .bbody{padding:0 16px 16px}
 .bcard .path{font-size:11.5px;color:var(--mut);font-family:var(--f-num);margin:2px 0 4px}
-.bcard .trackfoot{margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);display:flex}   /* #5 : le bouton de suivi dans un pied séparé (plus « dans le vide ») */
+.bcard .trackfoot{margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);display:flex}   /* #5: track button in a separate footer (less "floating in space") */
 .bcard .trkpanel:not(:empty){margin-top:10px}
 .reserved{font-size:12px;color:var(--mut);background:var(--panel2);border:1px solid var(--bd);border-radius:8px;padding:8px 11px;margin:8px 0;display:flex;align-items:flex-start;gap:8px;line-height:1.5}
 .reserved b{color:var(--fg)}
 .reserved .ico{color:var(--warn);flex:none}
 
-/* ---- alertes (liquidité insuffisante, frais élevés) : présentation unifiée ---- */
+/* ---- alerts (insufficient liquidity, high fees): unified presentation ---- */
 .alert{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.55;
   background:var(--warn-dim);border:1px solid color-mix(in srgb,var(--warn) 40%,var(--bd));
   border-radius:9px;padding:10px 13px;margin:10px 0;color:var(--fg)}
@@ -211,27 +211,27 @@ button.plain:hover{border-color:var(--mut)}
 .alert.bad{background:var(--warn-dim);border-color:color-mix(in srgb,var(--bad) 45%,var(--bd))}
 .alert.bad .ico{color:var(--bad)}
 
-/* ---- tables (générées par JS) ---- */
+/* ---- tables (JS-generated) ---- */
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut2);font-weight:600;text-align:right;padding:8px 10px;border-bottom:1px solid var(--bd)}
 th:first-child,td:first-child{text-align:left}
 td{padding:8px 10px;border-bottom:1px solid var(--bd);text-align:right}
 tr:last-child td{border-bottom:0}
 tr[onclick]{cursor:pointer} tr[onclick]:hover td{background:var(--panel2)}
-/* lignes surbrillées : recommandé (vert) / sélectionné (teal) — le survol FONCE la teinte au lieu de l'effacer */
+/* highlighted rows: recommended (green) / selected (teal) — hover DARKENS the tint instead of clearing it */
 tr.recorow td{background:var(--ok-dim)}
 tr.selrow td{background:var(--sel-dim)}
 tr.recorow:hover td{background:color-mix(in srgb,var(--ok) 30%,transparent)}
 tr.selrow:hover td{background:color-mix(in srgb,var(--cta) 34%,transparent)}
 .mono{font-size:12.5px}
 
-/* ---- sûreté / notes ---- */
+/* ---- safety / notes ---- */
 .safe{font-size:11.5px;color:var(--mut);display:flex;gap:7px;align-items:flex-start;margin-top:10px;padding:9px 12px;background:var(--panel2);border-radius:8px;border:1px solid var(--bd)}
 .safe b{color:var(--fg)}
 
-/* ---- tx générées : expiration + ligne de total ---- */
+/* ---- generated tx: expiration + total row ---- */
 .tblwrap{overflow-x:auto}
-/* ---- chargement : overlay (graphe + cartouches liquidité) + spinner de ligne (tableau progressif) ---- */
+/* ---- loading: overlay (chart + liquidity tiles) + row spinner (progressive table) ---- */
 @keyframes spin{to{transform:rotate(360deg)}}
 .minispin{display:inline-block;width:12px;height:12px;border:2px solid var(--bd2);border-top-color:var(--mut);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px}
 .loadrow td{opacity:.7}
@@ -242,11 +242,11 @@ tr.selrow:hover td{background:color-mix(in srgb,var(--cta) 34%,transparent)}
 .loader-ov .bar i{display:block;height:100%;width:0;background:var(--fg);border-radius:3px;transition:width .25s ease}
 .loader-ov .cnt{font-size:11.5px;color:var(--mut2);font-variant-numeric:tabular-nums}
 .exp{color:var(--mut)}
-.exp.o{color:var(--warn);font-weight:600}      /* D4 : 2-5 min restantes */
-.exp.r{color:var(--bad);font-weight:700}       /* D4 : <2 min restantes */
+.exp.o{color:var(--warn);font-weight:600}      /* D4: 2-5 min remaining */
+.exp.r{color:var(--bad);font-weight:700}       /* D4: <2 min remaining */
 .totrow td{border-top:2px solid var(--bd2)}
 
-/* ---- suivi (trackBridge) : une ligne par tranche ---- */
+/* ---- tracking (trackBridge): one row per tranche ---- */
 .trk{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--bd)}
 .trk:last-child{border-bottom:0}
 .trk .ic{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;flex:none;background:var(--panel2);color:var(--mut2)}
@@ -258,16 +258,16 @@ tr.selrow:hover td{background:color-mix(in srgb,var(--cta) 34%,transparent)}
 .trk .lk a{color:inherit}
 .trk .status{margin-left:auto;font-size:12px;font-weight:600}
 
-/* ---- documentation (référence technique groupée) ---- */
+/* ---- documentation (grouped technical reference) ---- */
 .doc .lead{font-size:15px;color:var(--fg);margin:6px 0 2px}
 .docgroup{display:flex;align-items:center;gap:12px;margin:36px 0 4px}
 .docgroup h2{font-size:19px;color:var(--fg);margin:0;flex:none}
 .docgroup .rule{flex:1;height:1px;background:var(--bd)}
 .doc h3.docsub{font-size:15px;color:var(--fg);font-weight:640;margin:22px 0 8px}
-.doc p{color:var(--mut);margin:10px 0;line-height:1.65}   /* max-width retiré : les paragraphes utilisent toute la largeur (plus de coupure prématurée) */
+.doc p{color:var(--mut);margin:10px 0;line-height:1.65}   /* max-width removed: paragraphs use the full width (no more premature wrapping) */
 .doc .formula{font-family:var(--f-num);background:var(--panel2);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;color:var(--fg);font-size:13.5px;margin:10px 0;line-height:1.7}
 .doc ul{color:var(--mut);margin:8px 0;padding-left:18px}.doc li{margin:7px 0;line-height:1.6}
-/* bloc "signer & suivre" : deux cartes par sens + encarts aérés */
+/* "sign & track" block: two cards per direction + airy panels */
 .doc .signblock{margin-top:10px}
 .doc .signblock .grid2{margin:10px 0}
 .doc .signblock ul{margin:8px 0 0;padding-left:16px}
@@ -277,12 +277,12 @@ tr.selrow:hover td{background:color-mix(in srgb,var(--cta) 34%,transparent)}
 .doc .addrs a{color:var(--fg)} .doc .addrs a:hover{color:var(--cta)}
 .doc b{color:var(--fg);font-weight:640}
 .doc .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
-.doc .grid2>*{min-width:0}   /* laisse le .tblwrap interne rétrécir/scroller au lieu de déborder la grille (mobile) */
+.doc .grid2>*{min-width:0}   /* lets the inner .tblwrap shrink/scroll instead of overflowing the grid (mobile) */
 .doc code{background:var(--panel2);padding:1px 5px;border-radius:4px;font-size:12.5px}
 canvas{width:100%;height:auto;background:var(--chartbg);border-radius:8px;border:1px solid var(--bd);margin-top:4px}
 
 @media(max-width:720px){
   #reco .grid{grid-template-columns:1fr}
-  .liq,.doc .grid2{grid-template-columns:minmax(0,1fr)}   /* minmax(0,…) : la piste peut rétrécir sous son min-content → le .tblwrap interne scrolle au lieu de déborder */
+  .liq,.doc .grid2{grid-template-columns:minmax(0,1fr)}   /* minmax(0,…): the track can shrink below its min-content → the inner .tblwrap scrolls instead of overflowing */
   .liq .cell{border-right:0;border-bottom:1px solid var(--bd)}
 }

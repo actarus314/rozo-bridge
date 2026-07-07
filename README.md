@@ -1,5 +1,31 @@
 # rozo-bridge
 
+**Client-side** fee quote tool for the **Rozo Bridge** (EURC, Base ⇄ Stellar).
+Standalone static page: it queries the Rozo intents API (dry-run, no reservation)
+and on-chain balances to show the **exact cost** of a transfer, the **best split**,
+and the hubs' **live liquidity**. No build step, no dependency, no API key.
+
+## Run
+```bash
+cd web
+python3 serve.py
+```
+Serves `assets/` and opens the page locally. Requires only Python 3.
+
+## Command-line quote
+```bash
+CLI/rozo-quote.sh        # cf. CLI/README.md
+```
+
+## Structure
+- `web/`  — the app: `serve.py`, `rozo-bridge.html`, `assets/` (JS/CSS + vendored wallet kit)
+- `CLI/`  — `rozo-quote.sh`, command-line quote script
+- `data/` — runtime intent log (ignored by Git)
+
+---
+
+# rozo-bridge (français)
+
 Outil de devis de frais **côté client** pour le **Rozo Bridge** (EURC, Base ⇄ Stellar).
 Page statique autonome : elle interroge l'API intents de Rozo (en dry-run, sans réservation)
 et les soldes on-chain pour afficher le **coût exact** d'un transfert, le **meilleur découpage**

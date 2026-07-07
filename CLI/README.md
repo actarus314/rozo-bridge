@@ -1,49 +1,49 @@
-# Rozo bridge EURC Base ⇄ Stellar — devis & liquidité à l'avance
+# Rozo bridge EURC Base ⇄ Stellar — quote & liquidity ahead of time
 
-`rozo-quote.sh` interroge l'API publique Rozo (`intentapiv4.rozo.ai`, sans clé) pour
-connaître **le coût et la liquidité dispo AVANT de bridger**, dans les deux sens. Rien
-ne bouge (un intent est créé, mais aucun fonds n'est déplacé tant qu'on ne dépose pas).
+`rozo-quote.sh` queries the public Rozo API (`intentapiv4.rozo.ai`, no key) to
+know **the cost and available liquidity BEFORE bridging**, in both directions. Nothing
+moves (an intent is created, but no funds move until you deposit).
 
 ## Usage
 
 ```bash
-./rozo-quote.sh B2S 5000      # coût pour recevoir 5000 EURC sur Stellar
-./rozo-quote.sh S2B 5000      # coût pour recevoir 5000 EURC sur Base
-./rozo-quote.sh liq B2S       # liquidité max bridgeable maintenant (Base->Stellar)
-./rozo-quote.sh liq S2B       # liquidité max bridgeable maintenant (Stellar->Base)
-./rozo-quote.sh curve B2S     # courbe frais% vs montant
-./rozo-quote.sh hub           # soldes EURC des 2 hubs du relayer, on-chain
+./rozo-quote.sh B2S 5000      # cost to receive 5000 EURC on Stellar
+./rozo-quote.sh S2B 5000      # cost to receive 5000 EURC on Base
+./rozo-quote.sh liq B2S       # max bridgeable liquidity right now (Base->Stellar)
+./rozo-quote.sh liq S2B       # max bridgeable liquidity right now (Stellar->Base)
+./rozo-quote.sh curve B2S     # fee% vs amount curve
+./rozo-quote.sh hub           # EURC balances of the relayer's 2 hubs, on-chain
 
-# Page web autonome (devis + liquidité live + graphique de la courbe, modes clair/sombre) :
-open rozo-bridge.html         # ou la servir : python3 -m http.server
+# Standalone web page (quote + live liquidity + curve chart, light/dark modes):
+open rozo-bridge.html         # or serve it: python3 -m http.server
 
-# wallets destinataires surchargeables :
+# overridable destination wallets:
 ROZO_STELLAR=G... ROZO_EVM=0x... ./rozo-quote.sh B2S 1000
 ```
 
-## Ce qu'on a appris (30/06/2026)
+## What we learned (2026-06-30)
 
-- **Frais dynamiques**, à quoter à chaque fois (pas de barème fixe, pas de formule
-  fermée) : `fee%(montant, L)` = surface mesurée par sweep dryrun, où `L` = Available
-  restant du hub (baisse à chaque tranche empilée). Cap **dur à 0,50 %** (tous montants,
-  près de la déplétion) ; ~0,30 % à hub plein sur les gros montants (part protocole
-  bornée on-chain, `MAX_PROTOCOL_FEE_BPS=30`). B→S ~0,09 % à hub plein ; **S→B ~0,12 %**
-  (plus cher, même dynamique). Détail : `AUDIT-2-REPORT.md` / `fee-study/`.
-- **La liquidité est un float mince par sens**, pas un gros pool :
-  - **Base → Stellar** : plafond = solde EURC de `GB4CLV3U…BY5AA` sur Stellar
-    (API `Available` = ce solde au centime près, ~12,8k). Vérifiable on-chain.
-  - **Stellar → Base** : plafond ≠ `0x90DA…` (qui a ~10M EURC mais n'est PAS la source
-    de ce lane). C'est un autre relayer, float ~7,3k. **Pas de wallet fiable à watcher.**
-- **Donc la seule source de vérité = le quote API** (`liq`), pas un solde de wallet.
-- ⚠️ **appId** : le script (et l'app web) utilisent `rozoEURC` — c'est le seul appId
-  documenté et utilisé ; l'ancien nom `rozoAgent` était erroné et ne s'applique plus.
-  La liquidité dispo est propre à ce lane. Le site intents.rozo.ai peut router via un
-  autre appId à liquidité plus profonde (c'est pourquoi un bridge S→B de 16,8k a pu
-  passer via 0x90DA alors que `rozoEURC` cape à ~7,3k). Les FRAIS restent
-  représentatifs ; le PLAFOND est un minorant prudent.
+- **Dynamic fees**, quote every time (no fixed schedule, no closed-form
+  formula): `fee%(amount, L)` = surface measured by dryrun sweep, where `L` = Available
+  remaining in the hub (drops with each stacked tranche). **Hard cap at 0.50%** (all amounts,
+  near depletion); ~0.30% at a full hub on large amounts (protocol share
+  bounded on-chain, `MAX_PROTOCOL_FEE_BPS=30`). B→S ~0.09% at a full hub; **S→B ~0.12%**
+  (pricier, same dynamic). Details: `AUDIT-2-REPORT.md` / `fee-study/`.
+- **Liquidity is a thin float per direction**, not one big pool:
+  - **Base → Stellar**: cap = EURC balance of `GB4CLV3U…BY5AA` on Stellar
+    (API `Available` = this balance to the cent, ~12.8k). Verifiable on-chain.
+  - **Stellar → Base**: cap ≠ `0x90DA…` (which holds ~10M EURC but is NOT the source
+    for this lane). It's a different relayer, float ~7.3k. **No reliable wallet to watch.**
+- **So the only source of truth is the API quote** (`liq`), not a wallet balance.
+- ⚠️ **appId**: the script (and the web app) use `rozoEURC` — it's the only
+  documented and used appId; the old name `rozoAgent` was wrong and no longer applies.
+  Available liquidity is specific to this lane. intents.rozo.ai may route through an
+  other appId with deeper liquidity (which is why a 16.8k S→B bridge went
+  through 0x90DA even though `rozoEURC` caps at ~7.3k). FEES stay
+  representative; the CAP is a conservative lower bound.
 
-## Réflexe avant un gros bridge
+## Reflex before a large bridge
 
-1. `./rozo-quote.sh liq <SENS>` → vérifier que le montant passe.
-2. `./rozo-quote.sh <SENS> <montant>` → connaître le frais exact.
-3. Si plafond atteint : fractionner, ou attendre ~10 min (recharge JIT du relayer).
+1. `./rozo-quote.sh liq <DIR>` → check that the amount goes through.
+2. `./rozo-quote.sh <DIR> <amount>` → know the exact fee.
+3. If the cap is reached: split it, or wait ~10 min (relayer JIT refill).
