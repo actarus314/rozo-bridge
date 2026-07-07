@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Security
+- Batch cards now escape the connected wallet address before displaying it, and wallet-provider error messages are escaped too, so a malicious wallet or browser extension can no longer inject markup through them.
+- The local dev launcher (`serve.py`) now rejects cross-origin writes to its `/__log` endpoint and caps the request size, closing a drive-by-localhost write from another open tab.
+- Hardened the dev-only i18n/model self-checks so they no longer execute the app's own source with host privileges.
+
+### Fixed
+- Regenerating the expired chunks of a batch now requires the destination wallet to be connected, exactly like the initial generation — regenerated intents can no longer be routed to a placeholder address.
+- A chunk whose deposit may still be settling is no longer offered for regeneration, preventing a possible double payment.
+- The split table no longer marks an over-subscribed Stellar→Base split as feasible: per-chunk feasibility now accounts for the liquidity each earlier chunk reserves.
+- Generating is refused when the amount changed but the split has not been re-priced yet, so an intent is never created for a split the estimate never covered.
+- A chunk whose fee quote fails now shows an error with a **retry** action instead of spinning forever, and no longer hides the recommendation for the other chunk counts.
+- Opening the Documentation tab twice in quick succession no longer re-runs the whole fee-curve sweep against the API.
+- Toggling the language while offline no longer brings back a stale quote as if it were live.
+- The CLI `rozo-quote.sh liq`/`curve` now reject an invalid direction instead of sending a malformed request.
+
+### Accessibility
+- The quote and recommendation area is now an ARIA live region, so screen readers announce the computed price when it appears.
+
 ## [1.2.1](https://github.com/actarus314/rozo-bridge/releases/tag/v1.2.1) - 2026-07-07
 
 ### Fixed
