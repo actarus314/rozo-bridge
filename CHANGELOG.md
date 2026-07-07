@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [1.2.0] - 2026-07-07
 
 ### Added
+- A hosted demo on GitHub Pages (unofficial): <https://actarus314.github.io/rozo-bridge/> — the same client-side app, deployed from `web/`.
 - CLI `--json` flag (`rozo-quote.sh`): machine-readable output on any subcommand for piping into jq/spreadsheets (`curve` emits NDJSON).
 - Export the batch history: a CSV (one row per chunk — dates, direction, amounts, fee, intent id, deposit tx) and a full JSON, for reconciliation/accounting.
 - Regenerate only the expired, unsigned chunks of a batch: fresh intents for those rows, already-signed chunks kept (on Stellar→Base this re-reserves only the regenerated amounts).
