@@ -10,29 +10,24 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-**To Reproduce**
-Steps to reproduce the behavior:
+**To reproduce**
+Steps to reproduce the behavior, including:
+- Direction (Base→Stellar or Stellar→Base) and approximate amount
+- Whether a wallet was connected (which one: MetaMask/Rabby/Ambire, Freighter/Lobstr/other)
 1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+2. Click on '...'
+3. See error
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
 **Screenshots**
-If applicable, add screenshots to help explain your problem.
+If applicable, add screenshots to help explain the problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
-
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+**Environment**
+ - Browser + version: [e.g. Chrome 126]
+ - OS: [e.g. macOS 15]
+ - Any error in the browser console (F12 → Console)?
 
 **Additional context**
-Add any other context about the problem here.
+Add any other context about the problem here — this tool is 100% client-side and reads live data from Rozo's API, so a transient network/liquidity issue can sometimes look like a bug. If in doubt, try a page refresh first.
