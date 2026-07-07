@@ -912,12 +912,19 @@ if(location.protocol==="file:"){
 loadCurve(); updLbl(); updateDirUI(); drawChart(); quote(); simul(); refresh();   // loadCurve first: instant render from the cache, refresh only re-sweeps if the Available has moved
 loadBatches();   // #10: restores the persisted batches (purges expired ones + one-shot lock of chunks already deposited)
 
-(async function loadAppVersion(){   // footer: live GitHub release tag; static HTML text stays as fallback (offline, rate-limited, file://)
+(async function checkAppVersion(){   // footer shows the DEPLOYED version (static text, baked in at release). This does NOT overwrite it — it only checks the latest release and appends a discreet "newer version available" note if the deployed build is behind.
   const el=document.getElementById("appVersion"); if(!el) return;
+  const deployed=(el.textContent.match(/v\d[\w.-]*/)||[])[0];   // e.g. "v1.2.0" from "Rozo Bridge v1.2.0"
   try{
     const r=await fetch("https://api.github.com/repos/actarus314/rozo-bridge/releases/latest",{signal:AbortSignal.timeout(3000)});
     const j=await r.json();
-    if(j&&j.tag_name) el.textContent="Rozo Bridge "+j.tag_name;
+    if(j&&j.tag_name&&deployed&&j.tag_name!==deployed){   // a newer release than what's deployed here
+      const n=document.createElement("a");
+      n.href="https://github.com/actarus314/rozo-bridge/releases/latest"; n.target="_blank"; n.rel="noopener";
+      n.style.cssText="color:var(--warn);font-weight:600;text-decoration:none";
+      n.textContent=" · "+I18N[LANG].newVersion(j.tag_name);
+      el.insertAdjacentElement("afterend",n);
+    }
   }catch(e){}
 })();
 
