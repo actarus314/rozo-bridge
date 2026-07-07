@@ -54,6 +54,7 @@ const I18N={
     pCurveExplain:'<ul style="margin:0 0 0 -2px"><li>Points = mesures live (dryrun, identiques pour tous les appId).</li><li><b>Balayage paresseux</b> : lancé à l\'<b>ouverture de la page Doc</b>, seulement pour les montants <b>≤ plafond de liquidité</b> (+ un point exact au plafond) — sert uniquement à <b>ce graphe</b>, pas au devis.</li><li>Lignes verticales = plafond de liquidité <b>live</b> (= solde du hub) ; chaque courbe s\'<b>arrête à son plafond</b>.</li><li>Au-delà du plafond, un envoi unique est refusé (fractionne).</li><li>Les petits montants montent vers ~0,50 % (plancher 0,01 € + arrondi cent).</li><li>La génération donne le chiffre engageant.</li></ul>',
     pOfficialBridge:'Bridge officiel : <a href="https://intents.rozo.ai/bridge" target="_blank" rel="noopener">intents.rozo.ai/bridge ↗</a> · Documentation : <a href="https://docs.rozo.ai/" target="_blank" rel="noopener">docs.rozo.ai ↗</a> · GitHub : <a href="https://github.com/RozoAI" target="_blank" rel="noopener">github.com/RozoAI ↗</a> (contrat <a href="https://github.com/RozoAI/rozo-intents-contracts/blob/main/evm/src/RozoIntents.sol" target="_blank" rel="noopener">RozoIntents.sol ↗</a>)',
     pRefContact:'Contact Rozo : <a href="https://discord.gg/rozoai" target="_blank" rel="noopener">discord.gg/rozoai ↗</a> ou <a href="mailto:hi@rozo.ai">hi@rozo.ai</a>.',
+    pThisRepo:'Code de cet outil (non officiel) : <a href="https://github.com/actarus314/rozo-bridge" target="_blank" rel="noopener">github.com/actarus314/rozo-bridge ↗</a>',
     docGrpFees:"Le bridge Rozo & ses frais", docGrpCalc:"Comment l'outil calcule ce devis", docGrpExec:"Exécution", docGrpRef:"Références",
     h2Model:"Le modèle de frais Rozo",
     thBaseFull:"base % (plein)",
@@ -176,6 +177,7 @@ const I18N={
     pCurveExplain:'<ul style="margin:0 0 0 -2px"><li>Points = live measurements (dryrun, identical for every appId).</li><li><b>Lazy sweep</b>: launched when the <b>Doc page opens</b>, only for amounts <b>≤ the liquidity cap</b> (+ one exact point at the cap) — feeds <b>this chart only</b>, not the quote.</li><li>Vertical lines = <b>live</b> liquidity cap (= hub balance); each curve <b>stops at its cap</b>.</li><li>Beyond the cap, a single send is rejected (split it).</li><li>Small amounts read toward ~0.50% (0.01€ floor + cent rounding).</li><li>Generating gives the binding figure.</li></ul>',
     pOfficialBridge:'Official bridge: <a href="https://intents.rozo.ai/bridge" target="_blank" rel="noopener">intents.rozo.ai/bridge ↗</a> · Documentation: <a href="https://docs.rozo.ai/" target="_blank" rel="noopener">docs.rozo.ai ↗</a> · GitHub: <a href="https://github.com/RozoAI" target="_blank" rel="noopener">github.com/RozoAI ↗</a> (contract <a href="https://github.com/RozoAI/rozo-intents-contracts/blob/main/evm/src/RozoIntents.sol" target="_blank" rel="noopener">RozoIntents.sol ↗</a>)',
     pRefContact:'Rozo contact: <a href="https://discord.gg/rozoai" target="_blank" rel="noopener">discord.gg/rozoai ↗</a> or <a href="mailto:hi@rozo.ai">hi@rozo.ai</a>.',
+    pThisRepo:'This tool\'s code (unofficial): <a href="https://github.com/actarus314/rozo-bridge" target="_blank" rel="noopener">github.com/actarus314/rozo-bridge ↗</a>',
     docGrpFees:"The Rozo bridge & its fees", docGrpCalc:"How the tool computes this quote", docGrpExec:"Execution", docGrpRef:"References",
     h2Model:"Rozo's fee model",
     thBaseFull:"base % (full)",
@@ -1063,7 +1065,7 @@ function applyI18N(){
   setT("docGrpCalc",D.docGrpCalc); setT("h3Bridge",D.h3Bridge); setH("pBridge",D.pBridge); setT("h3Calc",D.h3Calc); setH("pCalc",D.pCalc); setT("h3Src",D.h3Src); setH("pSrc",D.pSrc); setT("h3Math",D.h3Math); setH("pMath",D.pMath);
   setT("h2NoAtomic",D.h2NoAtomic); setH("pNoAtomic",D.pNoAtomic);
   setT("h2SignTrack",D.h2SignTrack); setH("pSignTrack",D.pSignTrack);
-  setH("pOfficialBridge",D.pOfficialBridge); setH("pRefContact",D.pRefContact);
+  setH("pOfficialBridge",D.pOfficialBridge); setH("pRefContact",D.pRefContact); setH("pThisRepo",D.pThisRepo);
   setT("h2Addresses",D.h2Addresses); setT("hubStellarLabel",D.hubStellarLabel); setT("hubBaseLabel",D.hubBaseLabel);
   setH("pSources",D.pSources);
   setH("splitnote",D.splitEstimateNote);   // estimation note next to the Generate button (#2)
