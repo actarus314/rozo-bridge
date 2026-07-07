@@ -15,6 +15,8 @@ reports, fixes, and small improvements are welcome.
   (see the comment at the top of the file for how it's built).
 - No build step, no new dependencies for what a few lines of vanilla JS/CSS
   can do — this project is deliberately dependency-free.
+- User-facing change (a fix, a feature, a behavior change)? Add a line under
+  `[Unreleased]` in [CHANGELOG.md](CHANGELOG.md).
 
 ## Reporting a bug
 
