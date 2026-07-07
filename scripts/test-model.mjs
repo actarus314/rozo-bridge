@@ -57,4 +57,15 @@ const mkFees = (T, rate, maxN) => { const f = {}; for (let k = 1; k <= maxN; k++
   ok(r1 && r1.ok === false, 'chunk > liquidity -> row.ok=false');
 }
 
+// --- F-6: per-chunk feasibility must account for the reservation each earlier chunk drains ---
+// S2B reserves the Available → n chunks each ≤ L0 can still over-subscribe cumulatively (infeasible);
+// B2S does not reserve → the same split stays feasible (cap stays L0 per chunk). That asymmetry IS F-6.
+{
+  const T = 8000, L0 = 5000, fees = mkFees(T, 0.0012, 4);   // n=2 → two ~3995 receipts, each ≤ L0=5000 but ~2× cumulatively
+  const s2b = computeSplit('S2B', T, 'exactIn', L0, fees, 4, null).rows.find(r => r.n === 2);
+  ok(s2b && s2b.ok === false, 'F-6 S2B: cumulatively over-subscribed split (2×~3995 > L0=5000) is infeasible');
+  const b2s = computeSplit('B2S', T, 'exactIn', L0, fees, 4, null).rows.find(r => r.n === 2);
+  ok(b2s && b2s.ok === true, 'F-6 B2S: no reservation → cap stays L0, same split feasible');
+}
+
 console.log(`✓ model self-check: ${n} assertions passed`);
