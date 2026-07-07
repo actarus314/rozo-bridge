@@ -82,17 +82,6 @@
   </div>
   <div id="batchout" class="blk"></div>
 
-  <!-- Inverse planner: largest amount bridgeable (current direction) under a target fee% -->
-  <details class="card pad blk planner">
-    <summary id="plannerSummary">▸ Planificateur inverse — combien bridger sous X % de frais ?</summary>
-    <div class="prow">
-      <label id="plannerLabel" for="plannerPct">Frais % cible (max)</label>
-      <input id="plannerPct" class="num" type="number" min="0" step="0.01" placeholder="0.10" oninput="renderPlanner()" aria-label="Frais % cible max">
-      <span class="cur">%</span>
-    </div>
-    <div id="plannerOut" class="mut" style="margin-top:10px"></div>
-  </details>
-
 </section>
 
 <!-- ==================== DOCUMENTATION ==================== -->
@@ -187,7 +176,7 @@
 </div>
 
 <!-- app version: filled live from the latest GitHub release (see loadAppVersion() in app.js); static text below is only the offline/rate-limited fallback -->
-<footer id="appVersion" class="mut" style="max-width:960px;margin:0 auto;padding:0 22px 24px;font-size:11.5px;text-align:center">Rozo Bridge v1.1.0</footer>
+<footer class="mut" style="max-width:960px;margin:0 auto;padding:0 22px 24px;font-size:11.5px;text-align:center"><a id="appVersion" href="https://github.com/actarus314/rozo-bridge" target="_blank" rel="noopener" style="color:inherit">Rozo Bridge v1.1.0</a></footer>
 
 <!-- hover tooltip portal (position:fixed, above everything) — cf. #tipPortal in app.js -->
 <div id="tipPortal"></div>

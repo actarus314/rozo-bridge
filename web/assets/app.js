@@ -51,25 +51,6 @@ function livePct(dk,c){
   for(let i=1;i<pts.length;i++){ if(c<=pts[i][0]){ const a=pts[i-1],b=pts[i]; return a[1]+(b[1]-a[1])*(c-a[0])/(b[0]-a[0]); } }
   return pts[pts.length-1][1];
 }
-// Inverse planner: largest single send whose live fee% ≤ target, capped by the hub's liquidity L (the hard ceiling
-// for one batch). livePct rises with amount → the qualifying set is bounded above; scan then include the exact cap.
-function solveMaxAmount(dk,pMax){
-  const L=(LIVE[dk]&&LIVE[dk].L)||DIR[dk].L;
-  if(!(pMax>0)||!(L>0)) return null;
-  let best=0;
-  for(let c=10;c<=L;c+=Math.max(10,c*0.03)){ const p=livePct(dk,c); if(p!=null&&p<=pMax) best=c; }
-  const pL=livePct(dk,L); if(pL!=null&&pL<=pMax) best=L;   // include the exact liquidity cap
-  return { L, amount:best, pct:best?livePct(dk,best):null };
-}
-function renderPlanner(){
-  const el=document.getElementById("plannerOut"); if(!el) return;
-  const D=I18N[LANG], dk=document.getElementById("dir").value;
-  const pMax=+((document.getElementById("plannerPct")||{}).value);
-  if(!(pMax>0)){ el.innerHTML=""; return; }
-  const r=solveMaxAmount(dk,pMax);
-  el.innerHTML=(!r||!r.amount)?`<span class="mut">${D.plannerNone(pMax)}</span>`:D.plannerResult(r);
-}
-window.renderPlanner=renderPlanner;
 function hideSplitcard(){const sc=document.getElementById("splitcard");if(sc)sc.style.display="none";}
 // #7 — a wallet's EURC balance (sending chain) for the "max" button
 async function evmEurcBal(addr){
@@ -323,7 +304,6 @@ async function quote(){
     return;   // skip the trailing simul() (it would re-render loading rows that never resolve)
   }
   simul();
-  renderPlanner();   // refresh the inverse planner if a target fee% is set (direction/amount may have changed)
 }
 
 async function liq(dirKey){ // plafond via endpoint create (huge amount)
@@ -733,7 +713,6 @@ async function refresh(){
     if(_T>0) await ensureChunkFees(_dk,_T,_mode,LIVE[_dk]&&LIVE[_dk].L,splitMax,()=>simul());
     simul();
     lastTs={ok:!!(aB||aS||sH||bH),time:new Date()}; renderTs();
-    renderPlanner();   // liquidity just refreshed → update the inverse planner's cap
   } finally { window._refreshing=false; }
 }
 
@@ -743,7 +722,10 @@ function drawChart(){
   const cs=getComputedStyle(document.body),v=n=>cs.getPropertyValue(n).trim();
   const COL={grid:v('--bd'),grid2:v('--chartgrid'),text:v('--mut'),warn:v('--warn'),b2s:v('--b2s'),s2b:v('--s2b')};
   const W=c.width,H=c.height,L=58,R=18,T=18,B=44, x0=L,x1=W-R,y0=H-B,y1=T;
-  const XMAX=13000;
+  let XMAX=0; { let mx=0;   // x-axis auto-scale: fit both live caps + measured data, round up to a 2k step so the cap labels stay inside the plot
+    for(const dk of["B2S","S2B"]){ const Lv=LIVE[dk]&&LIVE[dk].L; if(Lv>mx)mx=Lv;
+      const ps=(LIVE[dk]&&LIVE[dk].pts)||MEAS[dk]||[]; for(const p of ps) if(p[0]>mx)mx=p[0]; }
+    XMAX=mx>0?Math.max(2000,Math.ceil(mx*1.08/2000)*2000):13000; }
   // Y axis auto-scale: adapts if the live fee exceeds 0.40% → no more curve out of frame
   let YMAX=0.40; { let mx=0; for(const dk of["B2S","S2B"]){ const ps=(LIVE[dk]&&LIVE[dk].pts)||MEAS[dk]||[]; for(const p of ps) if(p[1]>mx) mx=p[1]; } YMAX=Math.max(0.40, Math.ceil(mx*1.05/0.05)*0.05); }
   const X=val=>x0+(val/XMAX)*(x1-x0), Y=val=>y0-(val/YMAX)*(y0-y1);
@@ -751,7 +733,7 @@ function drawChart(){
   g.fillStyle=COL.text; g.lineWidth=1;
   for(let p=0;p<=YMAX+1e-9;p+=0.05){g.strokeStyle=COL.grid;g.beginPath();g.moveTo(x0,Y(p));g.lineTo(x1,Y(p));g.stroke();
     g.textAlign="right";g.fillText((p*100).toFixed(0)/100+"%",x0-8,Y(p));}
-  for(let xv=0;xv<=13000;xv+=2000){g.strokeStyle=COL.grid2;g.beginPath();g.moveTo(X(xv),y0);g.lineTo(X(xv),y1);g.stroke();
+  for(let xv=0;xv<=XMAX;xv+=2000){g.strokeStyle=COL.grid2;g.beginPath();g.moveTo(X(xv),y0);g.lineTo(X(xv),y1);g.stroke();
     g.textAlign="center";g.fillText(xv?(xv/1000)+"k":"0",X(xv),y0+16);}
   g.fillText(I18N[LANG].chartAmountAxis,(x0+x1)/2,H-10);
   for(const dk of["B2S","S2B"]){const col=dk==="B2S"?COL.b2s:COL.s2b;
@@ -759,7 +741,7 @@ function drawChart(){
     if(Lv){ const Lx=Math.min(X(Lv),x1);
       g.setLineDash([4,4]);g.strokeStyle=col;g.globalAlpha=.45;
       g.beginPath();g.moveTo(Lx,y0);g.lineTo(Lx,y1);g.stroke();g.globalAlpha=1;g.setLineDash([]);
-      g.textAlign="center";g.fillStyle=col;g.fillText(I18N[LANG].chartCap+eur(Math.round(Lv)),Lx,y1+(dk==="B2S"?40:54)); }
+      const capRight=Lx>x0+(x1-x0)*0.85; g.textAlign=capRight?"right":"center";g.fillStyle=col;g.fillText(I18N[LANG].chartCap+eur(Math.round(Lv)),capRight?Lx-4:Lx,y1+(dk==="B2S"?40:54)); }
     let cpts=Lv?pts.filter(p=>p[0]<=Lv):pts.slice();   // truncate at the live cap (beyond it = refused in 1 send)
     if(Lv){ const ye=livePct(dk,Lv); if(ye!=null) cpts=cpts.concat([[Lv,ye]]); }
     // solid line across the whole measured curve (near-edge dashing removed: the premise of a fee clamp near the cap is disproven by the measurements)
@@ -874,7 +856,6 @@ function applyI18N(){
   const hsa=document.getElementById("hubStellarA"); if(hsa) hsa.title=D.hubStellarTitle;
   const mxb=document.getElementById("maxbtn"); if(mxb) mxb.title=D.maxbtnTitle;
   document.querySelectorAll(".wbtn").forEach(b=>b.title=D.walletBtnHint);   // hover hint: quotes need no wallet, only signing does
-  setT("plannerSummary",D.plannerSummary); setT("plannerLabel",D.plannerLabel); if(typeof renderPlanner==="function") renderPlanner();
   const drb=document.getElementById("dirbtn"); if(drb) drb.title=D.dirbtnTitle;
   const cv=document.getElementById("chart"); if(cv) cv.setAttribute("aria-label",D.chartAriaLabel);
   ["amtSend","amtRecv"].forEach(id=>{const e=document.getElementById(id); if(e) e.placeholder=D.amtPlaceholder;});

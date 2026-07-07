@@ -61,9 +61,6 @@ button{font-family:inherit;cursor:pointer}
 .exportbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12px}
 .exportbar .egrow{flex:1}
 .regenbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:2px 0 10px;font-size:12px}
-.planner>summary{cursor:pointer;font-weight:600;color:var(--heading);list-style:none}
-.planner .prow{display:flex;align-items:center;gap:8px;margin-top:12px}
-.planner .prow input{width:110px}
 @media(max-width:640px){   /* mobile: free up rows so the tool isn't pushed far below the fold */
   .topbar{gap:8px;padding:8px 12px}
   .topbar #ts{display:none}
