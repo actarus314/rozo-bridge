@@ -34,22 +34,16 @@ const I18N={
   fr:{
     pageTitle:"Rozo Bridge EURC Base ⇄ Stellar — coût, liquidité, modèle",
     themeLight:"☀︎ clair", themeDark:"☾ sombre",
-    subtext:"Coût à l'avance, liquidité, modèle de frais reverse-engineeré. Page autonome — données live via API Rozo + on-chain.",
     navTool:"Bridge", navDoc:"Documentation", navDisp:"Dispersion", refreshTitle:"Rafraîchir",
     brandTitle:"Retour à l'accueil", hubBaseTitle:"Hub Base sur BaseScan", hubStellarTitle:"Hub Stellar sur stellar.expert",
     maxbtnTitle:"Remplir avec le solde du wallet d'envoi", dirbtnTitle:"Inverser le sens",
     chartAriaLabel:"Courbe du frais % en fonction du montant, par sens",
-    h2Quote:"Montant & recommandation",
-    optRecv:"Je veux recevoir…", optSend:"Je veux envoyer…",
-    amtSent:"EURC envoyés", amtRecv:"EURC reçus", btnCalc:"Calculer", amtPlaceholder:"montant",
-    h2Liq:"Liquidité disponible",
+    amtSent:"EURC envoyés", amtRecv:"EURC reçus", amtPlaceholder:"montant",
     tsUpdating:"· mise à jour…", tsUpdated:t=>"· mis à jour "+t, tsOffline:"· données live indisponibles (réseau bloqué)",
     loadCurve:"Mesure de la courbe de frais — un devis (dryrun) par palier de montant, sur les deux sens. L'API Rozo répond ~1,5 s par appel.",
     loadLiq:"Lecture de la liquidité des hubs — Available côté Rozo + soldes on-chain (RPC Base, Horizon Stellar).",
-    pLiqExplain:"Le plafond d'un sens = solde EURC du hub sur la chaîne de réception. Vérifiable on-chain au centime.",
-    thDir:"Sens", thHub:"Hub (chaîne reçue)", thLiqAvail:"Liquidité disponible API Rozo", thOnchain:"Vérification on-chain",
-    pDecoyWarn:'<span class="warn">⚠</span> <code>0x90DA…</code> (10,4M EURC) est un leurre : ancien filler, PAS le hub actuel. Float rechargé en just-in-time → re-checker avant un gros transfert.',
-    lblWallets:"Wallets :", notConnected:"non connecté",
+    thDir:"Sens", thLiqAvail:"Liquidité disponible API Rozo", thOnchain:"Vérification on-chain",
+    notConnected:"non connecté",
     h2Curve:"Courbe des frais (frais % vs montant)",
     pCurveExplain:'<ul style="margin:0 0 0 -2px"><li>Points = mesures live (dryrun, identiques pour tous les appId).</li><li><b>Balayage paresseux</b> : lancé à l\'<b>ouverture de la page Doc</b>, seulement pour les montants <b>≤ plafond de liquidité</b> (+ un point exact au plafond) — sert uniquement à <b>ce graphe</b>, pas au devis.</li><li>Lignes verticales = plafond de liquidité <b>live</b> (= solde du hub) ; chaque courbe s\'<b>arrête à son plafond</b>.</li><li>Au-delà du plafond, un envoi unique est refusé (fractionne).</li><li>Les petits montants montent vers ~0,50 % (plancher 0,01 € + arrondi cent).</li><li>La génération donne le chiffre engageant.</li></ul>',
     pOfficialBridge:'Bridge officiel : <a href="https://intents.rozo.ai/bridge" target="_blank" rel="noopener">intents.rozo.ai/bridge ↗</a> · Documentation : <a href="https://docs.rozo.ai/" target="_blank" rel="noopener">docs.rozo.ai ↗</a> · GitHub : <a href="https://github.com/RozoAI" target="_blank" rel="noopener">github.com/RozoAI ↗</a> (contrat <a href="https://github.com/RozoAI/rozo-intents-contracts/blob/main/evm/src/RozoIntents.sol" target="_blank" rel="noopener">RozoIntents.sol ↗</a>)',
@@ -157,22 +151,16 @@ const I18N={
   en:{
     pageTitle:"Rozo Bridge EURC Base ⇄ Stellar — cost, liquidity, model",
     themeLight:"☀︎ light", themeDark:"☾ dark",
-    subtext:"Upfront cost, liquidity, reverse-engineered fee model. Standalone page — live data via Rozo API + on-chain.",
     navTool:"Bridge", navDoc:"Documentation", navDisp:"Dispersion", refreshTitle:"Refresh",
     brandTitle:"Back to home", hubBaseTitle:"Base hub on BaseScan", hubStellarTitle:"Stellar hub on stellar.expert",
     maxbtnTitle:"Fill with the sending wallet's balance", dirbtnTitle:"Reverse direction",
     chartAriaLabel:"Fee % versus amount curve, per direction",
-    h2Quote:"Amount & recommendation",
-    optRecv:"I want to receive…", optSend:"I want to send…",
-    amtSent:"EURC sent", amtRecv:"EURC received", btnCalc:"Calculate", amtPlaceholder:"amount",
-    h2Liq:"Available liquidity",
+    amtSent:"EURC sent", amtRecv:"EURC received", amtPlaceholder:"amount",
     tsUpdating:"· updating…", tsUpdated:t=>"· updated "+t, tsOffline:"· live data unavailable (network blocked)",
     loadCurve:"Measuring the fee curve — one quote (dryrun) per amount step, on both directions. The Rozo API answers in ~1.5s per call.",
     loadLiq:"Reading hub liquidity — Rozo Available + on-chain balances (Base RPC, Stellar Horizon).",
-    pLiqExplain:"The cap for a direction = the hub's EURC balance on the receiving chain. Verifiable on-chain to the cent.",
-    thDir:"Direction", thHub:"Hub (receiving chain)", thLiqAvail:"Available liquidity (Rozo API)", thOnchain:"On-chain check",
-    pDecoyWarn:'<span class="warn">⚠</span> <code>0x90DA…</code> (10.4M EURC) is a decoy: old filler, NOT the current hub. Float reloaded just-in-time → re-check before a large transfer.',
-    lblWallets:"Wallets:", notConnected:"not connected",
+    thDir:"Direction", thLiqAvail:"Available liquidity (Rozo API)", thOnchain:"On-chain check",
+    notConnected:"not connected",
     h2Curve:"Fee curve (fee % vs amount)",
     pCurveExplain:'<ul style="margin:0 0 0 -2px"><li>Points = live measurements (dryrun, identical for every appId).</li><li><b>Lazy sweep</b>: launched when the <b>Doc page opens</b>, only for amounts <b>≤ the liquidity cap</b> (+ one exact point at the cap) — feeds <b>this chart only</b>, not the quote.</li><li>Vertical lines = <b>live</b> liquidity cap (= hub balance); each curve <b>stops at its cap</b>.</li><li>Beyond the cap, a single send is rejected (split it).</li><li>Small amounts read toward ~0.50% (0.01€ floor + cent rounding).</li><li>Generating gives the binding figure.</li></ul>',
     pOfficialBridge:'Official bridge: <a href="https://intents.rozo.ai/bridge" target="_blank" rel="noopener">intents.rozo.ai/bridge ↗</a> · Documentation: <a href="https://docs.rozo.ai/" target="_blank" rel="noopener">docs.rozo.ai ↗</a> · GitHub: <a href="https://github.com/RozoAI" target="_blank" rel="noopener">github.com/RozoAI ↗</a> (contract <a href="https://github.com/RozoAI/rozo-intents-contracts/blob/main/evm/src/RozoIntents.sol" target="_blank" rel="noopener">RozoIntents.sol ↗</a>)',
@@ -1049,14 +1037,10 @@ function applyI18N(){
   // RC-8: accessible name per input (send vs receive) — the neighboring <span class="lbl"> isn't a <label for>, a screen reader can't tell them apart without aria-label
   const setAria=(id,v)=>{const e=document.getElementById(id); if(e) e.setAttribute("aria-label",v);};
   setAria("amtSend",D.amtSent); setAria("amtRecv",D.amtRecv);
-  setT("subtext",D.subtext); setT("h2Quote",D.h2Quote);
-  setT("optRecv",D.optRecv); setT("optSend",D.optSend);
-  setT("btnCalc",D.btnCalc); setT("h2Liq",D.h2Liq);
-  setT("pLiqExplain",D.pLiqExplain); setT("thDir",D.thDir); setT("thHub",D.thHub);
+  setT("thDir",D.thDir);
   setT("thLiqAvail",D.thLiqAvail); setT("thOnchain",D.thOnchain);
   setT("thLiqAvail2",D.thLiqAvail); setT("thOnchain2",D.thOnchain);
-  setH("pDecoyWarn",D.pDecoyWarn);
-  setT("lblWallets",D.lblWallets); setT("evmStatus",D.notConnected); setT("sStatus",D.notConnected);
+  setT("evmStatus",D.notConnected); setT("sStatus",D.notConnected);
   setT("h2Curve",D.h2Curve); setH("pCurveExplain",D.pCurveExplain);
   setT("docGrpFees",D.docGrpFees); setT("docGrpExec",D.docGrpExec); setT("docGrpRef",D.docGrpRef);
   setT("h2Model",D.h2Model); setH("pModelDisclaimer",D.pModelDisclaimer); setH("formulaText",D.formulaText); setT("thSens2",D.thDir); setT("thBaseFull",D.thBaseFull);
