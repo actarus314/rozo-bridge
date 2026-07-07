@@ -50,6 +50,8 @@ re-deriving that curve from real data, not assuming a formula. This tool does th
 
 ## Quick start
 
+**Live demo (unofficial):** <https://actarus314.github.io/rozo-bridge/> — or run it locally:
+
 ```bash
 git clone https://github.com/actarus314/rozo-bridge.git
 cd rozo-bridge/web
@@ -136,6 +138,8 @@ réelles, pas de supposer une formule. C'est ce que fait cet outil :
   rien à croire au-delà de ce qui est lisible dans `assets/app.js`.
 
 ## Démarrage rapide
+
+**Démo en ligne (non officielle) :** <https://actarus314.github.io/rozo-bridge/> — ou en local :
 
 ```bash
 git clone https://github.com/actarus314/rozo-bridge.git
