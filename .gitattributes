@@ -1,0 +1,7 @@
+# Vendoring a pre-built third-party bundle? Mark it so GitHub excludes it
+# from language stats and from CodeQL analysis (it's not code you maintain).
+# Verify its integrity via a checked-in `<file>.sha256`, validated in CI —
+# never by editing the vendored file itself.
+#
+# path/to/vendored-bundle.js linguist-vendored=true
+# path/to/vendored-bundle.js linguist-generated=true
