@@ -1,0 +1,25 @@
+# Common to every project. `init-project.sh` appends the npm ecosystem for the `node` TOOLCHAIN,
+# and the docker ecosystem for the ARTEFACT capability (a static site that ships an image gets it too);
+# declaring npm here unconditionally makes Dependabot fail on a static repo, which has no
+# package.json by definition ("Error during file fetching; aborting: /package.json not found").
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+
+  # Sans ce bloc pip, les scanners de sécurité épinglés (requirements-ci.txt) ne sont bumpés par personne.
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      ci-tools:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
