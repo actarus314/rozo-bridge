@@ -1,0 +1,86 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":semanticCommitsDisabled"],
+
+  "description": [
+    "Renovate ne fait ICI QU'UNE SEULE chose : bumper les BINAIRES épinglés par version + SHA256",
+    "que Dependabot ne voit pas (il ne lit jamais une commande shell : ces outils sont curl-és",
+    "dans un `run:`). Sans lui, gitleaks/actionlint/osv-scanner/trivy GÈLENT — et un scanner de",
+    "sécurité figé finit par rater ce qu'il est censé trouver.",
+    "",
+    "⚠ CETTE CLÉ S'APPELLE `description`, ET CE N'EST PAS UN DÉTAIL. Elle portait un nom maison",
+    "(`_comment_role`) : Renovate REJETTE toute clé inconnue et STOPPE TOUTES LES PR du repo —",
+    "« Invalid configuration option ». Le fichier était donc INERTE, et les 4 binaires gelaient",
+    "en silence. Constaté à la 1ʳᵉ installation réelle de l'app (test003, 2026-07-14).",
+    "`description` est la SEULE clé prévue pour commenter : Renovate l'ignore et l'accepte.",
+    "",
+    "⚠ `enabledManagers` = custom.regex UNIQUEMENT. Sans cette ligne, Renovate ouvrirait AUSSI des",
+    "PR pour npm, docker, pip et les actions — que Dependabot gère déjà : TOUTES les PR en DOUBLE.",
+    "Frontière nette : Dependabot = les écosystèmes déclarés (dependabot.yml). Renovate = les binaires.",
+    "",
+    "⚠ LES `*_VERSION` DES WORKFLOWS PORTENT LE PRÉFIXE `v` (v8.30.1, PAS 8.30.1), ET C'EST OBLIGATOIRE.",
+    "La datasource `github-release-attachments` résout le digest par `GET /releases/tags/{currentValue}`.",
+    "Les 4 outils taguent `vX.Y.Z` : une valeur SANS `v` renvoie un 404, Renovate abandonne, et AUCUNE",
+    "PR n'est ouverte — sans rien casser de visible. (Bug amont ouvert : renovatebot/renovate#27317.)",
+    "C'est pourquoi il n'y a PAS d'`extractVersionTemplate` ici : la valeur stockée EST le tag réel.",
+    "Le `run:` du workflow retire le `v` lui-même pour reconstruire le nom de l'asset.",
+    "",
+    "Le digest n'est jamais deviné : Renovate RETROUVE l'asset dont le SHA256 égale celui déjà présent",
+    "dans le fichier (via le `checksums.txt` publié avec la release), puis lit son équivalent dans la",
+    "nouvelle. Il ne peut donc pas se tromper d'asset — tant que le SHA256 en place est le bon.",
+    "FILET : si le digest proposé était faux, `sha256sum -c` fait ÉCHOUER la CI — bruyamment,",
+    "jamais en silence. Une PR Renovate rouge se ferme ; elle ne peut pas empoisonner main."
+  ],
+
+  "enabledManagers": ["custom.regex"],
+  "schedule": ["before 6am on monday"],
+  "prConcurrentLimit": 3,
+  "labels": ["dependencies", "ci-tooling"],
+
+  "packageRules": [
+    {
+      "description": "Minor/patch groupés en une PR. Les MAJEURES restent isolées : un major de scanner change les règles, donc les findings — ça se regarde seul.",
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "outils CI (binaires épinglés)"
+    }
+  ],
+
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": [
+        "GITLEAKS_VERSION:\\s*(?<currentValue>\\S+)\\s*\\n\\s*GITLEAKS_SHA256:\\s*(?<currentDigest>[a-f0-9]{64})"
+      ],
+      "depNameTemplate": "gitleaks/gitleaks",
+      "datasourceTemplate": "github-release-attachments"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": [
+        "ACTIONLINT_VERSION:\\s*(?<currentValue>\\S+)\\s*\\n\\s*ACTIONLINT_SHA256:\\s*(?<currentDigest>[a-f0-9]{64})"
+      ],
+      "depNameTemplate": "rhysd/actionlint",
+      "datasourceTemplate": "github-release-attachments"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": [
+        "OSV_VERSION:\\s*(?<currentValue>\\S+)\\s*\\n\\s*OSV_SHA256:\\s*(?<currentDigest>[a-f0-9]{64})"
+      ],
+      "depNameTemplate": "google/osv-scanner",
+      "datasourceTemplate": "github-release-attachments"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": [
+        "TRIVY_VERSION:\\s*(?<currentValue>\\S+)\\s*\\n\\s*TRIVY_SHA256:\\s*(?<currentDigest>[a-f0-9]{64})"
+      ],
+      "depNameTemplate": "aquasecurity/trivy",
+      "datasourceTemplate": "github-release-attachments"
+    }
+  ]
+}

@@ -25,6 +25,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       # Pages serves index.html at the site root → the bare URL loads the app directly.
       # Done at deploy time only, so no index.html is committed to the repo.
       - run: cp web/rozo-bridge.html web/index.html
