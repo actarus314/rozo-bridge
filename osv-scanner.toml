@@ -1,0 +1,7 @@
+# Vulnerabilities acknowledged and deliberately not failing CI.
+# Auto-discovered by osv-scanner because it sits next to package-lock.json.
+
+[[IgnoredVulns]]
+id = "GHSA-848j-6mx2-7j84"
+ignoreUntil = 2026-10-16
+reason = "elliptic 6.6.1: dev-toolchain-only transitive dep, never shipped to runtime; no fixed version published; signing is delegated to the user's wallet. Re-evaluate when a fix ships."
