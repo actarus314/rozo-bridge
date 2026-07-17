@@ -9,4 +9,4 @@
 # Épinglés à la version EXACTE (`==`) : une CI doit être reproductible, et un bump de scanner
 # peut faire apparaître des findings — cela se regarde dans une PR, pas un matin au hasard.
 zizmor==1.27.0
-semgrep==1.169.0
+semgrep==1.170.0
