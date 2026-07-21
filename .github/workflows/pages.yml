@@ -20,6 +20,11 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # GitHub Pages requires a paid plan on a PRIVATE repo: the deploy fails on every push
+    # ("Resource not accessible by integration"). Skipped while private, publishes on its own
+    # once the repo goes public. `!= 'private'` (not `== 'public'`) so a missing field means
+    # "run", never "silently stop deploying".
+    if: github.event.repository.visibility != 'private'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
