@@ -3,44 +3,49 @@
   "extends": ["config:recommended", ":semanticCommitsDisabled"],
 
   "description": [
-    "Renovate ne fait ICI QU'UNE SEULE chose : bumper les BINAIRES épinglés par version + SHA256",
-    "que Dependabot ne voit pas (il ne lit jamais une commande shell : ces outils sont curl-és",
-    "dans un `run:`). Sans lui, gitleaks/actionlint/osv-scanner/trivy GÈLENT — et un scanner de",
-    "sécurité figé finit par rater ce qu'il est censé trouver.",
+    "Renovate est le SEUL bot d'update du projet (bascule full-Renovate, 2026-07). Il AUTO-DÉTECTE",
+    "tous les écosystèmes depuis les manifestes (npm, pip, docker, actions, gradle, cargo, go, conan…)",
+    "SANS liste à tenir — c'est ce qui rend le scope universel : un langage ajouté demain est couvert",
+    "sans toucher ce fichier. Dependabot est retiré car il ne sait NI auto-détecter (chaque écosystème",
+    "à déclarer à la main) NI lire un binaire curl-é dans un `run:`. Les Dependabot ALERTS (détection",
+    "de CVE, natives, gratuites en privé) RESTENT actives : Renovate les LIT pour ouvrir les PR sécu.",
     "",
-    "⚠ CETTE CLÉ S'APPELLE `description`, ET CE N'EST PAS UN DÉTAIL. Elle portait un nom maison",
-    "(`_comment_role`) : Renovate REJETTE toute clé inconnue et STOPPE TOUTES LES PR du repo —",
-    "« Invalid configuration option ». Le fichier était donc INERTE, et les 4 binaires gelaient",
-    "en silence. Constaté à la 1ʳᵉ installation réelle de l'app (test003, 2026-07-14).",
-    "`description` est la SEULE clé prévue pour commenter : Renovate l'ignore et l'accepte.",
+    "POLITIQUE D'UPDATE — être à jour, mais par gestes revus :",
+    "· version de ROUTINE = PR revue par un humain (`automerge` top-level laissé à false).",
+    "· SÉCURITÉ = auto-merge (`vulnerabilityAlerts.automerge`). Les PR de sécu BYPASSENT nativement",
+    "  `minimumReleaseAge` (doc Renovate : « security updates bypass any minimumReleaseAge checks »).",
+    "  Le délai de 3 j anti-release-vérolée s'applique donc à la routine, JAMAIS à un fix de CVE.",
     "",
-    "⚠ `enabledManagers` = custom.regex UNIQUEMENT. Sans cette ligne, Renovate ouvrirait AUSSI des",
-    "PR pour npm, docker, pip et les actions — que Dependabot gère déjà : TOUTES les PR en DOUBLE.",
-    "Frontière nette : Dependabot = les écosystèmes déclarés (dependabot.yml). Renovate = les binaires.",
+    "⚠ CETTE CLÉ S'APPELLE `description` — la SEULE prévue pour commenter. Une clé INCONNUE fait",
+    "Renovate REJETER toute la config et STOPPER TOUTES les PR, en silence (bug `_comment_role`,",
+    "test003, 14/07). Valider chaque modif : `renovate-config-validator` (déjà lancé en CI).",
     "",
-    "⚠ LES `*_VERSION` DES WORKFLOWS PORTENT LE PRÉFIXE `v` (v8.30.1, PAS 8.30.1), ET C'EST OBLIGATOIRE.",
-    "La datasource `github-release-attachments` résout le digest par `GET /releases/tags/{currentValue}`.",
-    "Les 4 outils taguent `vX.Y.Z` : une valeur SANS `v` renvoie un 404, Renovate abandonne, et AUCUNE",
-    "PR n'est ouverte — sans rien casser de visible. (Bug amont ouvert : renovatebot/renovate#27317.)",
-    "C'est pourquoi il n'y a PAS d'`extractVersionTemplate` ici : la valeur stockée EST le tag réel.",
-    "Le `run:` du workflow retire le `v` lui-même pour reconstruire le nom de l'asset.",
-    "",
-    "Le digest n'est jamais deviné : Renovate RETROUVE l'asset dont le SHA256 égale celui déjà présent",
-    "dans le fichier (via le `checksums.txt` publié avec la release), puis lit son équivalent dans la",
-    "nouvelle. Il ne peut donc pas se tromper d'asset — tant que le SHA256 en place est le bon.",
-    "FILET : si le digest proposé était faux, `sha256sum -c` fait ÉCHOUER la CI — bruyamment,",
-    "jamais en silence. Une PR Renovate rouge se ferme ; elle ne peut pas empoisonner main."
+    "⚠ Les `*_VERSION` des binaires portent le préfixe `v` (v8.30.1, PAS 8.30.1) : OBLIGATOIRE. La",
+    "datasource `github-release-attachments` résout le digest par GET /releases/tags/{currentValue} ;",
+    "sans `v` → 404, Renovate abandonne, aucune PR — sans rien casser de visible (renovatebot/renovate#27317).",
+    "Le digest n'est jamais deviné : Renovate retrouve l'asset dont le SHA256 égale celui déjà en place",
+    "(via le checksums.txt de la release). FILET : un digest faux fait ÉCHOUER `sha256sum -c` en CI."
   ],
 
-  "enabledManagers": ["custom.regex"],
   "schedule": ["before 6am on monday"],
-  "prConcurrentLimit": 3,
-  "labels": ["dependencies", "ci-tooling"],
+  "minimumReleaseAge": "3 days",
+  "prConcurrentLimit": 10,
+  "labels": ["dependencies"],
+
+  "vulnerabilityAlerts": {
+    "labels": ["dependencies", "security"],
+    "automerge": true
+  },
 
   "packageRules": [
     {
-      "description": "Minor/patch groupés en une PR. Les MAJEURES restent isolées : un major de scanner change les règles, donc les findings — ça se regarde seul.",
+      "description": "Minor/patch groupés pour ne pas noyer le reviewer. Les MAJEURES restent isolées : un major se regarde seul.",
       "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "deps (minor + patch)"
+    },
+    {
+      "description": "Les 4 binaires de scan épinglés (VERSION+SHA256 en run:) : leur propre groupe — un major de scanner change ses règles, donc les findings.",
+      "matchManagers": ["custom.regex"],
       "groupName": "outils CI (binaires épinglés)"
     }
   ],

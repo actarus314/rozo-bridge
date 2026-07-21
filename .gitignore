@@ -22,6 +22,19 @@ data/
 *.db-wal
 *.db-shm
 
+# binaires épinglés que check.sh télécharge pour aligner le local sur la CI
+.ci-tools/
+
+# Outillage Python de la CI (semgrep, zizmor) — SOUSTRAIT au scan de dépendances.
+# osv-scanner respecte les patterns de ce .gitignore : listé ici, il n'est PAS scanné (`scan -r .`).
+# Il DOIT pourtant rester versionné — la CI fait `pip install -r requirements-ci.txt` — donc il est
+# suivi via `git add -f` (même motif que .envrc/CLAUDE.md). Renovate, lui, indexe les fichiers SUIVIS,
+# pas le .gitignore : il continue de bumper le scanner (prouvé). NE JAMAIS `git rm --cached`.
+# POURQUOI le soustraire : c'est de l'outillage de dev, jamais expédié au runtime. Résoudre son graphe
+# transitif ne remonte que des CVE d'outils de CI (leur dep `python-multipart`, `mcp`…) — du bruit,
+# pas la surface d'attaque du produit. Les vrais manifestes d'app, eux, ne sont pas ignorés → scannés.
+/requirements-ci.txt
+
 # misc
 .DS_Store
 *.log

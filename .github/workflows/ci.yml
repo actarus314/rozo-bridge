@@ -86,18 +86,21 @@ jobs:
           python3 -m pip install --quiet -r requirements-ci.txt
           semgrep scan --error --quiet --metrics=off --exclude=.github \
             --config p/security-audit --config p/owasp-top-ten .
-      # A static site usually has no lockfile — the step then has nothing to scan and is skipped.
-      # Guard on the STEP, never on the job: a required check that never reports leaves every PR
-      # stuck forever on "Expected — waiting for status".
+      # osv-scanner AUTO-DISCOVERS every lockfile/manifest in the repo (`-r .`): npm, pip, go, cargo…
+      # — the scope follows the code, never a hand-kept list. The one carve-out is likewise NOT a
+      # per-target list: CI-only tooling (requirements-ci.txt) is subtracted in .gitignore, which osv
+      # honours (dev tools, never shipped — see that file). `--allow-no-lockfiles` exits 0 when a
+      # repo has none (a pure static site) instead of erroring. No `hashFiles` guard: the step always
+      # runs and always reports (a required check that never reports leaves every PR stuck on
+      # "Expected — waiting for status").
       - name: Vulnerable dependencies (osv-scanner, pinned + checksum-verified)
-        if: hashFiles('package-lock.json') != ''
         run: |
           set -euo pipefail
           curl -sSfL -o osv-scanner \
             "https://github.com/google/osv-scanner/releases/download/${OSV_VERSION}/osv-scanner_linux_amd64"
           echo "${OSV_SHA256}  osv-scanner" | sha256sum -c -
           chmod +x osv-scanner
-          ./osv-scanner scan source --lockfile=package-lock.json
+          ./osv-scanner scan source -r . --allow-no-lockfiles
       - name: Audit workflows (zizmor)
         run: |
           set -euo pipefail

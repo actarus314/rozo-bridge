@@ -29,3 +29,28 @@ if ! output=$(gitleaks git --staged --no-banner --redact 2>&1); then
   echo "  False positive? Add a narrow rule to .gitleaksignore, never bypass blindly."
   exit 1
 fi
+
+# --- Pré-vol « local == github », throttlé et CONSULTATIF ---------------------------------------
+# Pour ne pas avoir à penser à lancer ./check.sh : si son dernier passage date de plus de N heures
+# (défaut 24, régler via CHECK_MAX_AGE_HOURS), on le rejoue ici. C'est CONSULTATIF — jamais un
+# blocage : le seul filet DUR de ce hook reste gitleaks, ci-dessus. Un écart relevé par check.sh est
+# AFFICHÉ (la CI, elle, bloquera au push) mais laisse passer le commit — sinon un lint sans rapport,
+# ou un simple hors-ligne, coincerait un commit et pousserait au réflexe --no-verify, qui érode le
+# vrai garde-fou. On horodate même en cas d'écart : rappeler une fois par fenêtre, pas à chaque commit.
+if [ -x ./check.sh ]; then
+  stamp=.ci-tools/.last-check
+  max_h="${CHECK_MAX_AGE_HOURS:-24}"
+  now=$(date +%s)
+  last=0
+  [ -f "$stamp" ] && last=$(stat -f %m "$stamp" 2>/dev/null || stat -c %Y "$stamp" 2>/dev/null || echo 0)
+  if [ $(( (now - last) / 3600 )) -ge "$max_h" ]; then
+    echo "▸ Pré-vol local == github (dernier passage > ${max_h} h) — consultatif…"
+    ./check.sh || {
+      echo "⚠ check.sh a relevé des écarts (voir au-dessus) — commit NON bloqué (consultatif)."
+      echo "  À corriger avant de pousser : la CI, elle, bloquera."
+    }
+    mkdir -p .ci-tools && touch "$stamp"
+  fi
+fi
+
+exit 0
