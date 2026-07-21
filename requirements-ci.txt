@@ -1,12 +1,12 @@
-# Outils Python de la CI, épinglés.
+# The CI's Python tooling, pinned.
 #
-# POURQUOI CE FICHIER PLUTÔT QU'UN `pip install zizmor==X` DANS LE YAML :
-# ni Dependabot ni Renovate ne lisent une commande shell. Une version épinglée dans un `run:`
-# n'est surveillée par PERSONNE — elle pourrit sur place, et un scanner de sécurité figé finit
-# par rater ce qu'il est censé trouver. Ici, Dependabot le suit NATIVEMENT (écosystème `pip`),
-# sans une ligne de configuration custom.
+# WHY THIS FILE RATHER THAN A `pip install zizmor==X` IN THE YAML:
+# an update bot NEVER reads a shell command. A version pinned inside a `run:` is watched by
+# NOBODY — it rots in place, and a frozen security scanner ends up missing what it exists to
+# find. Here, Renovate tracks it NATIVELY (auto-detected `pip_requirements` manager), without
+# a single line of custom configuration.
 #
-# Épinglés à la version EXACTE (`==`) : une CI doit être reproductible, et un bump de scanner
-# peut faire apparaître des findings — cela se regarde dans une PR, pas un matin au hasard.
+# Pinned to the EXACT version (`==`): a CI has to be reproducible, and bumping a scanner can
+# surface new findings — that gets reviewed in a pull request, not on a random morning.
 zizmor==1.27.0
 semgrep==1.170.0

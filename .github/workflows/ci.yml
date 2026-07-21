@@ -50,36 +50,39 @@ jobs:
           echo "${ACTIONLINT_SHA256}  ${f}" | sha256sum -c -
           tar -xzf "$f" actionlint
           ./actionlint -color
-      # Semgrep + osv-scanner — pourquoi les DEUX, et ce que chacun fait VRAIMENT.
+      # Semgrep + osv-scanner — why BOTH, and what each one ACTUALLY does.
       #
-      # semgrep = la SEULE analyse statique du CODE qui tourne en PRIVÉ. CodeQL y est interdit par
-      #   LICENCE (pas par une limite technique), et un repo passe toute sa jeunesse en privé : sans
-      #   semgrep, le code n'est JAMAIS analysé jusqu'au flip, où CodeQL déverse tout l'arriéré.
-      #   ⚠ NE PAS écrire « semgrep attrape ce que CodeQL rate ». C'est la phrase confortable, et elle
-      #     n'est ÉTAYÉE PAR RIEN. Semgrep CE est intra-fichier ET intra-fonction — le dataflow
-      #     inter-procédural est dans l'édition Pro, payante — là où CodeQL fait du dataflow
-      #     cross-fichier. semgrep PRÉCÈDE CodeQL, il ne le dépasse pas. Il est gardé pour la PHASE
-      #     PRIVÉE : cette raison suffit, et il n'en faut pas une fausse en plus.
+      # semgrep = the ONLY static analysis of the CODE that runs while PRIVATE. CodeQL is barred
+      #   there by LICENCE (not by a technical limit), and a repository spends its whole youth
+      #   private: without semgrep the code is NEVER analysed until the flip, where CodeQL then
+      #   dumps the entire backlog at once.
+      #   ⚠ Do NOT write "semgrep catches what CodeQL misses". That is the comfortable line, and
+      #     NOTHING backs it. Semgrep CE is intra-file AND intra-function — inter-procedural
+      #     dataflow lives in the paid Pro edition — where CodeQL does cross-file dataflow. semgrep
+      #     PRECEDES CodeQL, it does not surpass it. It is kept for the PRIVATE PHASE: that reason
+      #     is sufficient on its own, and a false one added on top helps nobody.
       #
-      # osv-scanner = le GATE pré-merge des dépendances.
-      #   ⚠ NE PAS écrire « rien d'autre ne voit les vulnérabilités en privé » : Dependabot ALERTS
-      #     fonctionne en privé, gratuitement. Mais il alerte APRÈS COUP, sur la branche par défaut —
-      #     quand le code est DÉJÀ entré. osv-scanner, lui, BLOQUE LA PR. Rôle différent, pas doublon.
-      #     (`dependency-review` est le gate NATIF — mais il exige un repo public, ou GHAS.)
-      #   Il n'y a PAS de `npm audit` à côté : c'était un SOUS-ENSEMBLE STRICT d'osv-scanner (même base
-      #   GHSA, même lockfile, même job).
+      # osv-scanner = the pre-merge dependency GATE.
+      #   ⚠ Do NOT write "nothing else sees vulnerabilities while private": Dependabot ALERTS does
+      #     work on a private repository, for free. But it alerts AFTER THE FACT, on the default
+      #     branch — once the code is ALREADY in. osv-scanner BLOCKS THE PULL REQUEST. A different
+      #     role, not a duplicate. (`dependency-review` is the NATIVE gate — but it requires a
+      #     public repository, or GHAS.)
+      #   There is NO `npm audit` alongside it: that was a STRICT SUBSET of osv-scanner (same GHSA
+      #   database, same lockfile, same job).
       #
-      # --exclude=.github : les workflows ont leurs propres linters (actionlint + zizmor), qui appliquent
-      #   LA POLITIQUE DE PIN DE CE REPO (SHA pour les actions tierces, tag majeur toléré pour actions/*
-      #   et github/* — les compromettre, c'est compromettre GitHub lui-même). Les règles workflow de
-      #   semgrep CONTREDISENT cette politique et feraient échouer chaque scaffold dès le 1er jour.
-      #   ⚠ NE PAS écrire « one scope each, no overlap » : c'est FAUX depuis avril 2025. CodeQL analyse
-      #     désormais le langage `actions` (GA, et ACTIF EN DEFAULT SETUP, sans opt-in) : sa suite par
-      #     défaut couvre déjà l'essentiel de zizmor — code-injection, artifact/cache-poisoning,
-      #     untrusted-checkout, secrets exposés, missing-workflow-permissions. LE RECOUVREMENT EST RÉEL.
-      #     Ce que zizmor garde EN PROPRE, et qui justifie de le garder : la politique de pin du repo
-      #     (`zizmor.yml`) — la requête CodeQL `unpinned-tag` est en security-extended, PAS en default —
-      #     plus artipacked (persist-credentials), impostor-commit, ref-confusion, typosquat-uses.
+      # --exclude=.github: the workflows have their own linters (actionlint + zizmor), which enforce
+      #   THIS REPOSITORY'S PINNING POLICY (SHA for third-party actions, a major tag tolerated for
+      #   actions/* and github/* — compromising those means compromising GitHub itself). semgrep's
+      #   workflow rules CONTRADICT that policy and would fail every scaffold on day one.
+      #   ⚠ Do NOT write "one scope each, no overlap": that has been FALSE since April 2025. CodeQL
+      #     now analyses the `actions` language (GA, and ACTIVE IN DEFAULT SETUP, no opt-in): its
+      #     default suite already covers most of what zizmor does — code-injection, artifact/cache
+      #     poisoning, untrusted-checkout, exposed secrets, missing-workflow-permissions. THE
+      #     OVERLAP IS REAL. What zizmor keeps ON ITS OWN, and what justifies keeping it: this
+      #     repository's pinning policy (`zizmor.yml`) — the CodeQL `unpinned-tag` query sits in
+      #     security-extended, NOT in default — plus artipacked (persist-credentials),
+      #     impostor-commit, ref-confusion, typosquat-uses.
       - name: Static analysis (semgrep, pinned)
         run: |
           set -euo pipefail

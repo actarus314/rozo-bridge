@@ -22,17 +22,17 @@ data/
 *.db-wal
 *.db-shm
 
-# binaires épinglés que check.sh télécharge pour aligner le local sur la CI
+# pinned binaries check.sh downloads to keep local runs aligned with the CI
 .ci-tools/
 
-# Outillage Python de la CI (semgrep, zizmor) — SOUSTRAIT au scan de dépendances.
-# osv-scanner respecte les patterns de ce .gitignore : listé ici, il n'est PAS scanné (`scan -r .`).
-# Il DOIT pourtant rester versionné — la CI fait `pip install -r requirements-ci.txt` — donc il est
-# suivi via `git add -f` (même motif que .envrc/CLAUDE.md). Renovate, lui, indexe les fichiers SUIVIS,
-# pas le .gitignore : il continue de bumper le scanner (prouvé). NE JAMAIS `git rm --cached`.
-# POURQUOI le soustraire : c'est de l'outillage de dev, jamais expédié au runtime. Résoudre son graphe
-# transitif ne remonte que des CVE d'outils de CI (leur dep `python-multipart`, `mcp`…) — du bruit,
-# pas la surface d'attaque du produit. Les vrais manifestes d'app, eux, ne sont pas ignorés → scannés.
+# The CI's Python tooling (semgrep, zizmor) — SUBTRACTED from the dependency scan.
+# osv-scanner honours this .gitignore: listed here, the file is NOT scanned (`scan -r .`).
+# It must nevertheless stay VERSIONED — the CI runs `pip install -r requirements-ci.txt` — so it is
+# tracked via `git add -f` (same pattern as .envrc/CLAUDE.md). Renovate indexes TRACKED files, not
+# the .gitignore: it keeps bumping the scanner (proven). NEVER `git rm --cached` this file.
+# WHY subtract it: this is dev tooling, never shipped to a runtime. Resolving its transitive graph
+# only surfaces CVEs of CI tools (their own `python-multipart`, `mcp`… deps) — noise, not the
+# product's attack surface. The real application manifests are NOT ignored, so they ARE scanned.
 /requirements-ci.txt
 
 # misc

@@ -3,28 +3,30 @@
   "extends": ["config:recommended", ":semanticCommitsDisabled"],
 
   "description": [
-    "Renovate est le SEUL bot d'update du projet (bascule full-Renovate, 2026-07). Il AUTO-DÉTECTE",
-    "tous les écosystèmes depuis les manifestes (npm, pip, docker, actions, gradle, cargo, go, conan…)",
-    "SANS liste à tenir — c'est ce qui rend le scope universel : un langage ajouté demain est couvert",
-    "sans toucher ce fichier. Dependabot est retiré car il ne sait NI auto-détecter (chaque écosystème",
-    "à déclarer à la main) NI lire un binaire curl-é dans un `run:`. Les Dependabot ALERTS (détection",
-    "de CVE, natives, gratuites en privé) RESTENT actives : Renovate les LIT pour ouvrir les PR sécu.",
+    "Renovate is the project's ONLY update bot (full-Renovate switch, 2026-07). It AUTO-DETECTS",
+    "every ecosystem from the manifests (npm, pip, docker, actions, gradle, cargo, go, conan…) with",
+    "NO list to maintain — that is what makes the scope universal: a language added tomorrow is",
+    "covered without touching this file. Dependabot was dropped because it can NEITHER auto-detect",
+    "(every ecosystem must be declared by hand) NOR read a binary curl-ed inside a `run:`. Dependabot",
+    "ALERTS (CVE detection, native, free on private repos) STAY on: Renovate READS them to open the",
+    "security pull requests.",
     "",
-    "POLITIQUE D'UPDATE — être à jour, mais par gestes revus :",
-    "· version de ROUTINE = PR revue par un humain (`automerge` top-level laissé à false).",
-    "· SÉCURITÉ = auto-merge (`vulnerabilityAlerts.automerge`). Les PR de sécu BYPASSENT nativement",
-    "  `minimumReleaseAge` (doc Renovate : « security updates bypass any minimumReleaseAge checks »).",
-    "  Le délai de 3 j anti-release-vérolée s'applique donc à la routine, JAMAIS à un fix de CVE.",
+    "UPDATE POLICY — stay current, but through reviewed steps:",
+    "· ROUTINE version = a pull request reviewed by a human (top-level `automerge` left false).",
+    "· SECURITY = auto-merge (`vulnerabilityAlerts.automerge`). Security pull requests natively",
+    "  BYPASS `minimumReleaseAge` (Renovate docs: \"security updates bypass any minimumReleaseAge",
+    "  checks\"). The 3-day poisoned-release delay therefore applies to routine, NEVER to a CVE fix.",
     "",
-    "⚠ CETTE CLÉ S'APPELLE `description` — la SEULE prévue pour commenter. Une clé INCONNUE fait",
-    "Renovate REJETER toute la config et STOPPER TOUTES les PR, en silence (bug `_comment_role`,",
-    "test003, 14/07). Valider chaque modif : `renovate-config-validator` (déjà lancé en CI).",
+    "⚠ THIS KEY IS CALLED `description` — the ONLY one meant for comments. An UNKNOWN key makes",
+    "Renovate REJECT the whole config and STOP EVERY pull request, silently (the `_comment_role` bug,",
+    "test003, 2026-07-14). Validate every edit: `renovate-config-validator` (already run in CI).",
     "",
-    "⚠ Les `*_VERSION` des binaires portent le préfixe `v` (v8.30.1, PAS 8.30.1) : OBLIGATOIRE. La",
-    "datasource `github-release-attachments` résout le digest par GET /releases/tags/{currentValue} ;",
-    "sans `v` → 404, Renovate abandonne, aucune PR — sans rien casser de visible (renovatebot/renovate#27317).",
-    "Le digest n'est jamais deviné : Renovate retrouve l'asset dont le SHA256 égale celui déjà en place",
-    "(via le checksums.txt de la release). FILET : un digest faux fait ÉCHOUER `sha256sum -c` en CI."
+    "⚠ The binaries' `*_VERSION` values carry the `v` prefix (v8.30.1, NOT 8.30.1): MANDATORY. The",
+    "`github-release-attachments` datasource resolves the digest via GET /releases/tags/{currentValue};",
+    "without the `v` → 404, Renovate gives up, no pull request — breaking nothing visibly",
+    "(renovatebot/renovate#27317). The digest is never guessed: Renovate finds the asset whose SHA256",
+    "matches the one already in place (via the release's checksums.txt). SAFETY NET: a wrong digest",
+    "makes `sha256sum -c` FAIL in CI."
   ],
 
   "schedule": ["before 6am on monday"],
@@ -39,14 +41,14 @@
 
   "packageRules": [
     {
-      "description": "Minor/patch groupés pour ne pas noyer le reviewer. Les MAJEURES restent isolées : un major se regarde seul.",
+      "description": "Minor/patch grouped so the reviewer is not drowned. MAJORS stay isolated: a major gets looked at on its own.",
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "deps (minor + patch)"
     },
     {
-      "description": "Les 4 binaires de scan épinglés (VERSION+SHA256 en run:) : leur propre groupe — un major de scanner change ses règles, donc les findings.",
+      "description": "The 4 pinned scanner binaries (VERSION+SHA256 in a run:): their own group — a scanner major changes its rules, hence its findings.",
       "matchManagers": ["custom.regex"],
-      "groupName": "outils CI (binaires épinglés)"
+      "groupName": "CI tooling (pinned binaries)"
     }
   ],
 
