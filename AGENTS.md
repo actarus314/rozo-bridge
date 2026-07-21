@@ -70,12 +70,19 @@ gh run list --commit "$sha" --json workflowName,status,conclusion
 
 ## Checks that run
 
-- **pre-commit hook** — `gitleaks` on staged files. A commit carrying a secret is rejected.
+- **pre-commit hook** — `gitleaks` on staged files (a commit carrying a secret is rejected), then a
+  throttled, CONSULTATIVE replay of `./check.sh` (≤ once / 24 h) — it surfaces drift, never blocks.
+  Tune the window with `CHECK_MAX_AGE_HOURS`.
 - **pre-push hook** — refuses a direct push to `main`. A fresh clone re-arms both hooks once:
   `git config core.hooksPath .githooks`.
+- **`./check.sh`** — replays the CI's security checks locally at the pinned versions, so
+  `local == github`. It reads the pinned versions from `ci.yml` (single source) and caches the
+  binaries under `.ci-tools/` (gitignored). The CI stays the authority: it alone verifies the
+  SHA256 of the Linux assets.
 - **CI** (on every pull request, required before merge) — `gitleaks` over the *full* history,
-  `actionlint` + `zizmor` on the workflows, `semgrep` static analysis, `osv-scanner` on the
-  lockfile, then the project's own checks (JS syntax, i18n parity, fee-model self-check).
+  `actionlint` + `zizmor` on the workflows, `semgrep` static analysis, `osv-scanner` on every
+  manifest it discovers (`-r .`; CI-only tooling is out of scope via `.gitignore`), then the
+  project's own checks (JS syntax, i18n parity, fee-model self-check).
 - **CodeQL** — security analysis via default setup (active because the repository is public);
   a finding blocks the merge.
 
