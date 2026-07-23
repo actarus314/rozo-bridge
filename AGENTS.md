@@ -33,7 +33,9 @@ npm run build:walletkit      # regenerate the vendored web/assets/walletkit.js b
 GitHub Flow: `main` is always deployable.
 
 - Branch off `main`: `feat/…` or `fix/…`.
-- Open the pull request against `main`. The CI must be green before it is merged.
+- Open the pull request against `main` with `./open-pr.sh main <title> <body-file>` — it pushes, opens
+  the PR, and confirms a `pull_request` run actually starts (GitHub sometimes drops the dispatch; a PR
+  with **0 runs** reads as a pass but was never checked). The CI must be green before it is merged.
 - **There is no staging branch, on purpose**: there is no host to validate against here.
 
 Merging into `main` deploys the site: GitHub Pages serves it directly.
@@ -79,6 +81,7 @@ gh run list --commit "$sha" --json workflowName,status,conclusion
   `local == github`. It reads the pinned versions from `ci.yml` (single source) and caches the
   binaries under `.ci-tools/` (gitignored). The CI stays the authority: it alone verifies the
   SHA256 of the Linux assets.
+- **`./open-pr.sh`** — opens a PR and makes sure CI starts on it (GitHub sometimes drops the dispatch).
 - **CI** (on every pull request, required before merge) — `gitleaks` over the *full* history,
   `actionlint` + `zizmor` on the workflows, `semgrep` static analysis, `osv-scanner` on every
   manifest it discovers (`-r .`; CI-only tooling is out of scope via `.gitignore`), then the
