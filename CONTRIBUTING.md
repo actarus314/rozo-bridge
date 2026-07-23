@@ -9,7 +9,7 @@ reports, fixes, and small improvements are welcome.
 - Run it locally (`cd web && python3 serve.py`, see the [README](README.md))
   and check the change actually works in a browser — there's no test suite.
 - Keep code and comments in **English** (the app's own French/English UI
-  strings in `web/assets/app.js`'s `I18N` object are the one exception —
+  strings in `web/assets/i18n.js`'s `I18N` object are the one exception —
   that's user-facing content, not code comments).
 - Don't edit `web/assets/walletkit.js` — it's a vendored third-party bundle
   (see the comment at the top of the file for how it's built).
