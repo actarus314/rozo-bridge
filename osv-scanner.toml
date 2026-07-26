@@ -1,5 +1,15 @@
 # Vulnerabilities acknowledged and deliberately not failing CI.
 # Auto-discovered by osv-scanner because it sits next to package-lock.json.
+#
+# Only two cases belong here, and nothing else:
+#   1. no published fix at all;
+#   2. a fix exists but is UNREACHABLE — the chain pins an older major, and forcing the fixed
+#      version breaks it. That claim must be MEASURED in the entry (the command, the error), never
+#      assumed, or it is a fixable advisory in disguise.
+# Anything actually fixable is bumped — through `overrides` in package.json when the vulnerable
+# package is a transitive dep. And before ignoring: if the package is `optional`, prune it out of
+# the deliverable instead — that is remediation, and the entry then covers only the lockfile residue.
+# Every entry is also expected to say why the advisory reaches no deliverable.
 
 [[IgnoredVulns]]
 id = "GHSA-848j-6mx2-7j84"
