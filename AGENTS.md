@@ -70,6 +70,21 @@ gh run list --commit "$sha" --json workflowName,status,conclusion
 > says `CodeQL`. `gh pr checks` cannot be used here: it needs the `Checks` permission, which does
 > not exist in the fine-grained token UI (github/community#129512).
 
+**After the merge, check the `push` run on `main` too** — a *different event*, so a different run:
+the pull request being green says nothing about it, and `main` is what Pages serves.
+
+> 🔴 **`--commit` does NOT find that run — filter by branch.** Measured on five merge SHAs (three
+> squashes, two merge commits): `gh run list --commit <sha>` returns **0 runs**, while
+> `--branch main` returns the `CI [push]` run carrying **exactly that `headSha`**, green. The
+> `--commit` filter works on `pull_request` runs, which is why the command above is correct where
+> it stands. Read as-is after a merge, it yields "0 runs" — the pattern that reads as a failed
+> dispatch. It would report a hole where everything passed.
+>
+> ```bash
+> gh run list --branch main --limit 5 --json headSha,workflowName,event,status,conclusion \
+>   --jq "[.[]|select(.headSha|startswith(\"$sha\"))]"
+> ```
+
 ## Checks that run
 
 - **pre-commit hook** — `gitleaks` on staged files (a commit carrying a secret is rejected), then a
