@@ -52,7 +52,7 @@ function livePct(dk,c){
   return pts[pts.length-1][1];
 }
 function hideSplitcard(){const sc=document.getElementById("splitcard");if(sc)sc.style.display="none";}
-// #7 — a wallet's EURC balance (sending chain) for the "max" button
+// a wallet's EURC balance (sending chain) for the "max" button
 async function evmEurcBal(addr){
   const data="0x70a08231"+"000000000000000000000000"+addr.slice(2).toLowerCase();
   for(const rpc of ["https://mainnet.base.org","https://base-rpc.publicnode.com"]){
@@ -208,10 +208,10 @@ function renderReco(best,dk,T,sel){
   const pct=f=>best.sent>0?f/best.sent*100:0;   // % = fee/SENT (AUDIT R2)
   const min=best.feeFlat!=null?best.feeFlat:best.fee, max=best.feeWorst!=null?best.feeWorst:best.fee;
   const head=best.fee!=null?best.fee:min;   // cautious estimate (headline ≈ KRAP×worst case: 0.70 on S2B — the only direction that shows a likely cost), AUDIT R8
-  const uncertain=best.n>1&&max>min+0.005;  // UNCERTAIN fee (fast, real range) → bar + "≈/likely"; otherwise CERTAIN fee → all of that gets switched off (#2/#8)
+  const uncertain=best.n>1&&max>min+0.005;  // UNCERTAIN fee (fast, real range) → bar + "≈/likely"; otherwise CERTAIN fee → all of that gets switched off
   const recvChain=dk==="B2S"?"Stellar":"Base";
   const plan=D.planLabel(best.n,eur(best.c));
-  // #3 — why THIS row: smallest split capturing ≥90% of the saving (the "knee")
+  // why THIS row: smallest split capturing ≥90% of the saving (the "knee")
   const why=D.whyReco(best.n);
   const tipProb=D.tipProb;
   const tipCertain=D.tipCertain;
@@ -233,7 +233,7 @@ function renderReco(best,dk,T,sel){
     const tb=t=>`<span class="tip-box">${t}</span>`;   // tooltip on hovering the element itself (portal), without the ⓘ icon
     bar=`<div class="range" style="--lo:0%;--hi:100%;--pmax:${pmax.toFixed(1)}%"><div class="track"></div><div class="band"></div><div class="prob tip-wrap" tabindex="0">${tb(tipZone)}</div><div class="cap lo"></div><div class="cap hi"></div><div class="dot tip-wrap" tabindex="0">${tb(tipProb)}</div><span class="lbl mid tip-wrap" tabindex="0">≈ <b class="num">${eur(head)} €</b>${tb(tipProb)}</span><span class="lbl lo tip-wrap" tabindex="0">min <b class="num">${eur(min)} €</b> · ${pct(min).toFixed(2)} %${tb(tipMin)}</span><span class="lbl hi tip-wrap" tabindex="0">max <b class="num">${eur(max)} €</b> · ${pct(max).toFixed(2)} %${tb(tipMax)}</span></div>`;   // A1: dot marked on the bar · tooltips on bounds(min/max)/zone/dot (zoneval text removed); tabindex=0 = keyboard focus (portal show/hide on focusin/focusout, cf. IIFE)
   }
-  const isReco=best.n===bestN;   // #3: active = the recommended band (the knee)? → "why" sentence + "recommended" eyebrow ONLY in that case (on a manually chosen band, the "smallest split capturing ≥90%" sentence would lie)
+  const isReco=best.n===bestN;   // active = the recommended band (the knee)? → "why" sentence + "recommended" eyebrow ONLY in that case (on a manually chosen band, the "smallest split capturing ≥90%" sentence would lie)
   // refill advice: fee of the selected band > 0.25% = low hub → waiting for the refill lowers it. Guard recv≥100: below this amount the high % comes from the €0.01 floor, not from draining (waiting wouldn't help). // ponytail: 0.25% threshold chosen by the user
   const advice=(T<=L0 && +pct(head).toFixed(2)>=HIGH_FEE_PCT && best.recv>=100)?`<div class="alert"><span class="ico">⚠</span><span>${I18N[LANG].feeHighAdvice(pct(head).toFixed(2))}</span></div>`:"";   // threshold on the DISPLAYED (rounded) value ≥HIGH_FEE_PCT; removed in over-liq (T>L0) where the liquidity alert already shows (no double alert)
   el.innerHTML=`<div class="eyebrow">${isReco?D.planReco:D.planChosen}</div><div class="plan">${plan}</div>${isReco?`<div class="sub">${why}</div>`:""}<div class="grid${uncertain?"":" two"}">${costTile}${rangeTile}${recvTile}</div>${bar}${advice}`;
@@ -289,7 +289,7 @@ async function quote(){
   const mode=document.getElementById("mode").value;
   const o=document.getElementById("out");
   const D=I18N[LANG];
-  if(!(x>0)){ o.innerHTML=D.emptyHint; fillOpp(mode,null,null); const rc=document.getElementById("reco"); if(rc)rc.innerHTML=""; const sp=document.getElementById("splitout"); if(sp)sp.innerHTML=""; hideSplitcard(); return; }   // empty state: onboarding hint, nothing below the amounts (AUDIT wave1 #4)
+  if(!(x>0)){ o.innerHTML=D.emptyHint; fillOpp(mode,null,null); const rc=document.getElementById("reco"); if(rc)rc.innerHTML=""; const sp=document.getElementById("splitout"); if(sp)sp.innerHTML=""; hideSplitcard(); return; }   // empty state: onboarding hint, nothing below the amounts
   try{
     const j=await postQuote(dk,x,true,mode);
     if(seq!==quoteSeq) return;   // a more recent keystroke has taken over → discard this stale result
@@ -399,7 +399,7 @@ async function genBatch(){
     if(!okJs.length){ msg(netFailed&&!failed.length ? D.genBatchNetFail(D.errFallback) : D.genBatchRozoFail(failed[0]&&failed[0].error&&escapeHtml(failed[0].error.message||""))); return; }
     // RC-3: S2B — the memo is the ONLY routing key. Missing/empty → Memo.text("null") = a VALID tx to the hub, an unmatchable deposit, lost with no refund. Refuse it. (B2S: deposit by address, memo legitimately null.)
     if(dk==="S2B" && okJs.some(j=>!(j.source&&typeof j.source.receiverMemo==="string"&&j.source.receiverMemo.trim()))){ msg(D.genBatchBadMemo); return; }
-    const b=buildBatch(dk,mode,okJs); window._batches[b.id]=b; saveBatches();   // #15: the store accumulates the batches
+    const b=buildBatch(dk,mode,okJs); window._batches[b.id]=b; saveBatches();   // the store accumulates the batches
     renderBatches(b.id);   // fresh batch = expanded, stacked with the previous ones
     await refreshLiqDir(dk);   // intents created → the reservation moved THIS direction's Available → refresh its liquidity + wipe the now-stale quote cache
     // PASSIVE S2B LOG (task C): accumulate θ of REAL S2B batches to recalibrate the dot (KRAP) empirically. Guards = don't skew θ:
@@ -476,7 +476,7 @@ function exportBatches(fmt){
   setTimeout(()=>URL.revokeObjectURL(url),1000);   // same one-shot pattern as downloadB2sJson
 }
 window.exportBatches=exportBatches;
-// collapsible card for a batch (#16). srcTx present = chunk deposited → locked (no more signing button): anti double-send.
+// collapsible card for a batch. srcTx present = chunk deposited → locked (no more signing button): anti double-send.
 // D4/D5 — expiry state → color class (green>5min / orange 2-5 / red<2 / "exp" past) shared by card+table+ticker
 function expInfo(expMs){ const rem=(expMs||0)-Date.now();
   const cls = rem<=0?"exp" : rem<120000?"r" : rem<300000?"o" : "g";
@@ -567,7 +567,7 @@ async function trackBridge(bid){
   const dk=b.dk, srcCh=dk==="B2S"?"base":"stellar", dstCh=dk==="B2S"?"stellar":"base";
   const link=(hash,ch)=>hash?`<a href="${ch==="base"?"https://basescan.org/tx/":"https://stellar.expert/explorer/public/tx/"}${encodeURIComponent(hash)}" target="_blank" rel="noopener">${escapeHtml(String(hash).slice(0,8))}… ↗</a>`:"—";   // RC-9: hash encoded in href, escaped in text
   const receipt=id=>`<a href="https://invoice.rozo.ai/receipt?id=${encodeURIComponent(id)}" target="_blank" rel="noopener">Rozo receipt ↗</a>`;   // Rozo receipt per chunk (useful for support) — RC-9: id encoded
-  // raw API status → readable label (#17)
+  // raw API status → readable label
   const human=(status,done,D)=>{ if(done) return D.trkDelivered; const s=String(status||"").toLowerCase();
     if(/unpaid/.test(s)) return D.trkAwaitingDeposit;
     if(/bounce/.test(s)) return D.trkBounced;
@@ -580,7 +580,7 @@ async function trackBridge(bid){
   const poll=async()=>{
     if(!current()) return;   // RC-10: stale token (toggle OFF→ON in the meantime) → a resurrected old setTimeout does nothing
     const el=document.getElementById("trk-"+bid); if(!el||!(window._trkOn&&window._trkOn[bid])) return;   // re-resolves by id on EVERY tick: survives re-render; stops if the batch disappeared OR if tracking was closed (toggle)
-    const D=I18N[LANG];   // re-read on EVERY tick → tracking follows the app's language (#14)
+    const D=I18N[LANG];   // re-read on EVERY tick → tracking follows the app's language
     const st=await Promise.all(ids.map(id=>fetch(API+"/payments/"+id).then(r=>r.json()).catch(()=>null)));
     if(!current()) return;   // re-checks after the await: a toggle may have happened during the fetch
     let h=`<div class="card pad">`, allDone=true, done=0, wrote=false;
@@ -612,7 +612,7 @@ async function trackBridge(bid){
   },1000);   // D6: visible countdown between polls
   poll();
 }
-// #10 restore: re-reads localStorage, purges expired ones, re-renders (collapsed), then one-shot locks chunks already deposited (deposit outside-app/other device) — no continuous polling on load.
+// restore: re-reads localStorage, purges expired ones, re-renders (collapsed), then one-shot locks chunks already deposited (deposit outside-app/other device) — no continuous polling on load.
 async function loadBatches(){
   let raw; try{ raw=localStorage.getItem(BSTORE); }catch(e){ return; }
   if(!raw) return;
@@ -848,7 +848,7 @@ function setLang(l){ if((l!=="fr"&&l!=="en")||l===LANG) return;
   simul();             // #splitout + #reco from LIVE/lastDevis (cache); preserves selN
   renderTs();          // #ts from lastTs (cache)
   drawChart();         // curve labels (axis, cap) — pure read of LIVE/MEAS, no network
-  renderBatches();   // #14: all batches follow the language (re-rendered from the store, open/collapsed state preserved); active tracking must be re-clicked
+  renderBatches();   // all batches follow the language (re-rendered from the store, open/collapsed state preserved); active tracking must be re-clicked
 }
 function toggleLang(){ setLang(LANG==="fr"?"en":"fr"); }
 function updateLangBtn(){ const b=document.getElementById("lang"); if(b) b.textContent=LANG.toUpperCase(); }
@@ -892,7 +892,7 @@ function applyI18N(){
   setH("pOfficialBridge",D.pOfficialBridge); setH("pRefContact",D.pRefContact); setH("pThisRepo",D.pThisRepo);
   setT("h2Addresses",D.h2Addresses); setT("hubStellarLabel",D.hubStellarLabel); setT("hubBaseLabel",D.hubBaseLabel);
   setH("pSources",D.pSources);
-  setH("splitnote",D.splitEstimateNote);   // estimation note next to the Generate button (#2)
+  setH("splitnote",D.splitEstimateNote);   // estimation note next to the Generate button
   const ts2=document.getElementById("ts2"); if(ts2) ts2.textContent=new Date().toLocaleString(LOCALE);   // setH above recreates #ts2 (empty) on every call → republish it here, otherwise the date disappears after a setLang()
   updBatchLabel();   // #genbtn: otherwise it stays on the static HTML text as long as no amount has been entered
   updateLangBtn();
@@ -924,7 +924,7 @@ if(location.protocol==="file:"){
   cv.style.cursor="crosshair";
 })();
 loadCurve(); updLbl(); updateDirUI(); drawChart(); quote(); simul(); refresh();   // loadCurve first: instant render from the cache, refresh only re-sweeps if the Available has moved
-loadBatches();   // #10: restores the persisted batches (purges expired ones + one-shot lock of chunks already deposited)
+loadBatches();   // restores the persisted batches (purges expired ones + one-shot lock of chunks already deposited)
 
 (async function checkAppVersion(){   // footer shows the DEPLOYED version (static text, baked in at release). This does NOT overwrite it — it only checks the latest release and appends a discreet "newer version available" note if the deployed build is behind.
   const el=document.getElementById("appVersion"); if(!el) return;

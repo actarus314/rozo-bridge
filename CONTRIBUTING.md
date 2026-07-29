@@ -32,7 +32,7 @@ Don't open a public issue for a security concern — see [SECURITY.md](SECURITY.
 
 - Bump the version in `package.json` (hand-maintained — no build step reads it) AND move the
   `[Unreleased]` entries in `CHANGELOG.md` under a new `[x.y.z] - YYYY-MM-DD` heading, AND bump the footer
-  version string (`#appVersion` in `web/rozo-bridge.html`) — all in the SAME commit. Since #25 the footer
+  version string (`#appVersion` in `web/rozo-bridge.html`) — all in the SAME commit. The footer
   shows the DEPLOYED version (baked into the HTML) and only appends a "newer version available" note when a
   newer release exists, so a stale footer would mislabel the deploy.
 - Tag THAT commit (`git tag -a vX.Y.Z -m "..."`) and publish a GitHub Release from that tag. (Tagging must

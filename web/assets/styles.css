@@ -121,7 +121,7 @@ button.plain:hover{border-color:var(--mut)}
 .liq .k{font-size:11px;color:var(--mut2)}
 .liq .v{font-size:22px;font-weight:700;letter-spacing:-.02em}
 .liq .v.match{color:var(--ok)} .liq .v.diff{color:var(--warn)}
-.splitnote{font-size:11px;line-height:1.35;flex:1;min-width:0}   /* #2: estimate note on the same line as the Generate button (doesn't grow the table) */
+.splitnote{font-size:11px;line-height:1.35;flex:1;min-width:0}   /* estimate note on the same line as the Generate button (doesn't grow the table) */
 .splitnote b{color:var(--fg)}
 .liq .chain{font-size:11.5px;color:var(--mut);margin-top:5px}
 .liq .chain a{color:var(--mut)} .liq .chain b{color:var(--fg);font-weight:600}
@@ -165,7 +165,7 @@ button.plain:hover{border-color:var(--mut)}
 .range .lbl.hi{left:100%;transform:translateX(-100%)}
 .range .lbl.mid{left:var(--pmax);top:-13px;bottom:auto;transform:translateX(-50%);color:var(--ok);font-weight:700}   /* A1: likely cost above the dot */
 .range .lbl b{color:var(--fg)}
-/* #1: on hover, the probable zone switches to FULL COLOR (the rest of the bar stays normal) → shows the tooltip targets the probable zone, not the whole bar */
+/* on hover, the probable zone switches to FULL COLOR (the rest of the bar stays normal) → shows the tooltip targets the probable zone, not the whole bar */
 .range .prob{transition:background .15s,border-color .15s}
 .range .prob:hover{background:var(--ok);border-color:var(--ok)}
 
@@ -188,7 +188,7 @@ button.plain:hover{border-color:var(--mut)}
 .gen #genbtn{margin-left:auto}   /* button pushed right, the note takes up the space on the left */
 
 /* ---- generated intents: clean header + liquidity reservation ---- */
-/* stacked batches (#15/#16): one collapsible <details> card per batch, single source of truth = window._batches */
+/* stacked batches: one collapsible <details> card per batch, single source of truth = window._batches */
 .bcard{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:12px}
 .bcard>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px}
 .bcard>summary::-webkit-details-marker{display:none}
@@ -206,7 +206,7 @@ button.plain:hover{border-color:var(--mut)}
 .bcard.expired>summary{opacity:.7}
 .bcard .bbody{padding:0 16px 16px}
 .bcard .path{font-size:11.5px;color:var(--mut);font-family:var(--f-num);margin:2px 0 4px}
-.bcard .trackfoot{margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);display:flex}   /* #5: track button in a separate footer (less "floating in space") */
+.bcard .trackfoot{margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);display:flex}   /* track button in a separate footer (less "floating in space") */
 .bcard .trkpanel:not(:empty){margin-top:10px}
 .reserved{font-size:12px;color:var(--mut);background:var(--panel2);border:1px solid var(--bd);border-radius:8px;padding:8px 11px;margin:8px 0;display:flex;align-items:flex-start;gap:8px;line-height:1.5}
 .reserved b{color:var(--fg)}
