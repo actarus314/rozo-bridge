@@ -4,6 +4,13 @@ Read this before changing anything in this repository.
 This file follows the [AGENTS.md](https://agents.md) convention and is read by most coding
 agents. Claude Code reads it through the import in `CLAUDE.md` (local, untracked).
 
+> Aligned with **project-template** at `29483c5` *(2026-07-21)*. The template carried **no version
+> tag** at that point — `v1.0.0` was published on 2026-07-31 — so the commit is what this line can
+> name. This repository was **adopted**, not scaffolded: the alignment landed over four passes,
+> the last being `#46`.
+> It holds a **frozen copy** of that state: a later fix to the template does **not** reach it on its
+> own. This line says what to diff against — a snapshot of the past, not a claim about the present.
+
 ## Project
 
 - **What it is**: a client-side fee quote & split calculator for bridging EURC between Base
