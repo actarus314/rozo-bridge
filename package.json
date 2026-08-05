@@ -15,6 +15,6 @@
   "overrides": {
     "protobufjs": "8.7.1",
     "uuid": "14.0.1",
-    "axios": "1.18.1"
+    "axios": "1.19.0"
   }
 }

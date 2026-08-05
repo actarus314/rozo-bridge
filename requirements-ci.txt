@@ -8,5 +8,5 @@
 #
 # Pinned to the EXACT version (`==`): a CI has to be reproducible, and bumping a scanner can
 # surface new findings — that gets reviewed in a pull request, not on a random morning.
-zizmor==1.28.0
-semgrep==1.171.0
+zizmor==1.29.0
+semgrep==1.172.0
